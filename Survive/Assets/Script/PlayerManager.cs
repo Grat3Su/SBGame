@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class PlayerManager : MonoBehaviour
 {
     public PlayerBehaviour player;
-    public Slider[3] desire;//hunger clean energy
+    public Slider[] desire = new Slider[3];//hunger clean energy
     float fSliderBarTime;
     // Start is called before the first frame update
     void Start()
@@ -18,8 +18,11 @@ public class PlayerManager : MonoBehaviour
     void Update()
     {
         //Debug.Log(hunger.value);
-        hunger.desire[0] = player.p_hunger;
-        hunger.desire[1] = player.p_clean;
-        hunger.desire[2] = player.p_energy;
+        if (desire != null)
+        {
+            desire[0].value = player.p_hunger;
+            desire[1].value = player.p_clean;
+            desire[2].value = player.p_energy;
+        }
     }
 }
