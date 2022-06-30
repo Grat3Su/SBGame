@@ -17,13 +17,10 @@ public class PlayerBehaviour : MonoBehaviour
     public float speed = 5.0f;
     public int dash_speed = 1;
 
-    bool dash;
-
 
     // Start is called before the first frame update
     void Start()
     {
-        dash = false;
     }
 
     // Update is called once per frame
@@ -39,12 +36,10 @@ public class PlayerBehaviour : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
         {
             dash_speed = 2;
-            dash = true;
         }
         if (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.RightShift))
         {
             dash_speed = 1;
-            dash = false;
         }
             //쉽고 빠르고 간단한 움직이기
         float x = Input.GetAxis("Horizontal") * speed * dash_speed* Time.deltaTime;
