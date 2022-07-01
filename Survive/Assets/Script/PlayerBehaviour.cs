@@ -17,16 +17,20 @@ public class PlayerBehaviour : MonoBehaviour
     public float speed = 5.0f;
     public int dash_speed = 1;
 
+    GameObject[] items;
+    int itemidx;
+
 
     // Start is called before the first frame update
     void Start()
     {
+        items = new GameObject[10];
+        itemidx = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
         PlayerMove();
         DecEnergy();
     }
@@ -52,7 +56,7 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    void DecEnergy()
+    void DecEnergy()//비율 수식
     {
         if (p_hunger > 0.0f)
             p_hunger = (p_hunger - (Time.deltaTime * 0.01f * dec_hunger));
@@ -67,5 +71,18 @@ public class PlayerBehaviour : MonoBehaviour
         else
             p_clean = 0.0f;
     }
-    
+
+    void ItemUse()
+    {
+
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.GetComponent<item>()!=null)
+        {
+            items[itemidx] = other.gameObject;//아이템 저장
+            itemidx++;
+        }
+    }
 }

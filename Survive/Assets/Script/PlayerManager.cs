@@ -25,4 +25,5 @@ public class PlayerManager : MonoBehaviour
             desire[2].value = player.p_energy;
         }
     }
+
 }
