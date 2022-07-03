@@ -20,12 +20,23 @@ public class PlayerBehaviour : MonoBehaviour
     GameObject[] items;
     int itemidx;
 
+    float timer;
+    public float timeSet = 10f;//게임에서의 1분
+    int printTime;//실제로 보여질 시간
+    int day;//날짜
+
+    bool bedtime = false;
 
     // Start is called before the first frame update
     void Start()
     {
         items = new GameObject[10];
         itemidx = 0;
+
+        timer = 0;
+        printTime = 0;
+        day = 0;
+        NextDay();
     }
 
     // Update is called once per frame
@@ -33,6 +44,16 @@ public class PlayerBehaviour : MonoBehaviour
     {
         PlayerMove();
         DecEnergy();
+        MoveTime();
+
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            bedtime = true;
+        }
+        if(bedtime)
+            BedTime();
+
+
     }
 
     void PlayerMove()
@@ -72,9 +93,80 @@ public class PlayerBehaviour : MonoBehaviour
             p_clean = 0.0f;
     }
 
-    void ItemUse()
+    void IncEnergy(int type, float incSize)
     {
+        if(type == 0)
+        {
+            p_hunger += incSize;
+            if (p_hunger > 100)
+                p_hunger = 100;
+        }
+        else if (type == 1)
+        {
+            p_clean += incSize;
+            if (p_clean > 100)
+                p_clean = 100;
+        }
+        else if (type == 2)
+        {
+            p_energy += incSize;
+            if (p_energy > 100)
+                p_energy = 100;
+        }
 
+    }
+
+    void MoveTime()
+    {
+        timer += Time.deltaTime;
+
+        if (timer > timeSet)
+        {
+            printTime += 1;
+            timer = 0;
+
+            int minute = printTime % 60;//5분마다 갱신
+            if (minute % 5 == 0)
+                NextDay();
+        }
+    }
+
+    void NextDay()
+    {
+        int minute = printTime % 60;
+        int hour = printTime / 60;
+
+        if (hour >= 24)
+        {
+            day++;
+            printTime -=(60 * 24);
+            hour = printTime / 60;
+            minute = printTime % 60;
+
+        }
+        Debug.LogFormat($"{day}일차 {hour}시 {minute}분");
+    }
+
+    void BedTime()
+    {
+        if(Input.GetKeyDown(KeyCode.F1))
+        {
+            Debug.Log("sleep");
+            //시간 8시간 추가
+            //에너지 80++
+            printTime += ( 60 * 8);
+            IncEnergy(2, 80);
+            bedtime = false;
+        }
+        else if (Input.GetKeyDown(KeyCode.F2))
+        {
+            Debug.Log("nap");
+            //시간 2시간 추가
+            //에너지 30++
+            printTime += ( 60 * 2);
+            IncEnergy(2, 30);
+            bedtime = false;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
