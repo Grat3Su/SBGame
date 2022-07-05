@@ -17,6 +17,9 @@ public class PlayerBehaviour : MonoBehaviour
     public float speed = 5.0f;
     public int dash_speed = 1;
 
+    GameObject manager;
+    PlayerManager pm;
+
     GameObject[] items;
     int itemidx;
 
@@ -30,13 +33,15 @@ public class PlayerBehaviour : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        manager = GameObject.Find("GameManager");
+        pm = manager.GetComponent<PlayerManager>();
         items = new GameObject[10];
         itemidx = 0;
 
         timer = 0;
         printTime = 0;
         day = 0;
-        NextDay();
+        
     }
 
     // Update is called once per frame
@@ -52,8 +57,6 @@ public class PlayerBehaviour : MonoBehaviour
         }
         if(bedtime)
             BedTime();
-
-
     }
 
     void PlayerMove()
@@ -113,7 +116,6 @@ public class PlayerBehaviour : MonoBehaviour
             if (p_energy > 100)
                 p_energy = 100;
         }
-
     }
 
     void MoveTime()
@@ -127,25 +129,21 @@ public class PlayerBehaviour : MonoBehaviour
 
             int minute = printTime % 60;//5분마다 갱신
             if (minute % 5 == 0)
-                NextDay();
+            {
+                pm.PrintTime();
+            }
         }
     }
 
-    void NextDay()
+    public int GetDay()
     {
-        int minute = printTime % 60;
-        int hour = printTime / 60;
-
-        if (hour >= 24)
-        {
-            day++;
-            printTime -=(60 * 24);
-            hour = printTime / 60;
-            minute = printTime % 60;
-
-        }
-        Debug.LogFormat($"{day}일차 {hour}시 {minute}분");
+        return day;
     }
+    public int GetTime()
+    {
+        return printTime;
+    }
+
 
     void BedTime()
     {
