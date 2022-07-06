@@ -22,9 +22,10 @@ public class PlayerManager : MonoBehaviour
         //Debug.Log(hunger.value);
         if (desire != null)
         {
-            desire[0].value = player.p_hunger;
-            desire[1].value = player.p_clean;
-            desire[2].value = player.p_energy;
+            for(int i = 0; i<3; i++)
+            {
+                desire[i].value = player.getDesire(i) * 10;                
+            }
         }
     }
 
