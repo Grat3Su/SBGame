@@ -27,7 +27,7 @@ public class PlayerBehaviour : MonoBehaviour
     int printTime;//실제로 보여질 시간
     int day;//날짜
 
-    bool bedtime = false;
+    public bool bedtime = false;
 
     // Start is called before the first frame update
     void Start()
@@ -56,8 +56,6 @@ public class PlayerBehaviour : MonoBehaviour
         {
             bedtime = true;
         }
-        if (bedtime)
-            BedTime();
     }
 
     void PlayerMove()
@@ -76,7 +74,7 @@ public class PlayerBehaviour : MonoBehaviour
 
         if (x != 0 || y != 0)
         {
-            Debug.Log(x + " " + y);
+            //Debug.Log(x + " " + y);
             transform.Translate(x, y, 0f);
         }
     }
@@ -86,7 +84,7 @@ public class PlayerBehaviour : MonoBehaviour
         return p_desire[idx];
     }
 
-    void DecEnergy()//비율 수식
+    public void DecEnergy()//비율 수식
     {
         for (int i = 0; i < desireIdx; i++)
         {
@@ -97,12 +95,13 @@ public class PlayerBehaviour : MonoBehaviour
         }
     }
 
-    void IncEnergy(int idx, int incSize)
+    public void IncEnergy(int idx, int incSize)
     {
         p_desire[idx] += incSize;
         if (p_desire[idx] > 10)
             p_desire[idx] = 10;
     }
+
 
     void MoveTime()
     {
@@ -149,27 +148,10 @@ public class PlayerBehaviour : MonoBehaviour
         return printTime;
     }
 
-
-    void BedTime()
+    public void SetTime(int time)
     {
-        if (Input.GetKeyDown(KeyCode.F1))
-        {
-            Debug.Log("sleep");
-            //시간 8시간 추가
-            //에너지 80++
-            printTime += (60 * 8);
-            IncEnergy(2, 8);
-            bedtime = false;
-        }
-        else if (Input.GetKeyDown(KeyCode.F2))
-        {
-            Debug.Log("nap");
-            //시간 2시간 추가
-            //에너지 30++
-            printTime += (60 * 2);
-            IncEnergy(2, 3);
-            bedtime = false;
-        }
+        printTime += time;
+        DayTime();
     }
 
     private void OnTriggerEnter(Collider other)

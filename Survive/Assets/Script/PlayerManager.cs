@@ -10,6 +10,7 @@ public class PlayerManager : MonoBehaviour
     float fSliderBarTime;
     public Text timeText;
 
+
     // Start is called before the first frame update
     void Start()
     {
