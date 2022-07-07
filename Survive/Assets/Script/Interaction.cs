@@ -1,12 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Interaction : MonoBehaviour
 {
+    public GameObject targetUI;
     bool harvest;
     SpriteRenderer renderer;
     Sprite[] sp;
+    bool inter;
+    public Text t;
+
+    private Transform target;
+    public float height = 2.0f;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,16 +23,22 @@ public class Interaction : MonoBehaviour
 
         if (sp != null)
             Debug.Log(sp[0].ToString());
+        inter = false;
 
+        target = GetComponent<Transform>();
+        targetUI.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-
-        if (Input.GetKeyDown(KeyCode.Space))
-            if(!harvest)
-                Harvest();
+        if (inter)
+        {
+            moveUI();
+            if (Input.GetKeyDown(KeyCode.Space))
+                if (!harvest)
+                    Harvest();
+        }
     }
 
     void Grow()
@@ -46,5 +59,36 @@ public class Interaction : MonoBehaviour
         apple.transform.position = new Vector2(transform.position.x, transform.position.y -1);
 
         harvest = true;
+    }
+
+    void moveUI()
+    {
+        SpriteRenderer renderer = GetComponent<SpriteRenderer>();
+
+        Vector3 tpos = target.position;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(new Vector3(tpos.x + 1, tpos.y + height, tpos.z));//Å¸°ÙÀÇ Æ÷Áö¼ÇÀ» ºäÆ÷Æ® ÁÂÇ¥·Î º¯È¯
+
+        targetUI.transform.position = screenPos;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log("Player");
+        if (collision.tag == "Player")
+        {
+            targetUI.SetActive(true);
+            t.text = "Space : harvest";
+
+            inter = true;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Player")
+        {
+            targetUI.SetActive(false);
+            inter = false;
+        }
     }
 }

@@ -51,6 +51,7 @@ public class PlayerBehaviour : MonoBehaviour
     {
         PlayerMove();
         MoveTime();
+        DayTime();
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -112,8 +113,8 @@ public class PlayerBehaviour : MonoBehaviour
             printTime += 1;
             timer = 0;
 
-            int minute = printTime % 60;//5분마다 갱신
-            if (minute % 5 == 0)
+            int minute = printTime % 60;//10분마다 갱신
+            if (minute % 10 == 0)
             {
                 DayTime();
             }
