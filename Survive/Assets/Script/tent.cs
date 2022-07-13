@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class tent : MonoBehaviour
 {
-    PlayerBehaviour player;
+    GameObject player;
+    PlayerBehaviour pb;
+    TimeManager tm;
     public GameObject bedUI;
     public Text nap;
     public Text sleep;
@@ -17,7 +19,9 @@ public class tent : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = GameObject.Find("Hero").GetComponent<PlayerBehaviour>();
+        player = GameObject.Find("Hero");
+        pb = GameObject.Find("Hero").GetComponent<PlayerBehaviour>();
+        tm = GameObject.Find("GameManager").GetComponent<TimeManager>();
         bedtime = false;
 
         target = GetComponent<Transform>();
@@ -54,8 +58,8 @@ public class tent : MonoBehaviour
             //시간 8시간 추가
             //에너지 80++
 
-            player.SetTime(60 * 8);//시간 설정
-            player.IncEnergy(2, 8);//에너지 채움
+            tm.SetTime(60 * 8);//시간 설정
+            pb.IncEnergy(2, 8);//에너지 채움
 
         }
         else if (Input.GetKeyDown(KeyCode.F2))
@@ -64,8 +68,8 @@ public class tent : MonoBehaviour
             //시간 2시간 추가
             //에너지 30++
 
-            player.SetTime(60 * 2);
-            player.IncEnergy(2, 3);
+            tm.SetTime(60 * 2);
+            pb.IncEnergy(2, 3);
         }
     }
 

@@ -5,7 +5,9 @@ using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
-    public PlayerBehaviour player;
+    public GameObject player;
+    PlayerBehaviour pb;
+    TimeManager tm;
     public Slider[] desire = new Slider[3];//hunger clean energy
     float fSliderBarTime;
     public Text timeText;
@@ -14,7 +16,8 @@ public class PlayerManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        player = player.GetComponent<PlayerBehaviour>();
+        pb = player.GetComponent<PlayerBehaviour>();
+        tm = player.GetComponent<TimeManager>();
     }
 
     // Update is called once per frame
@@ -25,7 +28,7 @@ public class PlayerManager : MonoBehaviour
         {
             for(int i = 0; i<3; i++)
             {
-                desire[i].value = player.getDesire(i) * 10;                
+                desire[i].value = pb.getDesire(i) * 10;                
             }
         }
     }
@@ -34,11 +37,11 @@ public class PlayerManager : MonoBehaviour
     {
         if (timeText)
         {
-            int printTime = player.GetTime();
+            int printTime = tm.GetTime();
             int minute = printTime % 60;
             int hour = printTime / 60;
 
-            timeText.text = string.Format($"{player.GetDay()}일차 {hour}시 {minute}분");
+            timeText.text = string.Format($"{tm.GetDay()}일차 {hour}시 {minute}분");
         }
     }
 

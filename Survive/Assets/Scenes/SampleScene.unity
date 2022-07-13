@@ -250,9 +250,10 @@ GameObject:
   m_Component:
   - component: {fileID: 110836335}
   - component: {fileID: 110836334}
-  - component: {fileID: 110836336}
   - component: {fileID: 110836337}
   - component: {fileID: 110836338}
+  - component: {fileID: 110836336}
+  - component: {fileID: 110836339}
   m_Layer: 0
   m_Name: Hero
   m_TagString: Player
@@ -345,7 +346,6 @@ MonoBehaviour:
   dec_clean: 3
   speed: 5
   dash_speed: 1
-  timeSet: 1
   bedtime: 0
 --- !u!61 &110836337
 BoxCollider2D:
@@ -394,6 +394,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &110836339
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 110836333}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1101f853132239548a8618a2d4299b8c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  timeSet: 1
 --- !u!1 &208667927
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,7 +436,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a6a99b764f1f6f47aaebc1439eac702, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 110836336}
+  player: {fileID: 110836333}
   desire:
   - {fileID: 2136768014}
   - {fileID: 908160934}

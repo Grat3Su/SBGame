@@ -22,11 +22,6 @@ public class PlayerBehaviour : MonoBehaviour
     GameObject[] items;
     int itemidx;
 
-    float timer;
-    public float timeSet = 10f;//게임에서의 1분
-    int printTime;//실제로 보여질 시간
-    int day;//날짜
-
     public bool bedtime = false;
 
     // Start is called before the first frame update
@@ -40,9 +35,7 @@ public class PlayerBehaviour : MonoBehaviour
         items = new GameObject[10];
         itemidx = 0;
 
-        timer = 0;
-        printTime = 0;
-        day = 0;
+
 
     }
 
@@ -50,8 +43,6 @@ public class PlayerBehaviour : MonoBehaviour
     void Update()
     {
         PlayerMove();
-        MoveTime();
-        DayTime();
 
         if (Input.GetKeyDown(KeyCode.Space))
         {
@@ -101,58 +92,6 @@ public class PlayerBehaviour : MonoBehaviour
         p_desire[idx] += incSize;
         if (p_desire[idx] > 10)
             p_desire[idx] = 10;
-    }
-
-
-    void MoveTime()
-    {
-        timer += Time.deltaTime;
-
-        if (timer > timeSet)
-        {
-            printTime += 1;
-            timer = 0;
-
-            int minute = printTime % 60;//10분마다 갱신
-            if (minute % 10 == 0)
-            {
-                DayTime();
-            }
-        }
-    }
-
-    int curhour = 0;
-    void DayTime()
-    {
-        int hour = printTime / 60;
-        pm.PrintTime();
-
-        if (curhour != hour)
-        {
-            DecEnergy();
-            curhour = hour;
-        }
-
-        if (hour >= 24)
-        {
-            day++;
-            printTime -= 60 * 24;
-        }
-    }
-
-    public int GetDay()
-    {
-        return day;
-    }
-    public int GetTime()
-    {
-        return printTime;
-    }
-
-    public void SetTime(int time)
-    {
-        printTime += time;
-        DayTime();
     }
 
     private void OnTriggerEnter(Collider other)
