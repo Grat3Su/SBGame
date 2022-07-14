@@ -10,7 +10,6 @@ public class PlayerManager : MonoBehaviour
     TimeManager tm;
     public Slider[] desire = new Slider[3];//hunger clean energy
     float fSliderBarTime;
-    public Text timeText;
 
 
     // Start is called before the first frame update
@@ -28,21 +27,33 @@ public class PlayerManager : MonoBehaviour
         {
             for(int i = 0; i<3; i++)
             {
-                desire[i].value = pb.getDesire(i) * 10;                
+                desire[i].value = pb.getDesire(i) * 10;
             }
         }
     }
 
-    public void PrintTime()
-    {
-        if (timeText)
-        {
-            int printTime = tm.GetTime();
-            int minute = printTime % 60;
-            int hour = printTime / 60;
 
-            timeText.text = string.Format($"{tm.GetDay()}일차 {hour}시 {minute}분");
-        }
+}
+
+class Display
+{
+    public static int[] day(int sec)
+    {
+        int[] m = new int[4];
+        m[0] = sec % 60;
+        m[1] = (sec / 60) % 60;
+        m[2] = ((sec / 60) / 60) % 24;
+        m[3] = ((sec / 60) / 60) / 24;
+        return m;
     }
 
+    public static string elecTime(int sec)
+    {
+        return "00:00";
+    }
+
+    public static string hanTime(int sec)
+    {
+        return "0시간 0 분";
+    }
 }

@@ -29,14 +29,10 @@ public class PlayerBehaviour : MonoBehaviour
     {
         p_desire = new int[3] { 10, 10, 10 };//0 : h / 1 : c / 2 : e        
         desireIdx = 3;
-
         manager = GameObject.Find("GameManager");
         pm = manager.GetComponent<PlayerManager>();
         items = new GameObject[10];
         itemidx = 0;
-
-
-
     }
 
     // Update is called once per frame
@@ -47,6 +43,11 @@ public class PlayerBehaviour : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             bedtime = true;
+        }
+
+        if(Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            Debug.Log("enter");
         }
     }
 
@@ -94,12 +95,4 @@ public class PlayerBehaviour : MonoBehaviour
             p_desire[idx] = 10;
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.GetComponent<item>() != null)
-        {
-            items[itemidx] = other.gameObject;//아이템 저장
-            itemidx++;
-        }
-    }
 }

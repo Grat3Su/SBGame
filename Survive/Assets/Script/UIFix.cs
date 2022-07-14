@@ -7,7 +7,6 @@ public class UIFix : MonoBehaviour
 {
 	public GameObject floatUI;//움직이는건 이건데 왜 텐트가 움직이냐????
 
-
 	private Transform target;
 	public float height = 2.0f;
 
