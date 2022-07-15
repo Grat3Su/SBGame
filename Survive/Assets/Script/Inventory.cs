@@ -27,9 +27,13 @@ public class Inventory : MonoBehaviour
         
     }
 
-    public void invenImg(int idx, int count, int alpha)
+    public void invenImg(string name, int idx, int count, int alpha)
     {
+        img[idx].sprite = sp[0];//기본
+        if (name=="apple")
         img[idx].sprite = sp[0];//테스트
+        else if(name == "meat")
+            img[idx].sprite = sp[1];//테스트
         txt[idx].text = count.ToString();
 
         Color c = img[idx].color;
