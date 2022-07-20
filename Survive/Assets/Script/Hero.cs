@@ -1,27 +1,25 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using STD;
+
 
 public class Hero : MonoBehaviour
 {
-    enum Desire
-    {
-        Hungry = 0, Energy, Clean,
-    }
-
+    public Text[] mount;
     PlayerState ps;
+    GameData gd;
     Item[] item = new Item[10];
     Inventory inventory;
     public GameObject DayNight;//밤이면 켜
 
     int itemlength;
     int day, hour;
-    bool night;//밤인가
     bool death;
-    int people;
-    int food;
-
-    float delay;
+    int people;//생존자. 이벤트 시 랜덤하게 획득
+    int food;//하루마다 사람수만큼 차감
+    int water;
 
     // Start is called before the first frame update
     void Start()
@@ -29,50 +27,289 @@ public class Hero : MonoBehaviour
         inventory = GameObject.Find("GameManager").GetComponent<Inventory>();
         day = 0;
         death = false;
-        ps = new PlayerState(3, 3, 5, 10, 10, 0, null);
+        ps = new PlayerState(3, 3, 5, 10, 0, null);
         itemlength = 0;
-        night = false;
         people = 1;//처음은 혼자 시작
+        water = 0;
         food = 0;
-        delay = 0;
+        load();
+    }
+
+    void resetGame()
+    {
+        Debug.Log("Reset");
+        day = 0;
+        death = false;
+        people = 1;//처음은 혼자 시작
+        water = 0;
+        food = 0;
+        hour = 0;
+
+        mount[0].text = people.ToString();
+        mount[1].text = food.ToString();
+        mount[2].text = water.ToString();
     }
 
     // Update is called once per frame
     void Update()
     {
-        bool coevent = true;
         if (death)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))//게임 새로 시작
+                resetGame();
             return;
+        }
 
         if (Input.GetKeyDown(KeyCode.KeypadEnter))
         {
-            delay = 0;
-            coevent = false;
+            hour = 0;
             nextDay();
         }
 
         else if (Input.GetKeyDown(KeyCode.Space))
-        {
-            delay = 0;
-            coevent = false;
-            eventTime();
-        }
+            randomevent();
+        else if (Input.GetKeyDown(KeyCode.RightArrow))//탐색
+            eventTime(0);
+        else if (Input.GetKeyDown(KeyCode.LeftArrow))//사냥
+            eventTime(1);
 
-        if (coevent)
-        {
-            delay += Time.deltaTime;
-            if (delay > 60.0f)//1분동안 동작하지 않으면 강제 이벤트 실행
-            {
-                delay = 0;
-                eventTime();
-            }
-        }
+        else if (Input.GetKeyDown(KeyCode.S))//입출력
+            save();
+        else if (Input.GetKeyDown(KeyCode.L))
+            load();
+
         // cheat key;;;;
         //
         //
         //
     }
 
+    void save()
+    {
+        gd.day = day;
+        gd.food = food;
+        gd.people = people;
+        gd.water = water;
+
+        byte[] bytes = FileIO.struct2bytes(gd);//바이트로 변경
+        FileIO.save("GameData.sav", bytes);//저장
+        Debug.Log("save");
+    }
+
+    void load()
+    {
+        byte[] bytes = FileIO.load("GameData.sav");
+        if (bytes == null)
+            return;
+
+            Debug.Log("load");
+            gd = FileIO.bytes2object<GameData>(bytes);
+            day = gd.day;
+            food = gd.food;
+            people = gd.people;
+            water = gd.water;
+
+        mount[0].text = people.ToString();
+        mount[1].text = food.ToString();
+        mount[2].text = water.ToString();
+    }
+
+    void eventTime(int type)
+    {
+        int attack = Random.Range(0, 100);
+
+        int takeTime = 0;
+        int p = people / 2;
+        if (attack > 80)
+        {
+            Debug.Log("습격");
+
+            int r = Random.Range(0, p - 1);
+            people -= r;
+
+            Debug.Log("습격으로 인해 " + r + "명 사망");
+
+            if (people < 0)
+            {
+                people = 0;
+                Debug.Log("남은 생존자가 없다");
+                Debug.Log(day + "일 동안 생존");
+                death = true;
+            }
+            takeTime = 8;
+        }
+        else
+        {
+            if(type == 0)
+            {
+                //탐색
+                Debug.Log("탐색");
+                //addItem(new Item("food", 3, 2, 1, 5));//2개 획득. test
+                water += (3 + Random.Range(0, p));//인구 수 보너스
+                food += (1 + Random.Range(0, p));
+                addPeople(3);
+                takeTime = 4;
+            }
+            else if(type == 1)
+            {
+                //사냥
+                Debug.Log("사냥");
+                //addItem(new Item("food", 3, 3, 2, 10));//3개 획득
+                addPeople(2);
+                food += (3 + Random.Range(0, p));
+                water += (1 + Random.Range(0, p));//인구 수 보너스
+                takeTime = 4;
+            }
+            else if(type == 3)
+            {
+                //상인
+                //     Debug.Log("상인");
+                //     takeTime = 2;                
+            }
+            else
+            {
+                Debug.Log("아무일도 없었음");
+            }
+        }
+
+        mount[0].text = people.ToString();
+        mount[1].text = food.ToString();
+        mount[2].text = water.ToString();
+        hour += takeTime;
+        if (hour > 12)
+        {
+            hour -= 12;
+            nextDay();//시간이 끝났으니 강제 이동
+        }
+        Debug.Log("현재 시간 : "+hour + "시");
+
+        //printItem();
+    }
+
+    void randomevent()
+    {
+        int type = 0;
+        if (type == 4)
+            type = Random.Range(0, 2);
+
+        int takeTime = 0;
+        int p = people / 2;
+
+        switch (type)
+        {
+            case 0:
+                //탐색
+                Debug.Log("탐색");
+                //addItem(new Item("food", 3, 2, 1, 5));//2개 획득. test
+                water += (3 + Random.Range(0, p));//인구 수 보너스
+                food += (1 + Random.Range(0, p));
+                addPeople(3);
+                takeTime = 4;
+                break;
+            case 1:
+                //사냥                Debug.Log("사냥");
+                //addItem(new Item("food", 3, 3, 2, 10));//3개 획득
+                addPeople(2);
+                food += (3 + Random.Range(0, p));
+                water += (1 + Random.Range(0, p));//인구 수 보너스
+                takeTime = 4;
+                break;
+            case 2:
+                //습격
+                Debug.Log("습격");
+
+                int r = Random.Range(0, p - 1);
+                people -= r;
+
+                Debug.Log("습격으로 인해 "+ r + "명 사망");
+
+                if (people < 0)
+                {
+                    people = 0;
+                    Debug.Log("남은 생존자가 없다");
+                    Debug.Log(day + "일 동안 생존");
+                    death = true;
+                }
+                takeTime = 8;
+                break;
+            case 3:
+                //상인
+                Debug.Log("상인");
+                takeTime = 2;
+                break;
+            default:
+                Debug.Log("아무일도 없었음");
+                break;
+        }
+
+        hour += takeTime;
+        if (hour > 12)
+        {
+            hour -= 12;
+            nextDay();//시간이 끝났으니 강제 이동
+        }
+        Debug.Log("현재 시간 : " + hour + "시");
+        mount[0].text = people.ToString();
+        mount[1].text = food.ToString();
+        mount[2].text = water.ToString();
+    }
+
+    void addPeople(int max)
+    {
+        int r = Random.Range(0, max);
+        if (r == 0)
+            return;
+        people += r;
+        Debug.Log(r +"명 구출");
+        Debug.Log("현재 인구 수 "+people + "명");
+    }
+
+    void nextDay()
+    {
+        //식량 소비        
+        if(food <people)
+        {
+            Debug.Log(people - food + "명 사망");
+            people -= (people - food);//식량이 부족한 수만큼 줄기
+            food = 0;//다먹음
+        }
+        else
+            food -= people;//사람 수만큼 줄이기
+
+        if (water < people)
+        {
+            Debug.Log(people - water+"명 사망");
+            people -= (people - water);//물이 부족한 수만큼 줄기
+            water = 0;//다먹음
+        }
+        else
+            water -= people;//사람 수만큼 줄이기
+
+        if(people <0)
+        {
+            people = 0;
+            Debug.Log("남은 생존자가 없다");
+            Debug.Log(day + "일 동안 생존");
+            death = true;
+        }
+
+        // 사람수만큼 식량 까기 => 식량 부족이면 인구 줄어들기 => 모두 죽으면 게임오버
+        //씻기
+
+        day++;
+
+        //printItem();
+
+        // 자산 뭐 남은지 디스플레이
+
+
+        // 새로운날 표시day
+        mount[0].text = people.ToString();
+        mount[1].text = food.ToString();
+        mount[2].text = water.ToString();
+        Debug.LogFormat($"{day}일차 음식 {food}개, 물 {water}개, 인구 {people}명");//음식 물 자원 인구 수
+    }
+    
     void UseItem()
     {
         if (Input.GetKeyDown((KeyCode.Alpha0)))
@@ -80,22 +317,13 @@ public class Hero : MonoBehaviour
             deleteItem(9);
         }
         else
-            for (int i=1; i<10;i++)
+            for (int i = 1; i < 10; i++)
             {
-                if (Input.GetKeyDown((KeyCode)(KeyCode.Alpha1+i)))
+                if (Input.GetKeyDown((KeyCode)(KeyCode.Alpha1 + i)))
                 {
-                    deleteItem(i-1);
+                    deleteItem(i - 1);
                 }
             }
-    }
-
-    void addDesire(int idx, int m)
-    {
-        if (idx == 4)//모두 올린다
-            for (int i = 0; i < 3; i++)
-                ps.desire[i] += m;
-        else
-            ps.desire[idx] += m;
     }
 
     void addItem(Item i)
@@ -128,142 +356,6 @@ public class Hero : MonoBehaviour
         }
     }
 
-    void eventTime()
-    {
-        if (!night)
-        {
-            night = true;
-            DayNight.SetActive(night);
-        }
-
-        int type = Random.Range(0, 2);
-
-        int takeTime = 0;
-
-        switch (type)
-        {
-            case 0:
-                //탐색
-                Debug.Log("탐색");
-                addItem(new Item("apple", 3, 1, 1, 5));
-                food++;
-                takeTime = 4;
-                break;
-            case 1:
-                //사냥
-                Debug.Log("사냥");
-                addItem(new Item("meat", 3, 1, 2, 10));
-                food++;
-                takeTime = 4;
-
-                break;
-            case 2:
-                //습격
-                Debug.Log("습격");
-                SkipDay();
-                takeTime = 10;
-                break;
-            case 3:
-                //상인
-                Debug.Log("상인");
-                takeTime = 2;
-                break;
-            default:
-                Debug.Log("아무일도 없었음");
-                break;
-        }
-
-        hour += takeTime;
-        if (hour > 12)
-        {
-            hour -= 12;
-            day++;
-            nextDay();//시간이 끝났으니 강제 이동
-        }
-
-        //이벤트 시 전부 줄어들기
-        addDesire(4, -1);
-        printItem();
-    }
-
-
-    void SkipDay()
-    {
-        addDesire(4, -1);
-
-        if (ps.desire[(int)Desire.Hungry] == 0)
-            GameOver("배고파서 죽음");
-        if (ps.desire[(int)Desire.Energy] == 0)
-            GameOver("에너지가 없어서 죽음");
-    }
-
-    void nextDay()
-    {
-        addDesire(ps.desire[(int)Desire.Hungry], -1);
-        addDesire(ps.desire[(int)Desire.Clean], -1);
-        addDesire(ps.desire[(int)Desire.Energy], 3);//잤다
-
-        if (ps.desire[(int)Desire.Hungry] == 0)
-            GameOver("배고파서 죽음");
-        if (ps.desire[(int)Desire.Energy] == 0)
-            GameOver("에너지가 없어서 죽음");
-        // 밥먹기
-        // 사람수만큼 식량 까기 => 식량 부족이면 사람 뒤짐 => 모두 죽으면 게임오버
-        //씻기
-
-        day++;
-
-        //printItem();
-
-        //if (night)
-        //{
-        //    night = false;
-        //    DayNight.SetActive(night);
-        //}
-
-        // 자산 뭐 남은지 디스페리이 desire
-
-        // 새로운날 표시day
-
-
-        // 밤일 경우, 아침처럼 보이기 
-        // 
-    }
-    void NewDay()
-    {
-        for (int i = 0; i < itemlength; i++)
-        {
-            if (item[i].itemType == 3)
-            {
-                if (ps.desire[(int)Desire.Hungry] < 3)
-                {
-                    Debug.Log(item[i].name + "먹음");
-                    addDesire((int)Desire.Hungry, item[i].effect);
-
-                    if (item[i].count > 1)//1보다 크면 깎고
-                        item[i].count--;
-                    else//아니면 지운다
-                        deleteItem(i);
-
-                    if (ps.desire[(int)Desire.Hungry] > 3)//배부르면 넘기고
-                    {
-                        ps.desire[(int)Desire.Hungry] = 3;
-                        return;
-                    }//아니면 다시
-                    else
-                        i--;
-                }
-            }
-        }
-    }
-
-    public void GameOver(string reason)
-    {
-
-        Debug.Log(reason);
-        Debug.Log(day + "일 동안 생존");
-    }
-
     void printItem()
     {
         for (int i = 0; i < item.Length; i++)
@@ -281,46 +373,19 @@ public class Hero : MonoBehaviour
     }
 }
 
-class Event
-{
-    void AdventureReward()
-    {
-
-    }
-
-    void huntReward()
-    {
-
-    }
-    void attackedReward()
-    {
-
-    }
-
-    void traderReward()
-    {
-
-    }
-}
-
 class PlayerState
 {
-    /// <summary>
-    /// 0 : h / 1 : e / 2 : c
-    /// </summary>
+    //0 h 1 e 2 c
     public int[] desire;
-    public int apk;
-    public int luck;
     public int money;
     public Item[] item = new Item[10];
 
-    public PlayerState(int h, int e, int c, int a, int l, int m, Item[] i)
+    public PlayerState(int h, int e, int c, int a, int m, Item[] i)
     {
         desire = new int[3];
         desire[0] = h;
         desire[1] = e;
         desire[2] = c;
-        luck = l;
         item = i;
         money = m;
     }
@@ -341,3 +406,4 @@ class Item
         money = m;
     }
 }
+
