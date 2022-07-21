@@ -143,13 +143,6 @@ public class PlayerManager : MonoBehaviour
 
 }
 
-struct GameData
-{
-    public int day;
-    public int food;
-    public int water;
-    public int people;
-}
 
 class Display
 {
