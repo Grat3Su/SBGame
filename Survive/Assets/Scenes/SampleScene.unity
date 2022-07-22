@@ -606,6 +606,8 @@ MonoBehaviour:
   - {fileID: 403170613}
   - {fileID: 1643301203}
   DayNight: {fileID: 0}
+  day: 0
+  hour: 0
   people: 0
   _people: 0
   food: 0
@@ -707,7 +709,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 208667929}
-  - component: {fileID: 208667928}
   - component: {fileID: 208667930}
   m_Layer: 0
   m_Name: GameManager
@@ -716,25 +717,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &208667928
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 208667927}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a6a99b764f1f6f47aaebc1439eac702, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemlength: 0
-  day: 0
-  hour: 0
-  death: 0
-  people: 0
-  food: 0
-  water: 0
 --- !u!4 &208667929
 Transform:
   m_ObjectHideFlags: 0
@@ -757,36 +739,11 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 208667927}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3905ead4ec218654a9f8f63d64ed17bf, type: 3}
+  m_Script: {fileID: 11500000, guid: e9f7a8ba184b4604aabb4a8c082adb14, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sp:
-  - {fileID: 1563453902, guid: 97a53285b6c129c4b9e2f3e4c2128f9a, type: 3}
-  - {fileID: 21300000, guid: 6904facccdb9d3f449fb3ca713e59748, type: 3}
-  img:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  txt:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
 --- !u!1 &258179105
 GameObject:
   m_ObjectHideFlags: 0
@@ -2394,7 +2351,7 @@ GameObject:
   - component: {fileID: 1418389062}
   - component: {fileID: 1418389061}
   m_Layer: 5
-  m_Name: Panel
+  m_Name: DayReport
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
