@@ -7,6 +7,9 @@ public class MainCamera : MonoBehaviour
     Hero h;
     EventLog el;
     public List<string> str;
+
+    public Vector2 scrollPosition = Vector2.zero;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -17,21 +20,29 @@ public class MainCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     private void OnGUI()
     {//이거 다시 보기
-        
-        GUI.Label(new Rect(10, 10, 150, 50), h.people.ToString());
-        GUI.Label(new Rect(0, 0, 150, 50), h.food.ToString());
-        GUI.Label(new Rect(0, 0, 150, 50), h.water.ToString());
+        GUIStyle style = new GUIStyle();
+        GUI.contentColor = Color.white;
+        style.fontSize = 16;        
+        //GUI.Label(new Rect(10, 10, 100, 150), "Hello World!", style);
 
+        el = h.el;
         if (el == null)
             return;
+
+        //scrollPosition = GUI.BeginScrollView(new Rect(Screen.width - 250, 10, 250, 150)/*위치 / 크기*/, scrollPosition, new Rect(0, 0, 300, 300));
+        scrollPosition = GUI.BeginScrollView(new Rect(Screen.width - 260, 10, 260, Screen.height - 20)/*위치 / 크기*/, scrollPosition, new Rect(0, 0, 255, 10 +20 * str.Count));
         str = el.str;
-        GUI.Box(new Rect(10, 10, 100, 90), "log");
         for (int i = 0; i < str.Count; i++)
-            GUI.Label(new Rect(0, 30 * i, 0, 0), str[i]);
-    }
+        {
+            GUI.Label(new Rect(0, 20 * i, 100, 100), str[i], style);
+        }
+
+        //GUI.BeginScrollView()
+        GUI.EndScrollView();
+    }    
 }
