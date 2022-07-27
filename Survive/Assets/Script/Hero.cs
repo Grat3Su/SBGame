@@ -29,7 +29,7 @@ public class Hero : MonoBehaviour
 	void Start()
 	{
 		ps = new PlayerState(3, 3, 5, 10, 0, null);
-		pu = GameObject.Find("GamaManager").GetComponent<PrintUI>();
+		pu = GameObject.Find("GameManager").GetComponent<PrintUI>();
 		itemlength = 0;
 
 		resetGame();

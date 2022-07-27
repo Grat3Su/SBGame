@@ -5,10 +5,8 @@ using UnityEngine;
 public class PrintUI : MonoBehaviour
 {//만들어야할거 정리하고 부분 부분 구현해야할 거 구현하기.
 
-
     //자원/최대값
-    //시간
-    //몇일차 표시
+
     //화면 전환(날짜 변경 시 하루 보고)
     Hero h;
     int people, _people;
@@ -35,8 +33,15 @@ public class PrintUI : MonoBehaviour
         _food = f;
         _water = w;
     }
+    public void printHour()
+    {
+        //시간
+
+    }
+
     public void printNextDay()//Hero에서 하루 지났을 때 부르기
 	{
+        //몇일차 표시
         //현재 값
         people = h.people;
         food = h.food;
