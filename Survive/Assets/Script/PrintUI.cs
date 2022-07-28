@@ -8,7 +8,7 @@ public class PrintUI : MonoBehaviour
     //자원/최대값
 
     //화면 전환(날짜 변경 시 하루 보고)
-    Hero h;
+    GameManager h;
     int people, _people;
     int food, _food;
     int water, _water;
@@ -16,7 +16,7 @@ public class PrintUI : MonoBehaviour
     
     void Start()
     {
-        h = GameObject.Find("Hero").GetComponent<Hero>();
+        h = GameObject.Find("GameManager").GetComponent<GameManager>();
     }
 
     // Update is called once per frame
@@ -54,4 +54,10 @@ public class PrintUI : MonoBehaviour
                         + "남은 물 : " + water + "개";
         
     }
+
+    void printUI()
+	{
+
+	}
+    //fade in / fade out
 }

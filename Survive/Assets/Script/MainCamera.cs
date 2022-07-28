@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
-    Hero h;
+    GameManager h;
     EventLog el;
     public List<string> str;
 
@@ -13,7 +13,15 @@ public class MainCamera : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        h = GameObject.Find("Hero").GetComponent<Hero>();
+#if false
+        //h = GameObject.Find("GameManager").GetComponent<GameManager>();
+        GameObject go = GameObject.Find("GameManager");
+        h = go.GetComponent<GameManager>();
+#else
+        GameObject go = new GameObject("GameManager");
+        h =  go.AddComponent<GameManager>();
+        go.AddComponent<PrintUI>();
+#endif
         el = h.el;        
     }
 

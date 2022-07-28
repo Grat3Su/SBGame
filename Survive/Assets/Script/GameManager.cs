@@ -5,16 +5,15 @@ using UnityEngine.UI;
 using STD;
 
 
-public class Hero : MonoBehaviour
+public class GameManager : MonoBehaviour
 {
-	public Text[] mount;
-	PlayerState ps;
 	GameData gd;
-	Item[] item = new Item[10];
 	public GameObject DayNight;//밤이면 켜
 	PrintUI pu;
+	PeopleState[] pState;//생존자
 
-	int itemlength;
+	int pintdex;
+
 	public int day, hour;
 	bool death;
 
@@ -22,16 +21,15 @@ public class Hero : MonoBehaviour
 	public int food, _food;//하루마다 사람수만큼 차감
 	public int water, _water;
 	public int labExp, labLevel;
-
+	
 	int need;
 
 	// Start is called before the first frame update
 	void Start()
 	{
-		ps = new PlayerState(3, 3, 5, 10, 0, null);
-		pu = GameObject.Find("GameManager").GetComponent<PrintUI>();
-		itemlength = 0;
-
+		pu = gameObject.GetComponent<PrintUI>();
+		pState = new PeopleState[100];
+		pintdex = _people;
 		resetGame();
 		load();
 
@@ -49,10 +47,7 @@ public class Hero : MonoBehaviour
 		people = 1;//처음은 혼자 시작
 		water = _water;
 		food = _food;
-
-		mount[0].text = people.ToString();
-		mount[1].text = food.ToString();
-		mount[2].text = water.ToString();
+		deletePeople();
 	}
 
 	bool mgtGame()
@@ -168,7 +163,7 @@ public class Hero : MonoBehaviour
 		public int labExp;
 	}
 
-	ETResult doEvent(int eventType)
+	public ETResult doEvent(int eventType)
 	{
 		ETResult result = new ETResult(0, 0, 0, 0);
 		result.type = eventType;
@@ -216,6 +211,12 @@ public class Hero : MonoBehaviour
 			result.labExp = Random.Range(1, 3);// random
 			result.takeTime = 4;
 		}
+		else if(eventType==5)
+		{//농사
+			result.food = (3 + Random.Range(0, p));
+			result.water = -1;//인구 수 보너스
+			result.takeTime = 4;
+		}
 		else
 		{
 			Debug.Log("아무일도 없었음");
@@ -254,7 +255,7 @@ public class Hero : MonoBehaviour
 		}
 	}
 
-	void displayReal(ETResult result)
+	public void displayReal(ETResult result)
 	{
 		displayTest(result);
 	}
@@ -289,6 +290,7 @@ public class Hero : MonoBehaviour
 		else if (people < 0)
 			people = 0;
 
+
 		food += result.food;
 		if (food > _food)
 			food = _food;
@@ -300,6 +302,16 @@ public class Hero : MonoBehaviour
 			water = _water;
 		else if (water < 0)
 			water = 0;
+		
+		//if(result.people<0)
+		deletePeople();
+		if (result.people > 0)
+		{			
+			spawnPeople();
+		}
+		for (int i = 0; i < people-1; i++)
+			pState[i].takeTime += result.takeTime;
+
 
 		hour += result.takeTime;
 		if (hour > 11)
@@ -307,10 +319,6 @@ public class Hero : MonoBehaviour
 			nextDay();
 			hour -= 12;
 		}
-
-		mount[0].text = people.ToString();
-		mount[1].text = food.ToString();
-		mount[2].text = water.ToString();
 	}
 
 	int needLabLvup()
@@ -318,6 +326,43 @@ public class Hero : MonoBehaviour
 		if (labLevel < 5)
 			return labLevel * 4;
 		return 20 + labLevel * 2;
+	}
+
+	//스폰
+	void spawnPeople()
+	{
+		for (int i = 0; i < people-1; i++)
+		{
+			if (pState[i] == null)
+			{
+				GameObject go = new GameObject();
+
+				//go.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("meat");
+				//go.transform.Scale = new Vector2(5, 5);
+
+				float height = Camera.main.orthographicSize;
+				float width = Camera.main.aspect * height;
+				float x = Random.Range(-width, width);
+				float y = Random.Range(-height, height);
+				go.transform.position = new Vector3(x, y, 0);
+				go.AddComponent<PeopleState>();
+				go.GetComponent<PeopleState>().job = Random.Range(0,5);
+				go.name = "people" + i.ToString();
+				pState[i] = go.GetComponent<PeopleState>();
+				//Instantiate<GameObject>(go); : 복사
+			}
+		}
+	}
+	void deletePeople()
+	{
+		for(int i = people-1; i<100;i++)
+		{
+			if (pState[i] == null)
+				return;
+			
+			Destroy(pState[i].gameObject);
+			pState[i] = null;
+		}	
 	}
 
 	//
@@ -365,57 +410,18 @@ public class Hero : MonoBehaviour
 		doEvent(Random.Range(0,100) < 10 ? 3 : 100);
 
 		// 새로운날 표시day
-		mount[0].text = people.ToString();
-		mount[1].text = food.ToString();
-		mount[2].text = water.ToString();
 
 		Debug.LogFormat($"{day}일차 음식 {food}개, 물 {water}개, 인구 {people}명");//음식 물 자원 인구 수
 	}
 
-	void UseItem()
+	public void getItem(string name, int f, int w)
 	{
-		if (Input.GetKeyDown((KeyCode.Alpha0)))
-		{
-			deleteItem(9);
-		}
+		if(f==0&&w==0)
+			el.add(name + "는 아무것도 발견하지 못했습니다.");
 		else
-			for (int i = 1; i < 10; i++)
-			{
-				if (Input.GetKeyDown((KeyCode)(KeyCode.Alpha1 + i)))
-				{
-					deleteItem(i - 1);
-				}
-			}
-	}
-
-	void addItem(Item i)
-	{
-		itemlength++;
-		if (itemlength > 10)//초과는 안됨
-			itemlength = 10;
-
-		for (int j = 0; j < itemlength; j++)
-		{
-			if (item[j] == null)
-			{
-				item[j] = i;
-			}
-			else if (i.name == item[j].name)//이름이 같으면 수량만 올린다
-			{
-				item[j].count += i.count;
-				itemlength--;
-				return;
-			}
-		}
-	}
-
-	void deleteItem(int idx)
-	{
-		itemlength--;
-		for (int i = idx; i < itemlength; i++)
-		{
-			item[i] = item[i + 1];
-		}
+			el.add(name+"이 식량 " + f+ "개 물" + w +"개 획득");
+		food  += f;
+		water += w;
 	}
 }
 
@@ -437,32 +443,14 @@ class PlayerState
 	//0 h 1 e 2 c
 	public int[] desire;
 	public int money;
-	public Item[] item = new Item[10];
-
-	public PlayerState(int h, int e, int c, int a, int m, Item[] i)
+	public PlayerState(int h, int e, int c, int a, int m)
 	{
 		desire = new int[3];
 		desire[0] = h;
 		desire[1] = e;
 		desire[2] = c;
-		item = i;
-		money = m;
-	}
-}
-class Item
-{
-	public string name;//이름
-	public int itemType;//0:기타 1:장비 2:소모품 3: 음식
-	public int effect;//효과
-	public int money;//판매할 때 얼마를 받나
-	public int count;
-	public Item(string n, int t, int c, int e, int m)
-	{
-		name = n;
-		itemType = t;
-		count = c;
-		effect = e;
 		money = m;
 	}
 }
 
+//배고파~~ 졸려~~~ 집에 갈래~~
