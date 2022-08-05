@@ -43,6 +43,7 @@ public class PeopleState : MonoBehaviour
 	{
 
 	}
+    
 
     void jobAction()//-> 
     {// 0 : 백수 / 1 : 방위대원 / 2 : 탐험가 / 3 : 농부 / 4 : 연구원
