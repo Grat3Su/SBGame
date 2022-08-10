@@ -13,10 +13,16 @@ public class Event : MonoBehaviour
     public Storage storage;
     int day;
     int hour;
+    int stage;// 0-5 / 5-10 /
+    int stagExp;
 
     void initGame()
 	{
         storage = new Storage(1, 5, 5, 0, 1);
+        day = 0;
+        hour = 0;
+        stage = 1;// 0-5 / 5-10 /
+        stagExp = 0;
     }
 
     // Update is called once per frame
@@ -61,9 +67,21 @@ public class Event : MonoBehaviour
             item.water = Random.Range(1, 3);
             item.people = Random.Range(0, 100) > 50 ? Random.Range(1, 2) : 0;
             item.takeTime = 4;
+
+            stagExp += 4;
+
+            while (stagExp > stage * 4)
+            {
+                if (stagExp > stage * 4)
+                {
+                    stagExp -= stage * 4;
+                    stage++;
+                }
+            }
         }
         else if (type == DoEvent.Hunt)
 		{
+            int maxGain = stage * storage.getStorage(0);
             item.food = Random.Range(1, 3);
             item.water = Random.Range(0, 2);
             item.people = Random.Range(0, 100) > 50 ? Random.Range(1, 2) : 0;
