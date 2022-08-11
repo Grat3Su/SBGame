@@ -12,22 +12,31 @@ public class PeopleState : MonoBehaviour
     int behave;// 0 : idle / 1 : move / 2 : attack
     bool defence;//습격?
     public int takeTime;//맵에 없을 시간
-    public int job = 0;// 0 : 백수 / 1 : 방위대원 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
+    public int job = 0;// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
     public Sprite[][] sp;
-    GameManager h;
+    public Event h;
     
     void Start()
     {
         behave = 0;
         defence = false;
-        h = GameObject.Find("GameManager").GetComponent<GameManager>();
+        //h = GameObject.Find("GameManager").GetComponent<Event>();
         //job = 0;
 
         string[] n = {"가","나", "다", "라","마","바","사","아","자","차","카","타","파","하", "수","경","재","문"};
 
         name = n[Random.Range(0, n.Length)]+ n[Random.Range(0, n.Length)];
         Debug.Log(name+"구조");
+        gameObject.name = name;
         //이름 랜덤 생성
+
+        job = Random.Range(0, 5);
+        if (job == 1)
+        {
+            h.explorer++;
+        }
+        else if (job == 2)
+            h.workman++;
     }
 
     // Update is called once per frame
@@ -39,11 +48,59 @@ public class PeopleState : MonoBehaviour
             ;
     }
 
-    void fight()
-	{
+    //강제 복귀
+    public void comeBack()
+	{        
+        //2시간 이상이면 절반 가져옴
+        if (takeTime < 2)
+        {
+            takeTime = 0;
+            return;
+        }
 
-	}
-    
+        if (job == 0)
+        {
+            //맵 배회
+        }
+        else if (job == 1)
+        {
+            Debug.Log(name + "복귀");
+            //탐험. 가끔 생존자 발견
+            h.storage.addStorage(4, 1);
+            int people = Random.Range(0, 100);
+            if (people > 80)
+            {
+                h.storage.addStorage(0, 1);
+                Debug.Log(name + "이 생존자 발견"); 
+            }
+            Debug.Log(name + " 맵 경험치 1 획득");
+        }
+        else if (job == 2)
+        {
+            Debug.Log(name + "복귀");
+            //식량/물 가저오기
+            int food = (int)((float)Random.Range(0, 3)/2 + 0.5f);
+            int water = (int)((float)Random.Range(0, 3) / 2 + 0.5f);
+            h.storage.addStorage(1, food);
+            h.storage.addStorage(2, water);
+            Debug.Log(name + " 식량 "+food+" 획득");
+            Debug.Log(name + " 물 " + water + " 획득");
+        }
+        else if (job == 3)
+        {
+            Debug.Log(name + "복귀");
+            //식량 1 추가
+            int food = (int)((float)Random.Range(3, 4) / 2 + 0.5f);
+            h.storage.addStorage(1, food);
+        }
+        else if (job == 4)
+        {
+            Debug.Log(name + "복귀");
+            //연구 포인트 1 추가
+            h.storage.addStorage(3, 2);
+            Debug.Log(name + " 연구 경험치 1 획득");
+        }
+    }
 
     void jobAction()//-> 
     {// 0 : 백수 / 1 : 방위대원 / 2 : 탐험가 / 3 : 농부 / 4 : 연구원
@@ -55,25 +112,66 @@ public class PeopleState : MonoBehaviour
         }
         else if (job == 1)
         {
-            //습격 시 싸우기
+            //탐험. 가끔 생존자 발견
+            h.storage.addStorage(4, 2);
+            int people = Random.Range(0, 100);
+            if (people > 80)
+            {
+                h.storage.addStorage(0, 1);
+                Debug.Log(name + "이 생존자 발견");
+            }
+            Debug.Log(name + " 맵 경험치 2 획득");
         }
         else if (job == 2)
         {
             //식량/물 가저오기
-            int food = Random.Range(0, 1);
-            int water = Random.Range(0, 1);            
-            h.getItem(name, food, water);
+            int food = Random.Range(0, 3);
+            int water = Random.Range(0, 3);
+            h.storage.addStorage(1, food);
+            h.storage.addStorage(2, water);
+
+            Debug.Log(name + " 식량 " + food + " 획득");
+            Debug.Log(name + " 물 " + water + " 획득");
         }
         else if (job == 3)
         {
             //식량 1 추가
-            int food = Random.Range(0, 3);
-            h.getItem(name, food, 0);
+            int food = Random.Range(3, 4);
+            h.storage.addStorage(1, food);
+            Debug.Log(name + " 식량 " + food + " 획득");
         }
         else if (job == 4)
         {
-            //연구 포인트 1 추가
-            h.labExp++;
+            //연구 포인트 2 추가
+            h.storage.addStorage(3, 2);
+            Debug.Log(name + " 연구 경험치 2 획득");
         }
+    }
+
+    //직업 변경
+    void jobUpdate(int newjob)
+	{
+        if (newjob == job)//새 직업과 다를 때
+            return;
+
+        if(job == 0)
+		{
+
+		}
+        else if(job == 1)
+		{
+            h.explorer--;
+		}
+        else if(job == 2)
+		{
+            h.workman--;
+		}
+
+        job = newjob;
+
+        if (job == 1)
+            h.explorer++;
+        else if (job == 2)
+            h.workman++;
     }
 }

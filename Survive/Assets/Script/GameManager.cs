@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
 	public GameObject DayNight;//밤이면 켜
 	PrintUI pu;
 	PeopleState[] pState;//생존자
+	public int workman;
+	public int explorer;
+	public Storage storage;
 
 	int pintdex;
 
@@ -346,7 +349,6 @@ public class GameManager : MonoBehaviour
 				float y = Random.Range(-height, height);
 				go.transform.position = new Vector3(x, y, 0);
 				go.AddComponent<PeopleState>();
-				go.GetComponent<PeopleState>().job = Random.Range(0,5);
 				go.name = "people" + i.ToString();
 				pState[i] = go.GetComponent<PeopleState>();
 				//Instantiate<GameObject>(go); : 복사
@@ -452,5 +454,3 @@ class PlayerState
 		money = m;
 	}
 }
-
-//배고파~~ 졸려~~~ 집에 갈래~~
