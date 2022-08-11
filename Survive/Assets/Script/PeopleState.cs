@@ -80,11 +80,8 @@ public class PeopleState : MonoBehaviour
             Debug.Log(name + "º¹±Í");
             //½Ä·®/¹° °¡Àú¿À±â
             int food = (int)((float)Random.Range(0, 3)/2 + 0.5f);
-            int water = (int)((float)Random.Range(0, 3) / 2 + 0.5f);
             h.storage.addStorage(1, food);
-            h.storage.addStorage(2, water);
             Debug.Log(name + " ½Ä·® "+food+" È¹µæ");
-            Debug.Log(name + " ¹° " + water + " È¹µæ");
         }
         else if (job == 3)
         {
@@ -126,12 +123,9 @@ public class PeopleState : MonoBehaviour
         {
             //½Ä·®/¹° °¡Àú¿À±â
             int food = Random.Range(0, 3);
-            int water = Random.Range(0, 3);
             h.storage.addStorage(1, food);
-            h.storage.addStorage(2, water);
 
             Debug.Log(name + " ½Ä·® " + food + " È¹µæ");
-            Debug.Log(name + " ¹° " + water + " È¹µæ");
         }
         else if (job == 3)
         {

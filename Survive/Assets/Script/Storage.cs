@@ -6,17 +6,15 @@ public struct Storage
 {
     int people, _people;
     int food, _food;
-    int water, _water;
     int labExp;
     int labLevel;
     int stage;// 0-5 / 5-10 /
     int stageExp;
 
-    public Storage(int p, int f, int w, int e, int l, int se, int sl)
+    public Storage(int p, int f, int e, int l, int se, int sl)
 	{
         people = p;
         food = f;
-        water = w ;
         labExp = e;
         labLevel = l;
         stage = sl;
@@ -24,7 +22,6 @@ public struct Storage
         
         _people = labLevel * 3;
         _food = labLevel * 5;
-        _water = labLevel * 5;
     }
 
     public int getStorage(int type)
@@ -43,7 +40,7 @@ public struct Storage
 
         return 0;
 #else
-        int[] r = new int[] { people, food, water, labExp, labLevel, stage, stageExp };
+        int[] r = new int[] { people, food, labExp, labLevel, stage, stageExp };
         return r[type];
 #endif
 
@@ -55,8 +52,6 @@ public struct Storage
             people += mount;
         else if (type == 1)
             food += mount;
-        else if (type == 2)
-            water += mount;
         if (type == 3)
             labExp += mount;
         if (type == 4)
@@ -75,14 +70,6 @@ public struct Storage
         else
         food -= people;
 
-        if (water - people < 0)
-        {
-            water = 0;
-            people -= people - water;
-        }
-        else
-        water -= people;
-
         update();
     }
     //내분, 독립, 병, 협력, 습격, 등 이벤트 추가.
@@ -99,7 +86,6 @@ public struct Storage
 
             _people = labLevel * 3;
             _food = labLevel * 5;
-            _water = labLevel * 5;
 
             need = labLevel < 10 ? 4 * labLevel : 2 * labLevel + 20;
         }
@@ -121,16 +107,9 @@ public struct Storage
         else if (food == 0)
             food = 0;
 
-        if (water > _water)
-            water = _water;
-        else if (water == 0)
-            water = 0;
-
-
         Debug.Log("------------------------------------------");
-        Debug.Log("peopel : "+people);
-        Debug.Log("food : "+ food);
-        Debug.Log("water : "+ water);
+        Debug.Log("peopel : "+people+"/"+_people);
+        Debug.Log("food : "+ food + "/" + _food);
         Debug.Log("labLevel : "+ labLevel + " / exp : "+labExp);
         Debug.Log("stage : "+ stage + " / exp : " + stageExp);
 
