@@ -179,9 +179,12 @@ public class Event : MonoBehaviour
         else
 		{
             int people = storage.getStorage(0);
-            for(int i = 0; i<people-1;i++)
-		    {
-                pState[i].takeTime += item.takeTime;
+              if (people > 1)
+            {
+                for (int i = 0; i < people - 1; i++)
+                {
+                    pState[i].takeTime += item.takeTime;
+                }
             }
 
 		}
