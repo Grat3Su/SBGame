@@ -143,7 +143,7 @@ public class PeopleState : MonoBehaviour
     }
 
     //직업 변경
-    void jobUpdate(int newjob)
+    public void jobUpdate(int newjob)
 	{
         if (newjob == job)//새 직업과 다를 때
             return;

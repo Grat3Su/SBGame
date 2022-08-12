@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MainCamera : MonoBehaviour
 {
+    public static int devWidth = 1280, devHeight = 720;
+
     GameManager h;
     EventLog el;
     public List<string> str;
@@ -28,6 +30,7 @@ public class MainCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        iGUI.setResolution(devWidth, devHeight);
 
     }
 
