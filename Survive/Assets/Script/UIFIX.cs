@@ -5,31 +5,33 @@ using UnityEngine;
 public class UIFIX : iGUI
 {
 	public Event pEvent;
-	bool[] btn;
 	string[] btnTxt;
 	int idx;
 	int x;
 	int y;
 	int startp;
+    int curidx;
 	// Start is called before the first frame update
 	void Start()
 	{
-		setProject();
-		btn = new bool[100];
-		for (int i = 0; i < 100; i++)
-			btn[i] = false;
+        init();
+
+        setProject();
 		btnTxt = new string[] { "백수", "탐험가", "일꾼", "농부", "연구원" };
 
 		idx = 0;
-		startp = 0;
+        curidx = -1;
+        startp = 0;
 	}
 
 
 	// Update is called once per frame
 	void Update()
 	{
-
-	}
+        if (Input.GetKeyDown(KeyCode.Space))
+            if (curidx > -1)
+                curidx = -1;
+    }
 
 	RenderTexture texScrollView;
 	int prevFrameCount;
@@ -37,6 +39,7 @@ public class UIFIX : iGUI
 	private void OnGUI()
 	{
 		setProject();
+
 		float delta = 0.0f;
 		if( prevFrameCount!=Time.frameCount)
 		{
@@ -46,46 +49,28 @@ public class UIFIX : iGUI
 		updateScrollView(delta);
 		GUI.DrawTexture(new Rect(20, 100, texScrollView.width, texScrollView.height), texScrollView);
 
-		x = Screen.width;
-		//x = 10;
-		y = Screen.height;
-		for (int i = startp; i < startp + 5; i++)
-		{
-			if (pEvent.pState[i] == null)
-			{
-				break;
-			}
-			if (GUI.Button(new Rect(x - 100, 10 + 60 * i, 80, 50), pEvent.pState[i].name))
-			{
-				if (btn[i] == false) btn[i] = true;
-				else if (btn[i] == true) btn[i] = false;
-			}
-			if (btn[i])
-			{
-				idx = pEvent.pState[i].job;
-				if (GUI.Button(new Rect(x - 230, 10 + 60 * i, 100, 50), btnTxt[pEvent.pState[i].job]))
-				{
-					idx++;
-					if (idx > btnTxt.Length - 1)
-						idx = 0;
-					pEvent.pState[i].jobUpdate(idx);
-					//btn[i] = false;
-				}
-			}
-		}
+        if (curidx > -1)
+        {
+            setRGBA(0, 0, 0, 0.5f);
+            fillRect(MainCamera.devWidth / 2 - 200, 30, 800, MainCamera.devHeight - 60);
+            idx = pEvent.pState[curidx].job;
 
-		if(pEvent.storage.getStorage(0) > 6)
-			if(GUI.Button(new Rect(x - 80, y - 50, 50, 50), ">"))
-				startp += 5;
-		if (pEvent.storage.getStorage(0) > startp+6)
-			if (GUI.Button(new Rect(x - 200, y - 50, 50, 50), "<"))
-				startp -= 5;
-	}
+            setRGBA(1, 1, 1, 1);
+            if (drawButton(new Rect(MainCamera.devWidth / 2+400, MainCamera.devHeight / 2 -50, 100, 50), btnTxt[pEvent.pState[curidx].job]))
+            {
+                idx++;
+                if (idx > btnTxt.Length - 1)
+                    idx = 0;
+                pEvent.pState[curidx].jobUpdate(idx);
+            }
+        }
+    }
 
 	float offX, offY;
 	string[] names;
 	float svDt;
-
+    float move;
+    //prev - cur
 	void updateScrollView(float dt)
 	{
 		if( texScrollView==null )
@@ -93,28 +78,63 @@ public class UIFIX : iGUI
 			texScrollView = new RenderTexture(200, 500, 32, RenderTextureFormat.ARGB32);
 			names = new string[] {
 				"name 0", "name 1", "name 2", "name 3", "name 4",
-				"name 5", "name 6", "name 7", "name 8", "name 9" };
+				"name 5", "name 6", "name 7", "name 8", "name 9" , "name 19" , "name 29" , "name 9" , "name 9" , "name 9" , "name 9" , "name 9" , "name 9" , "name 59" };
 			offX = (texScrollView.width - 150)/2;
 			offY = 10;
 			svDt = 0.0f;
 		}
+        int people = pEvent.storage.getStorage(0);
+        if (Camera.main.GetComponent<MainCamera>().scroll)
+        {
+            float move = Camera.main.GetComponent<MainCamera>().moveScroll;
+           
+            if (move < 0)//down
+            {
+                if (offY > -((int)(people/5-2) * 300.0f + 50))
+                {
+                    offY += move;
+                }
+            }
+            else if (move > 0)//up
+            {
+                offY += move;
+                if (offY > 9)
+                    offY = 10;
+            }
+        }
 
-		//랜더 텍스쳐는 따로 그리기 때문에 고유한 매트릭스 사용?
-		RenderTexture bk = RenderTexture.active;
+        //랜더 텍스쳐는 따로 그리기 때문에 고유한 매트릭스 사용
+        RenderTexture bk = RenderTexture.active;
 		RenderTexture.active = texScrollView;
 		Matrix4x4 bkM = GUI.matrix;
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
 		
 		GL.Clear(true, true, new Color(0, 0, 1, 0.5f));
 
-		for (int i=0; i<10; i++)
-		{
-			GUI.Button(new Rect(offX, offY + 55 * i, 150, 50), names[i]);
-		}
-		svDt += dt;
-		offY = 10 -500 * Mathf.Abs(Mathf.Sin(45 * svDt*Mathf.Deg2Rad));
+		//for (int i=0; i<15; i++)
+		//{
+		//	GUI.Button(new Rect(offX, offY + 55 * i, 150, 50), names[i]);
+		//}
+		//svDt += dt;
 
-		RenderTexture.active = bk;
+        for (int i = 0; i < people; i++)
+        {
+            if (pEvent.pState[i] == null)
+            {
+                break;
+            }
+            if (GUI.Button(new Rect(offX, offY + 60 * i, 150, 50), pEvent.pState[i].name))
+            {
+                if (curidx == i)
+                {
+                    curidx = -1;
+                    break;
+                }
+                curidx = i;                
+            }
+        }
+
+        RenderTexture.active = bk;
 		GUI.matrix = bkM;
 	}
 }

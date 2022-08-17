@@ -22,12 +22,14 @@ public class Event : MonoBehaviour
     void initGame()
     {
         storage = new Storage(1, 5, 0, 1, 0, 1);
+        //storage = new Storage(50, 15, 1, 10, 0, 10);
         day = 0;
         hour = 0;
         workman = 0;
         explorer = 0;
         deletePeople();
         gameover = false;
+        spawnPeople();
     }
 
     // Update is called once per frame
@@ -60,6 +62,10 @@ public class Event : MonoBehaviour
     void spawnPeople()
     {
         int people = storage.getStorage(0)-1;
+
+        if (people > 100)
+            people = 100;
+
         for (int i = 0; i < people; i++)
         {
             if (pState[i] == null)

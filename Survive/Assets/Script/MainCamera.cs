@@ -11,6 +11,13 @@ public class MainCamera : MonoBehaviour
     public List<string> str;
 
     public Vector2 scrollPosition = Vector2.zero;
+    Vector3 prevV;
+    public float moveScroll;
+    bool drag;
+    public bool scroll;
+
+    Vector3 firstPosition;
+    Vector3 lastPosition;
 
     // Start is called before the first frame update
     void Start()
@@ -20,11 +27,14 @@ public class MainCamera : MonoBehaviour
         GameObject go = GameObject.Find("GameManager");
         h = go.GetComponent<GameManager>();
 #else
-        GameObject go = new GameObject("GameManager");
-        h =  go.AddComponent<GameManager>();
-        go.AddComponent<PrintUI>();
+       // GameObject go = new GameObject("GameManager");
+       // h =  go.AddComponent<GameManager>();
+       // go.AddComponent<PrintUI>();
 #endif
-        el = h.el;        
+        //el = h.el;
+        drag = false;
+        scroll = false;
+        moveScroll = 0;
     }
 
     // Update is called once per frame
@@ -32,28 +42,58 @@ public class MainCamera : MonoBehaviour
     {
         iGUI.setResolution(devWidth, devHeight);
 
-    }
-
-    private void OnGUI()
-    {//이거 다시 보기
-        GUIStyle style = new GUIStyle();
-        GUI.contentColor = Color.white;
-        style.fontSize = 16;        
-        //GUI.Label(new Rect(10, 10, 100, 150), "Hello World!", style);
-
-        el = h.el;
-        if (el == null)
-            return;
-
-        //scrollPosition = GUI.BeginScrollView(new Rect(Screen.width - 250, 10, 250, 150)/*위치 / 크기*/, scrollPosition, new Rect(0, 0, 300, 300));
-        scrollPosition = GUI.BeginScrollView(new Rect(Screen.width - 260, 10, 260, Screen.height - 20)/*위치 / 크기*/, scrollPosition, new Rect(0, 0, 255, 10 +20 * str.Count));
-        str = el.str;
-        for (int i = 0; i < str.Count; i++)
+        //드래그
+        int btn = 0;// 0:left, 1:right
+        if (Input.GetMouseButtonDown(btn))
         {
-            GUI.Label(new Rect(0, 20 * i, 100, 100), str[i], style);
+            drag = true;
+
+            prevV = Input.mousePosition;
+            iPoint p = mousePosition();
+
+            if (p.x > 20 && p.x < 220 && p.y > 100 && p.y < 600)
+            {
+                scroll = true;
+            }
+        }
+        else if (Input.GetMouseButtonUp(btn))
+        {
+            drag = false;
+            scroll = false;
         }
 
-        //GUI.BeginScrollView()
-        GUI.EndScrollView();
-    }    
+        if (drag)
+        {
+            Vector3 v = Input.mousePosition;
+            if (prevV == v)
+            {
+                moveScroll = 0;
+                return;
+            }
+
+            if(scroll)
+            {
+                moveScroll = prevV.y - v.y;
+            }
+            prevV = v;
+
+            iPoint p = mousePosition();            
+        }
+    }
+
+    public static iPoint mousePosition()
+    {
+        int sw = Screen.width, sh = Screen.height;
+        float vx = Camera.main.rect.x * sw;
+        float vy = Camera.main.rect.y * sh;
+        float vw = Camera.main.rect.width * sw;
+        float vh = Camera.main.rect.height * sh;
+
+        Vector3 v = Input.mousePosition;
+        iPoint p = new iPoint((v.x - vx) / vw * devWidth,
+                                (1f - (v.y - vy) / vh) * devHeight);
+        //Debug.LogFormat($"screen({sw},{sh}) : input({v.x},{v.y}) => use({p.x},{p.y})");
+        return p;
+    }
+
 }
