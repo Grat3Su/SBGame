@@ -43,8 +43,14 @@ public struct Storage
         int[] r = new int[] { people, food, labExp, labLevel, stage, stageExp };
         return r[type];
 #endif
-
     }
+
+    public string getStorageText(int type)
+	{
+        int[] r = new int[] { people, food, labLevel, stage};
+        int[] r0 = new int[] { _people, _food, labExp, stageExp};
+        return r[type] + " / " + r0[type];
+	}
 
     public void addStorage(int type, int mount)
     {

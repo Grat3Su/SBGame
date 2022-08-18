@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
 {
 	GameData gd;
 	public GameObject DayNight;//밤이면 켜
-	PrintUI pu;
 	PeopleState[] pState;//생존자
 	public int workman;
 	public int explorer;
@@ -30,7 +29,6 @@ public class GameManager : MonoBehaviour
 	// Start is called before the first frame update
 	void Start()
 	{
-		pu = gameObject.GetComponent<PrintUI>();
 		pState = new PeopleState[100];
 		pintdex = _people;
 		resetGame();
@@ -236,7 +234,6 @@ public class GameManager : MonoBehaviour
 			_people = 3;
 			_food = 5;
 			_water = 5;
-			pu.setMax(_people, _food, _water);
 		}
 		else if (labLevel % 5 == 0)
 		{//보너스
@@ -254,7 +251,6 @@ public class GameManager : MonoBehaviour
 			_people += 5;
 			_food   += 10;
 			_water  += 10;
-			pu.setMax(_people, _food, _water);
 		}
 	}
 
@@ -407,7 +403,6 @@ public class GameManager : MonoBehaviour
 		el.addToday(dpeople, people, food, water);
 
 		day++;
-		pu.printNextDay();//다음 날 print
 
 		doEvent(Random.Range(0,100) < 10 ? 3 : 100);
 

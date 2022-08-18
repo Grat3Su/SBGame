@@ -44,6 +44,16 @@ public class MainCamera : MonoBehaviour
 
         //µå·¡±×
         int btn = 0;// 0:left, 1:right
+        moveScroll = 0;
+        if (Input.GetAxis("Mouse ScrollWheel")!=0)
+		{
+            iPoint p = mousePosition();
+            if (p.x > 20 && p.x < 220 && p.y > 100 && p.y < 600)
+            {
+                scroll = true;
+                moveScroll = Input.GetAxis("Mouse ScrollWheel") * 150;
+            }
+        }
         if (Input.GetMouseButtonDown(btn))
         {
             drag = true;

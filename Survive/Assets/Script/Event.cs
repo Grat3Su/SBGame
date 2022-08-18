@@ -18,11 +18,12 @@ public class Event : MonoBehaviour
     public PeopleState[] pState;
     public int workman;
     public int explorer;
+    int[] map;
 
     void initGame()
     {
-        storage = new Storage(1, 5, 0, 1, 0, 1);
-        //storage = new Storage(50, 15, 1, 10, 0, 10);
+        //storage = new Storage(1, 5, 0, 1, 0, 1);
+        storage = new Storage(38, 15, 1, 10, 0, 10);
         day = 0;
         hour = 0;
         workman = 0;
@@ -30,6 +31,7 @@ public class Event : MonoBehaviour
         deletePeople();
         gameover = false;
         spawnPeople();
+        map = new int[] {50, 100, 300 };
     }
 
     // Update is called once per frame
@@ -107,6 +109,20 @@ public class Event : MonoBehaviour
             Destroy(pState[i].gameObject);
             pState[i] = null;
         }
+    }
+    //지정해서 삭제
+    void deletePeople(int idx)
+    {
+        Destroy(pState[idx]);
+        int people = storage.getStorage(0)-1;//플래이어는 빼야함
+
+        Debug.Log(pState[idx].name + "사망");
+
+        for (int i = idx; i <people; i++)
+        {
+            pState[i] = pState[i + 1];
+        }
+        storage.addStorage(0, -1);
     }
 
     void doEvent(DoEvent type)
