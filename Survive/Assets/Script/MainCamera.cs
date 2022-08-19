@@ -10,16 +10,6 @@ public class MainCamera : MonoBehaviour
     EventLog el;
     public List<string> str;
 
-    public Vector2 scrollPosition = Vector2.zero;
-    Vector3 prevV;
-    public float moveScroll;
-    bool drag;
-    public bool scroll;
-
-    Vector3 firstPosition;
-    Vector3 lastPosition;
-
-    // Start is called before the first frame update
     void Start()
     {
 #if false
@@ -32,63 +22,13 @@ public class MainCamera : MonoBehaviour
        // go.AddComponent<PrintUI>();
 #endif
         //el = h.el;
-        drag = false;
-        scroll = false;
-        moveScroll = 0;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        iGUI.setResolution(devWidth, devHeight);
-
-        //µå·¡±×
-        int btn = 0;// 0:left, 1:right
-        moveScroll = 0;
-        if (Input.GetAxis("Mouse ScrollWheel")!=0)
-		{
-            iPoint p = mousePosition();
-            if (p.x > 20 && p.x < 220 && p.y > 100 && p.y < 600)
-            {
-                scroll = true;
-                moveScroll = Input.GetAxis("Mouse ScrollWheel") * 150;
-            }
-        }
-        if (Input.GetMouseButtonDown(btn))
-        {
-            drag = true;
-
-            prevV = Input.mousePosition;
-            iPoint p = mousePosition();
-
-            if (p.x > 20 && p.x < 220 && p.y > 100 && p.y < 600)
-            {
-                scroll = true;
-            }
-        }
-        else if (Input.GetMouseButtonUp(btn))
-        {
-            drag = false;
-            scroll = false;
-        }
-
-        if (drag)
-        {
-            Vector3 v = Input.mousePosition;
-            if (prevV == v)
-            {
-                moveScroll = 0;
-                return;
-            }
-
-            if(scroll)
-            {
-                moveScroll = prevV.y - v.y;
-            }
-            prevV = v;
-
-            iPoint p = mousePosition();            
-        }
+        iGUI.setResolution(devWidth, devHeight);                
     }
 
     public static iPoint mousePosition()

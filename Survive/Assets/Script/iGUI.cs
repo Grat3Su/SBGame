@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class iGUI : MonoBehaviour
 {
+    public static iGUI instance = null;
+    public iGUI()
+    {
+        instance = this;
+    }
+
     Texture2D texDot;
     Color color;
     float lineWidth;
@@ -88,6 +94,28 @@ public class iGUI : MonoBehaviour
         //Debug.LogFormat($"devResolution({devWidth}, {dh})");
     }
 
+    public void drawLabel(iPoint p, float width, float height, string text, int anc)
+	{
+        drawLabel(new Rect(p.x, p.y, width, height), text, anc);
+	}
+    public void drawLabel(Rect r, string text, int anc)
+	{
+        fillRect(r.x, r.y, r.width, r.height);
+
+        GUIStyle style = new GUIStyle(GUI.skin.label);
+        style.alignment = TextAnchor.MiddleCenter;
+        style.font = Resources.Load<Font>(name);
+        style.fontSize = (int)stringSize;
+        style.fontStyle = FontStyle.Normal;
+        style.normal.textColor = stringColor;
+        Vector2 size = style.CalcSize(new GUIContent(text));
+
+        //r.x = r.width /  2;
+        //r.y = r.height / 2;
+
+        GUI.Label(r, text, style);
+    }
+
     public bool drawButton(float x, float y, int width, int height, string text)
     {
         bool click = false;
@@ -98,7 +126,6 @@ public class iGUI : MonoBehaviour
         
         return click;
     }
-
     public bool drawButton(Rect r, string text)
     {
         bool click = false;
@@ -109,28 +136,45 @@ public class iGUI : MonoBehaviour
 
         return click;
     }
-
+        public string getStringName()
+    {
+        return stringName;
+    }
     public void setStringName(string name)
     {
         stringName = name;
     }
-
+    public float getStringSize()
+    {
+        return stringSize;
+    }
     public void setStringSize(float size)
     {
         stringSize = size;
+    }    public Color getStringRGBA()
+    {
+        return stringColor;
     }
-
     public void setStringRGBA(float r, float g, float b, float a)
     {
         stringColor = new Color(r, g, b, a);
+    }
+    public iSize sizeOfString(string str)
+    {
+        GUIStyle style = new GUIStyle(GUI.skin.label);
+        style.font = Resources.Load<Font>(name);
+        style.fontSize = (int)stringSize;
+        style.fontStyle = FontStyle.Normal;
+        style.normal.textColor = stringColor;
+        Vector2 size = style.CalcSize(new GUIContent(str));
+        return new iSize(size.x, size.y);
     }
 
     public void drawString(string str, iPoint p, int anc)
     {
         drawString(str, p.x, p.y, anc);
     }
-        
-    public void drawString(string str, float x, float y, int anc)
+    public void drawString(string str, float x, float y, int anc = TOP | LEFT)
     {
         GUIStyle style = new GUIStyle(GUI.skin.label);
         style.font = Resources.Load<Font>(name);

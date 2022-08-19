@@ -23,7 +23,7 @@ public class Event : MonoBehaviour
     void initGame()
     {
         //storage = new Storage(1, 5, 0, 1, 0, 1);
-        storage = new Storage(38, 15, 1, 10, 0, 10);
+        storage = new Storage(40, 15, 1, 10, 0, 10);
         day = 0;
         hour = 0;
         workman = 0;
