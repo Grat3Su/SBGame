@@ -181,6 +181,7 @@ public class iGUI : MonoBehaviour
         style.fontSize = (int)stringSize;
         style.fontStyle = FontStyle.Normal;
         style.normal.textColor = stringColor;
+        style.hover.textColor = stringColor;
         Vector2 size = style.CalcSize(new GUIContent(str));
         switch (anc)
         {
@@ -194,6 +195,7 @@ public class iGUI : MonoBehaviour
             case VCENTER | RIGHT: x -= size.x; y -= size.y / 2; break;
             case VCENTER | HCENTER: x -= size.x / 2; y -= size.y / 2; break;
         }
+        GUI.color = color;// #issue
         GUI.Label(new Rect(x, y, size.x, size.y), str, style);
     }
 
@@ -236,6 +238,11 @@ public class iGUI : MonoBehaviour
                     x, y + height - lineWidth);
         drawLine(x + width - lineWidth, y + lineWidth,
                     x + width - lineWidth, y + height - lineWidth);
+    }
+
+    public void fillRect(Rect r)
+    {
+        drawImage(texDot, r.x, r.y, r.width, r.height, TOP | LEFT, 2, 0, REVERSE_NONE);
     }
 
     public void fillRect(float x, float y, float width, float height)
