@@ -93,49 +93,6 @@ public class iGUI : MonoBehaviour
         Screen.SetResolution(devWidth, (int)dh, true);
         //Debug.LogFormat($"devResolution({devWidth}, {dh})");
     }
-
-    public void drawLabel(iPoint p, float width, float height, string text, int anc)
-	{
-        drawLabel(new Rect(p.x, p.y, width, height), text, anc);
-	}
-    public void drawLabel(Rect r, string text, int anc)
-	{
-        fillRect(r.x, r.y, r.width, r.height);
-
-        GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.alignment = TextAnchor.MiddleCenter;
-        style.font = Resources.Load<Font>(name);
-        style.fontSize = (int)stringSize;
-        style.fontStyle = FontStyle.Normal;
-        style.normal.textColor = stringColor;
-        Vector2 size = style.CalcSize(new GUIContent(text));
-
-        //r.x = r.width /  2;
-        //r.y = r.height / 2;
-
-        GUI.Label(r, text, style);
-    }
-
-    public bool drawButton(float x, float y, int width, int height, string text)
-    {
-        bool click = false;
-        GUI.color = color;
-
-        if (GUI.Button(new Rect(x, y, width, height), text))
-            click = true;
-        
-        return click;
-    }
-    public bool drawButton(Rect r, string text)
-    {
-        bool click = false;
-         GUI.color = color;
-
-        if (GUI.Button(r, text))
-            click = true;
-
-        return click;
-    }
         public string getStringName()
     {
         return stringName;
@@ -195,6 +152,7 @@ public class iGUI : MonoBehaviour
             case VCENTER | RIGHT: x -= size.x; y -= size.y / 2; break;
             case VCENTER | HCENTER: x -= size.x / 2; y -= size.y / 2; break;
         }
+        //마지막으로 그려진 색 반영되니까 조심
         GUI.color = color;// #issue
         GUI.Label(new Rect(x, y, size.x, size.y), str, style);
     }
@@ -206,7 +164,6 @@ public class iGUI : MonoBehaviour
         color.b = b;
         color.a = a;
     }
-
     public void setLineWidth(float width)
     {
         lineWidth = width;

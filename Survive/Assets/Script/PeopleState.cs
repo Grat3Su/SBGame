@@ -41,8 +41,6 @@ public class PeopleState : MonoBehaviour
     {
         if(takeTime > 4)
             jobAction();
-        if (defence)
-            ;
     }
 
     //°­Á¦ º¹±Í

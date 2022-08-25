@@ -11,6 +11,11 @@ public struct Storage
     int stage;// 0-5 / 5-10 /
     int stageExp;
 
+    int getpeople;
+    int getfood;
+    int getlexp;
+    int getmexp;
+
     public Storage(int p, int f, int e, int l, int se, int sl)
 	{
         people = p;
@@ -22,6 +27,11 @@ public struct Storage
         
         _people = labLevel * 3;
         _food = labLevel * 5;
+
+        getpeople = 0;
+        getfood = 0;
+        getlexp = 0;
+        getmexp = 0;
     }
 
     public int getStorage(int type)

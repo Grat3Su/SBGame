@@ -11,6 +11,7 @@ public class Event : MonoBehaviour
         initGame();
     }
 
+    public AddItem getDay;
     bool gameover;
     public Storage storage;
     int day;
@@ -20,10 +21,13 @@ public class Event : MonoBehaviour
     public int explorer;
     int[] map;
 
+    public bool newday;
+
     void initGame()
     {
         //storage = new Storage(1, 5, 0, 1, 0, 1);
         storage = new Storage(40, 15, 1, 10, 0, 10);
+        getDay = new AddItem(0);//하루 지나면 초기화
         day = 0;
         hour = 0;
         workman = 0;
@@ -32,11 +36,15 @@ public class Event : MonoBehaviour
         gameover = false;
         spawnPeople();
         map = new int[] {50, 100, 300 };
+        newday = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (newday)
+            return;
+
         if (gameover)
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -185,6 +193,12 @@ public class Event : MonoBehaviour
         storage.addStorage(3, item.labExp);
         storage.addStorage(4, item.stageExp);
 
+        //오늘 얻은 물건 저장
+        getDay.people += item.people;
+        getDay.food += item.food;
+        getDay.labExp += item.labExp;
+        getDay.stageExp += item.stageExp;
+
         if (item.people > 0)
             spawnPeople();
         else if (item.people < 0)
@@ -205,6 +219,7 @@ public class Event : MonoBehaviour
             for (int i = 0; i < people - 1; i++)
                 if (pState[i] != null)
                     pState[i].comeBack();
+            
         }
         else
         {
@@ -220,7 +235,7 @@ public class Event : MonoBehaviour
     void nextDay()
     {
         Debug.Log("다음날");
-
+        newday = true;//보고창을 닫지 않으면 게임 속행 안되게
         int people = storage.getStorage(0);
         storage.peopleTakeItem();
 
@@ -233,6 +248,7 @@ public class Event : MonoBehaviour
             gameover = true;
             Debug.Log("게임오버");
         }
+        getDay = new AddItem(0);//하루 지나면 초기화
     }
 
 }
