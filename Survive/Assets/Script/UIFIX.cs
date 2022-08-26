@@ -96,12 +96,11 @@ public class UIFIX : iGUI
 			}
 			prevV = v;
 		}
-
-		//버늩 키처리
 	}
 
 	RenderTexture texScrollView;
 	RenderTexture texpinfoView;
+	RenderTexture texNextView;
 	RenderTexture resourceView;
 	int prevFrameCount;
 	float moveSView;
@@ -114,6 +113,7 @@ public class UIFIX : iGUI
 
 		updateResourceView();
 		updateScrollView();
+
 		if (pclick == true)
 		{
 			moveSView += Time.deltaTime * 80;
@@ -130,7 +130,12 @@ public class UIFIX : iGUI
 				moveSView = -300;
 			}
 		}
-		
+		if (pEvent.newday)
+		{
+			updateNextDay();
+			GUI.DrawTexture(new Rect(100, 100, texNextView.width, texNextView.height), texNextView);
+		}
+
 		GUI.DrawTexture(new Rect(moveSView, 100, texScrollView.width, texScrollView.height), texScrollView);
 
 		if (curidx > -1)
@@ -141,9 +146,78 @@ public class UIFIX : iGUI
 		}
 	}
 
-	void updateinfo(float dt)
+	void updateNextDay()//다음날
 	{
+		if (texNextView == null)
+			texNextView = new RenderTexture(MainCamera.devWidth-200, MainCamera.devHeight - 200, 32, RenderTextureFormat.ARGB32);
 
+		//랜더 텍스쳐는 따로 그리기 때문에 고유한 매트릭스 사용
+		RenderTexture bk = RenderTexture.active;
+		RenderTexture.active = texNextView;
+		Matrix4x4 bkM = GUI.matrix;
+		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
+
+		GL.Clear(true, true, new Color(0, 0, 0, 0.5f));				
+		
+		setRGBA(1, 1, 1, 1);
+		setStringRGBA(1, 1, 1, 1);
+
+		float fontsize = getStringSize();
+		setStringSize(100);
+
+		iPoint p = new iPoint(texNextView.width / 2, texNextView.height/2 - 100);
+		int strData = pEvent.day;
+		drawString(strData + "일차", p, VCENTER | HCENTER);
+
+		string[] texname = new string[] { "people", "meat", "lab", "map" };
+		
+		setStringSize(30);
+		for (int i = 0; i<4; i++)		
+		{			
+			if (i == 0)
+			{
+				strData = pEvent.getDay.people;
+			}
+			else if (i == 1)
+			{
+				strData = pEvent.getDay.food;
+			}
+			else if (i == 2)
+			{
+				strData = pEvent.getDay.labExp;
+			}
+			else if (i == 3)
+			{
+				strData = pEvent.getDay.stageExp;
+			}
+
+			if(strData > 0)
+				setStringRGBA(0, 1, 0, 1);
+
+			else if (strData < 0)
+				setStringRGBA(1, 0, 0, 1);
+			else
+				setRGBA(1, 1, 1, 1);
+
+			p = new iPoint(texNextView.width / 4.0f * (i+1) - 150, texNextView.height / 2 + 150);
+			drawString(strData.ToString(), p, VCENTER | HCENTER);
+
+			p.y = texNextView.height / 2 + 100;			
+			Texture resource = Resources.Load<Texture>(texname[i]);
+			p.x = texNextView.width / 4.0f * (i + 1) - 150;
+			drawImage(resource, p, 50.0f / resource.width, 50.0f / resource.height, VCENTER | HCENTER);
+		}
+
+		setStringSize(fontsize);
+		setStringRGBA(1, 1, 1, 1);
+		GUI.color = Color.white;
+		RenderTexture.active = bk;
+		GUI.matrix = bkM;
+	}
+
+	void updateinfo(float dt)//
+	{
+		
 	}
 
 	//자원 보이기
@@ -304,3 +378,54 @@ public class UIFIX : iGUI
 		GUI.matrix = bkM;
 	}
 }
+
+#if false
+
+
+
+
+수색
+- ?명 수색
+- ?명 발견 / 구함
+- 사망 수, 탄약 소모,  
+
+
+
+기습
+
+- ?놈의 무리가 기습
+- ?명 사망 ?명 치명적 상해 => 의약품 ?개 소모, 무기 탄약 ?개 소모
+
+
+
+
+
+연구실적
+
+- 레벨마다 요구 연구양
+- 1사람마다 연구 실적 발생
+int getExp = 20;
+
+int labNeedExp[] = { 100, 150, 200, 280, .... };
+int labLv = 0;
+int labExp = 0;
+
+labExp += getExp * person;
+
+ "연구실적 ?명 연구 달성량 getExp * person : labExp  / labNeedExp[labLv]"
+ "연구실적 ?명 연구 달성량 getExp * person :  레벨3달성 labExp  / labNeedExp[labLv]"
+
+ "연구실적이 오르면 식량 구할 확률이 올라갑니다."
+
+
+ 최종
+ 총 물자 어떻게 변경되었는지 
+
+ 사람 +- ?명
+ 물 +=
+ ? +=
+ 클릭을 해서 새로운 하루 시작합니다!!
+
+
+#endif
+

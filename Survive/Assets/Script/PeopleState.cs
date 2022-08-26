@@ -62,10 +62,13 @@ public class PeopleState : MonoBehaviour
             Debug.Log(name + "º¹±Í");
             //Å½Çè. °¡²û »ýÁ¸ÀÚ ¹ß°ß
             h.storage.addStorage(4, 1);
+            h.getDay.stageExp += 1;
+
             int people = Random.Range(0, 100);
             if (people > 80)
             {
                 h.storage.addStorage(0, 1);
+                h.getDay.people += 1;
                 Debug.Log(name + "ÀÌ »ýÁ¸ÀÚ ¹ß°ß"); 
             }
             Debug.Log(name + " ¸Ê °æÇèÄ¡ 1 È¹µæ");
@@ -78,6 +81,7 @@ public class PeopleState : MonoBehaviour
             int food = (int)((float)Random.Range(0, 3)/2 + 0.5f);
             h.storage.addStorage(1, food);
             Debug.Log(name + " ½Ä·® "+food+" È¹µæ");
+            h.getDay.food += food;
         }
         else if (job == 3)
         {
@@ -85,12 +89,14 @@ public class PeopleState : MonoBehaviour
             //½Ä·® 1 Ãß°¡
             int food = (int)((float)Random.Range(3, 4) / 2 + 0.5f);
             h.storage.addStorage(1, food);
+            h.getDay.food += food;
         }
         else if (job == 4)
         {
             Debug.Log(name + "º¹±Í");
             //¿¬±¸ Æ÷ÀÎÆ® 1 Ãß°¡
             h.storage.addStorage(3, 2);
+            h.getDay.labExp += 2;
             Debug.Log(name + " ¿¬±¸ °æÇèÄ¡ 1 È¹µæ");
         }
     }
@@ -110,10 +116,12 @@ public class PeopleState : MonoBehaviour
             behave = 3;
             //Å½Çè. °¡²û »ýÁ¸ÀÚ ¹ß°ß
             h.storage.addStorage(4, 2);
+            h.getDay.stageExp += 2;
             int people = Random.Range(0, 100);
             if (people > 80)
             {
                 h.storage.addStorage(0, 1);
+                h.getDay.people += 1;
                 Debug.Log(name + "ÀÌ »ýÁ¸ÀÚ ¹ß°ß");
             }
             Debug.Log(name + " ¸Ê °æÇèÄ¡ 2 È¹µæ");
@@ -124,6 +132,7 @@ public class PeopleState : MonoBehaviour
             //½Ä·®/¹° °¡Àú¿À±â
             int food = Random.Range(0, 3);
             h.storage.addStorage(1, food);
+            h.getDay.food += food;
 
             Debug.Log(name + " ½Ä·® " + food + " È¹µæ");
         }
@@ -133,6 +142,7 @@ public class PeopleState : MonoBehaviour
             //½Ä·® 1 Ãß°¡
             int food = Random.Range(3, 4);
             h.storage.addStorage(1, food);
+            h.getDay.food += food;
             Debug.Log(name + " ½Ä·® " + food + " È¹µæ");
         }
         else if (job == 4)
@@ -140,6 +150,7 @@ public class PeopleState : MonoBehaviour
             behave = 3;
             //¿¬±¸ Æ÷ÀÎÆ® 2 Ãß°¡
             h.storage.addStorage(3, 2);
+            h.getDay.labExp += 2;
             Debug.Log(name + " ¿¬±¸ °æÇèÄ¡ 2 È¹µæ");
         }
     }

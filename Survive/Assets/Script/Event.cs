@@ -14,7 +14,7 @@ public class Event : MonoBehaviour
     public AddItem getDay;
     bool gameover;
     public Storage storage;
-    int day;
+    public int day;
     int hour;
     public PeopleState[] pState;
     public int workman;
@@ -25,8 +25,8 @@ public class Event : MonoBehaviour
 
     void initGame()
     {
-        //storage = new Storage(1, 5, 0, 1, 0, 1);
-        storage = new Storage(40, 15, 1, 10, 0, 10);
+        storage = new Storage(1, 5, 0, 1, 0, 1);
+        //storage = new Storage(40, 15, 1, 10, 0, 10);
         getDay = new AddItem(0);//하루 지나면 초기화
         day = 0;
         hour = 0;
@@ -43,7 +43,14 @@ public class Event : MonoBehaviour
     void Update()
     {
         if (newday)
+        {
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                newday = false;
+                getDay = new AddItem(0);//하루 지나면 초기화
+            }
             return;
+        }
 
         if (gameover)
             if (Input.GetKeyDown(KeyCode.Space))
@@ -219,7 +226,8 @@ public class Event : MonoBehaviour
             for (int i = 0; i < people - 1; i++)
                 if (pState[i] != null)
                     pState[i].comeBack();
-            
+
+            newday = true;//보고창을 닫지 않으면 게임 속행 안되게
         }
         else
         {
@@ -235,10 +243,19 @@ public class Event : MonoBehaviour
     void nextDay()
     {
         Debug.Log("다음날");
-        newday = true;//보고창을 닫지 않으면 게임 속행 안되게
-        int people = storage.getStorage(0);
-        storage.peopleTakeItem();
 
+        int people = storage.getStorage(0);
+        int food = storage.getStorage(1);
+
+        if (food < people)
+        {
+            getDay.food -= food;
+            getDay.people = food - people;
+        }
+        else
+            getDay.food = -people;
+        storage.peopleTakeItem();
+        
         if (people != storage.getStorage(0))//자원을 사용한 후와 사람 수가 다르다
             deletePeople();
 
@@ -248,7 +265,7 @@ public class Event : MonoBehaviour
             gameover = true;
             Debug.Log("게임오버");
         }
-        getDay = new AddItem(0);//하루 지나면 초기화
+        
     }
 
 }
