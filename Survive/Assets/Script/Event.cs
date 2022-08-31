@@ -25,8 +25,8 @@ public class Event : MonoBehaviour
 
     void initGame()
     {
-        storage = new Storage(1, 5, 0, 1, 0, 1);
-        //storage = new Storage(40, 15, 1, 10, 0, 10);
+        //storage = new Storage(1, 5, 0, 1, 0, 1);
+        storage = new Storage(40, 15, 1, 10, 0, 10);
         getDay = new AddItem(0);//하루 지나면 초기화
         day = 0;
         hour = 0;

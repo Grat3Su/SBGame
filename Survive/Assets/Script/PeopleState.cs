@@ -8,6 +8,9 @@ public class PeopleState : MonoBehaviour
     // idle, move, atack..
     // 이벤트 시 taketime만큼 사라짐
 
+    public int[] jobLevel;
+    int jobExp;
+
     string name;//이름
     public int behave;// 0 : idle / 1 : move / 2 : attack / 2 : work / 3 : disease
     bool defence;//습격?
@@ -21,8 +24,8 @@ public class PeopleState : MonoBehaviour
     {        
         behave = 0;
         defence = false;
-        //h = GameObject.Find("GameManager").GetComponent<Event>();
-        //job = 0;
+        jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
+        jobExp = 0;
 
         string[] n = {"가","나", "다", "라","마","바","사","아","자","차","카","타","파","하", "야","샤", "수","경","재","문"};
         jobTex = Resources.Load<Texture>("people");
@@ -31,7 +34,7 @@ public class PeopleState : MonoBehaviour
         gameObject.name = name;
         //이름 랜덤 생성
 
-        job = -1;
+        job = 0;
         int newjob = Random.Range(0, 5);
         jobUpdate(newjob);
     }
@@ -45,7 +48,28 @@ public class PeopleState : MonoBehaviour
 
     //강제 복귀
     public void comeBack()
-	{        
+	{
+        jobExp += 1;
+
+        if (jobLevel[job] < 20)
+        {
+            if (Random.Range(0, 80+ jobLevel[job]) > 20)
+            {
+                Debug.Log("아무것도 얻지 못함");
+
+                if (jobExp > jobLevel[job] * 2)
+                {
+                    jobExp -= 2;
+                    jobLevel[job]++;
+                }
+            }
+        }
+
+        if (jobExp > jobLevel[job] * 2)
+        {
+            jobExp -= 2;
+            jobLevel[job]++;
+        }
         //2시간 이상이면 절반 가져옴
         if (takeTime < 2)
         {
@@ -153,6 +177,12 @@ public class PeopleState : MonoBehaviour
             h.getDay.labExp += 2;
             Debug.Log(name + " 연구 경험치 2 획득");
         }
+        jobExp += 2;
+        if (jobExp > jobLevel[job] * 2)
+        {
+            jobExp -= 2;
+            jobLevel[job]++;
+        }
     }
 
     //직업 변경
@@ -174,6 +204,7 @@ public class PeopleState : MonoBehaviour
 		}
 
         job = newjob;
+        jobExp = 0;//경험치 초기화
 
         if (job == 0)
         {

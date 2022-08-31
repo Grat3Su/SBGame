@@ -110,8 +110,8 @@ public class UIFIX : iGUI
 	private void OnGUI()
 	{
 		setProject();
-
-		updateResourceView();
+        setStringRGBA(0, 0, 0, 1);
+        updateResourceView();
 		updateScrollView();
 
 		if (pclick == true)
@@ -132,7 +132,7 @@ public class UIFIX : iGUI
 		}
 		if (pEvent.newday)
 		{
-			updateNextDay();
+            updateNextDay();
 			GUI.DrawTexture(new Rect(100, 100, texNextView.width, texNextView.height), texNextView);
 		}
 
@@ -169,7 +169,7 @@ public class UIFIX : iGUI
 		int strData = pEvent.day;
 		drawString(strData + "일차", p, VCENTER | HCENTER);
 
-		string[] texname = new string[] { "people", "meat", "lab", "map" };
+		string[] texname = new string[] { "people", "food", "lab", "map" };
 		
 		setStringSize(30);
 		for (int i = 0; i<4; i++)		
@@ -228,7 +228,7 @@ public class UIFIX : iGUI
 		fillRect(0, 0, MainCamera.devWidth, 60);
 
 		setRGBA(1, 1, 1, 1);
-		fillRect(5, 5, 40, 40);
+		//fillRect(5, 5, 40, 40);
 		iPoint p;
 		p.x = 5;
 		p.y = 10;
@@ -236,7 +236,7 @@ public class UIFIX : iGUI
 		for (int i = 0; i < 4; i++)
 		{
 			drawString(pEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
-			string[] texname = new string[] { "people", "meat", "lab", "map" };
+			string[] texname = new string[] { "people", "food", "lab", "map" };
 			Texture resource = Resources.Load<Texture>(texname[i]);
 			p.x = 5 + i * 150;
 			drawImage(resource, p, 40.0f / resource.width, 40.0f / resource.height, LEFT | HCENTER);
@@ -334,7 +334,7 @@ public class UIFIX : iGUI
 		Matrix4x4 bkM = GUI.matrix;
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
 
-		GL.Clear(true, true, new Color(0, 0, 0, 0.5f));
+		GL.Clear(true, true, new Color(1, 1, 1, 1));
 
 		idx = pEvent.pState[curidx].job;
 
@@ -347,11 +347,13 @@ public class UIFIX : iGUI
 		drawImage(people, p, 300.0f / people.width, 300.0f / people.height, LEFT | HCENTER);
 
 		float stringSize = getStringSize();
+        PeopleState prople = pEvent.pState[curidx];
 		setStringSize(50);
 		p = new iPoint(texpinfoView.width / 2 + 50, texpinfoView.height / 2 - 150);
-		drawString(pEvent.pState[curidx].name, p.x, p.y, LEFT | HCENTER);
+		drawString(prople.name, p.x, p.y, LEFT | HCENTER);
 		setStringSize(stringSize);
-		drawString("상태 : " + stateTxt[pEvent.pState[curidx].behave], p.x, p.y + 100, LEFT | HCENTER);
+        drawString("레벨 : " + prople.jobLevel[prople.job], p.x, p.y+70, LEFT | HCENTER);
+        drawString("상태 : " + stateTxt[prople.behave], p.x, p.y + 100, LEFT | HCENTER);
 
 		// (MainCamera.devWidth - texinfoView.width) / 2, 100
 		Rect r = new Rect(p.x, p.y + 200, 150, 50);
@@ -374,7 +376,22 @@ public class UIFIX : iGUI
 				click = true;
 			}
 		}
-		RenderTexture.active = bk;
+
+        setRGBA(1, 0, 0, 1);
+        fillRect(texpinfoView.width-60, 10, 50,50);
+        //(new Rect((MainCamera.devWidth - texpinfoView.width) / 2, 100,                            texpinfoView.width, texpinfoView.height), texpinfoView);
+        r = new Rect((MainCamera.devWidth - texpinfoView.width) / 2 + (texpinfoView.width - 60), 110, 50, 50);
+        setStringSize(50);
+        setStringRGBA(0, 0, 0, 1);
+        drawString("X", new iPoint(texpinfoView.width - 60+25, 10+25), VCENTER | HCENTER);
+
+        if (touchCheck(r, mousePos))
+        {
+            curidx = -1;
+            Debug.Log("click");
+        }
+        GUI.color = Color.white;
+        RenderTexture.active = bk;
 		GUI.matrix = bkM;
 	}
 }
