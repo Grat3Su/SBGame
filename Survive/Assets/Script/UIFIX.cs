@@ -56,7 +56,7 @@ public class UIFIX : iGUI
 			{
 				scroll = true;
 			}
-
+			if(pEvent.storage.getStorage(0)>1)
 			if (mousePos.x > 0 && mousePos.x < 150 && mousePos.y > 0 && mousePos.y < 60)
 			{
 				pclick = pclick == true ? false : true;
@@ -136,9 +136,10 @@ public class UIFIX : iGUI
 			GUI.DrawTexture(new Rect(100, 100, texNextView.width, texNextView.height), texNextView);
 		}
 
+		if(moveSView >-300)
 		GUI.DrawTexture(new Rect(moveSView, 100, texScrollView.width, texScrollView.height), texScrollView);
 
-		if (curidx > -1)
+		if (curidx > -1&& pclick ==true)
 		{
 			updatePeopleInfo();
 			GUI.DrawTexture(new Rect((MainCamera.devWidth - texpinfoView.width) / 2, 100,
@@ -215,19 +216,39 @@ public class UIFIX : iGUI
 		GUI.matrix = bkM;
 	}
 
-	void updateinfo(float dt)//
+	float alpha;
+
+	void updateinfo(int type)//상세정보
 	{
+		if (resourceView == null)
+			resourceView = new RenderTexture(300, 100, 32, RenderTextureFormat.ARGB32);
+		Color c = getStringRGBA();
+		RenderTexture bk = RenderTexture.active;
+		RenderTexture.active = resourceView;
+		Matrix4x4 bkM = GUI.matrix;
+		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
 		
+		GL.Clear(true, true, new Color(0, 0, 0, 0.5f));
+		setStringRGBA(1, 1, 1, 1);
+		drawString(pEvent.storage.getStorageText(type), resourceView.width/2, 30, VCENTER | HCENTER);
+
+		setStringRGBA(c.r, c.g, c.b, 1);
+		GUI.color = Color.white;
+		RenderTexture.active = bk;
+		GUI.matrix = bkM;
 	}
 
 	//자원 보이기
 	void updateResourceView()
 	{
 		//자원 보유량 적기
-		setRGBA(0, 0, 0, 0.5f);
+		setRGBA(0, 0, 0, 0.8f);
 		fillRect(0, 0, MainCamera.devWidth, 60);
+		if(pEvent.specialEvent!=0)
+		fillRect(MainCamera.devWidth - 160, 60, 150, 50);
 
 		setRGBA(1, 1, 1, 1);
+		setStringRGBA(1, 1, 1, 1);
 		//fillRect(5, 5, 40, 40);
 		iPoint p;
 		p.x = 5;
@@ -240,6 +261,27 @@ public class UIFIX : iGUI
 			Texture resource = Resources.Load<Texture>(texname[i]);
 			p.x = 5 + i * 150;
 			drawImage(resource, p, 40.0f / resource.width, 40.0f / resource.height, LEFT | HCENTER);
+		}
+		if (pEvent.specialEvent != 0)
+		{
+			string[] spEvent = new string[] { "test", "습격", "병", "내분", "독립요구" };
+			setStringRGBA(1, 0, 0, 1);
+			drawString(spEvent[pEvent.specialEvent], (MainCamera.devWidth - 85), 85, VCENTER | HCENTER);
+			setStringRGBA(1, 1, 1, 1);
+		}
+		p = new iPoint(60 + 3 * 150, 0);
+
+		if (touchCheck(new Rect(5 + 3 * 150, p.y, 130,60), MainCamera.mousePosition()))
+		{
+			updateinfo(5);
+			GUI.DrawTexture(new Rect(5 + 3 * 130, 80, 
+							resourceView.width, resourceView.height), resourceView);
+		}
+		else if (touchCheck(new Rect(5 + 2 * 150, 0, 130,60), MainCamera.mousePosition()))
+		{
+			updateinfo(4);
+			GUI.DrawTexture(new Rect(5 + 2 * 130, 80, resourceView.width, resourceView.height), 
+								resourceView);
 		}
 	}
 
@@ -339,9 +381,11 @@ public class UIFIX : iGUI
 		idx = pEvent.pState[curidx].job;
 
 		setRGBA(1, 1, 1, 1);
-
 		fillRect(50, 50, 300, 300);
 
+		setRGBA(0, 0, 0, 0.5f);
+		fillRect(texpinfoView.width/2, 0, 300, 900);
+		setRGBA(1, 1, 1, 1);
 		Texture people = pEvent.pState[curidx].jobTex;
 		iPoint p = new iPoint(50, 50);
 		drawImage(people, p, 300.0f / people.width, 300.0f / people.height, LEFT | HCENTER);
@@ -351,7 +395,9 @@ public class UIFIX : iGUI
 		setStringSize(50);
 		p = new iPoint(texpinfoView.width / 2 + 50, texpinfoView.height / 2 - 150);
 		drawString(prople.name, p.x, p.y, LEFT | HCENTER);
+		//setStringRGBA(1, 1, 1, 1);
 		setStringSize(stringSize);
+		if(prople.job != 0)
         drawString("레벨 : " + prople.jobLevel[prople.job], p.x, p.y+70, LEFT | HCENTER);
         drawString("상태 : " + stateTxt[prople.behave], p.x, p.y + 100, LEFT | HCENTER);
 
@@ -379,6 +425,7 @@ public class UIFIX : iGUI
 
         setRGBA(1, 0, 0, 1);
         fillRect(texpinfoView.width-60, 10, 50,50);
+
         //(new Rect((MainCamera.devWidth - texpinfoView.width) / 2, 100,                            texpinfoView.width, texpinfoView.height), texpinfoView);
         r = new Rect((MainCamera.devWidth - texpinfoView.width) / 2 + (texpinfoView.width - 60), 110, 50, 50);
         setStringSize(50);

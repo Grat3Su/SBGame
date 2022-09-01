@@ -23,10 +23,13 @@ public class Event : MonoBehaviour
 
     public bool newday;
 
+    public int specialEvent;
+
     void initGame()
     {
         //storage = new Storage(1, 5, 0, 1, 0, 1);
-        storage = new Storage(40, 15, 1, 10, 0, 10);
+        specialEvent = 0;
+        storage = new Storage(40, 15, 1, 10, 40, 10);
         getDay = new AddItem(0);//하루 지나면 초기화
         day = 0;
         hour = 0;
@@ -176,6 +179,7 @@ public class Event : MonoBehaviour
 
         if (type == DoEvent.Defense)
         {
+            specialEvent = 1;
             Debug.Log(etype[0]);
             item.food = Random.Range(0, 100) > 80 ? -Random.Range(1, 2) : 0;
             item.people = Random.Range(0, 100) > 50 ? -Random.Range(1, 2) : 0;
@@ -183,6 +187,7 @@ public class Event : MonoBehaviour
         }
         else if (type == DoEvent.Disease)
         {
+            specialEvent = 2;
             Debug.Log(etype[1]);
             int people = storage.getStorage(0);
             int weak = Random.Range(0, people - 1);
@@ -219,6 +224,7 @@ public class Event : MonoBehaviour
             day++;
             nextDay();
 
+            specialEvent = 0;//이벤트 초기화
             //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
             doRandEvent((DoEvent)(Random.Range(1, 5)));
 

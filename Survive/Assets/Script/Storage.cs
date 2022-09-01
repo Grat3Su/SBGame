@@ -47,8 +47,17 @@ public struct Storage
 
     public string getStorageText(int type)
 	{
-        int[] r = new int[] { people, food, labLevel, stage};
-        int[] r0 = new int[] { _people, _food, labExp, stageExp};
+        int[] r = new int[] { people, food, labLevel, stage, labExp, stageExp };
+        int[] r0 = new int[] { _people, _food };
+
+        int need = labLevel < 10 ? 4 * labLevel : 2 * labLevel + 20;
+        if (type == 4)
+            return r[type] + " / " + need;
+        else if (type == 5)
+            return r[type] + " / " + r[type] * 4;
+        else if (type > 1)
+            return r[type] + "·¹º§";
+
         return r[type] + " / " + r0[type];
 	}
 
