@@ -133,16 +133,16 @@ public class UIFIX : iGUI
 		if (pEvent.newday)
 		{
             updateNextDay();
-			GUI.DrawTexture(new Rect(100, 100, texNextView.width, texNextView.height), texNextView);
+			drawTexture(new Rect(100, 100, texNextView.width, texNextView.height), texNextView);
 		}
 
 		if(moveSView >-300)
-		GUI.DrawTexture(new Rect(moveSView, 100, texScrollView.width, texScrollView.height), texScrollView);
+			drawTexture(new Rect(moveSView, 100, texScrollView.width, texScrollView.height), texScrollView);
 
 		if (curidx > -1&& pclick ==true)
 		{
 			updatePeopleInfo();
-			GUI.DrawTexture(new Rect((MainCamera.devWidth - texpinfoView.width) / 2, 100,
+			drawTexture(new Rect((MainCamera.devWidth - texpinfoView.width) / 2, 100,
 							texpinfoView.width, texpinfoView.height), texpinfoView);
 		}
 	}
@@ -274,13 +274,13 @@ public class UIFIX : iGUI
 		if (touchCheck(new Rect(5 + 3 * 150, p.y, 130,60), MainCamera.mousePosition()))
 		{
 			updateinfo(5);
-			GUI.DrawTexture(new Rect(5 + 3 * 130, 80, 
+			drawTexture(new Rect(5 + 3 * 130, 80, 
 							resourceView.width, resourceView.height), resourceView);
 		}
 		else if (touchCheck(new Rect(5 + 2 * 150, 0, 130,60), MainCamera.mousePosition()))
 		{
 			updateinfo(4);
-			GUI.DrawTexture(new Rect(5 + 2 * 130, 80, resourceView.width, resourceView.height), 
+			drawTexture(new Rect(5 + 2 * 130, 80, resourceView.width, resourceView.height), 
 								resourceView);
 		}
 	}

@@ -62,7 +62,7 @@ public class Event : MonoBehaviour
                 return;
             }
         if (Input.GetKeyDown(KeyCode.Space))
-            doEvent((DoEvent)Random.Range(0, 3));
+            doEvent((DoEvent)Math.random(0, 3));
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
             hour = 12;
@@ -97,8 +97,8 @@ public class Event : MonoBehaviour
 
                 float height = Camera.main.orthographicSize;
                 float width = Camera.main.aspect * height;
-                float x = Random.Range(-width, width);
-                float y = Random.Range(-height, height);
+                float x = Math.random(-width, width);
+                float y = Math.random(-height, height);
                 go.transform.position = new Vector3(x, y, 0);
                 go.AddComponent<PeopleState>();
                 go.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("bush");
@@ -149,22 +149,22 @@ public class Event : MonoBehaviour
         AddItem item = new AddItem(0);
         if (type == DoEvent.Adventure)
         {
-            item.food = Random.Range(0, 2);
-            item.people = Random.Range(0, 100) > 50 ? Random.Range(1, 2) : 0;
+            item.food = Math.random(0, 2);
+            item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
             item.takeTime = 4;
 
             item.stageExp += 4;
         }
         else if (type == DoEvent.Hunt)
         {
-            item.food = Random.Range(1, 3);
-            item.people = Random.Range(0, 100) > 50 ? Random.Range(1, 2) : 0;
+            item.food = Math.random(1, 3);
+            item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
             item.takeTime = 4;
         }
         else if (type == DoEvent.Research)
         {
             int labLevel = storage.getStorage(4);
-            item.labExp = labLevel < 5 ? Random.Range(1, 3) : Random.Range(2, 5);
+            item.labExp = labLevel < 5 ? Math.random(1, 3) : Math.random(2, 5);
             item.takeTime = 4;
         }
         Debug.Log(etype[(int)type]);
@@ -181,8 +181,8 @@ public class Event : MonoBehaviour
         {
             specialEvent = 1;
             Debug.Log(etype[0]);
-            item.food = Random.Range(0, 100) > 80 ? -Random.Range(1, 2) : 0;
-            item.people = Random.Range(0, 100) > 50 ? -Random.Range(1, 2) : 0;
+            item.food = Math.random(0, 100) > 80 ? -Math.random(1, 2) : 0;
+            item.people = Math.random(0, 100) > 50 ? -Math.random(1, 2) : 0;
             item.takeTime = 8;
         }
         else if (type == DoEvent.Disease)
@@ -190,9 +190,9 @@ public class Event : MonoBehaviour
             specialEvent = 2;
             Debug.Log(etype[1]);
             int people = storage.getStorage(0);
-            int weak = Random.Range(0, people - 1);
+            int weak = Math.random(0, people - 1);
             item.food = -weak;
-            item.people = Random.Range(0, 100) > 80 ? -Random.Range(0, weak) : 0;
+            item.people = Math.random(0, 100) > 80 ? -Math.random(0, weak) : 0;
             item.takeTime = 4;
         }
         updateEvent(item);
@@ -226,7 +226,7 @@ public class Event : MonoBehaviour
 
             specialEvent = 0;//이벤트 초기화
             //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
-            doRandEvent((DoEvent)(Random.Range(1, 5)));
+            doRandEvent((DoEvent)(Math.random(1, 5)));
 
             int people = storage.getStorage(0);
             for (int i = 0; i < people - 1; i++)

@@ -291,11 +291,24 @@ public class iGUI : MonoBehaviour
 #endif
         GUI.matrix = matrixPrjection;
     }
+
+    public static void drawTexture(Rect r, RenderTexture tex)
+	{
+        GUI.DrawTexture(r, tex);
+    }
 }
 
 class Math
 	{
-		public static float angleDirection(iPoint s, iPoint e)
+    public static int random(int min, int max)
+	{
+        return Random.Range(min, max);
+	}
+    public static float random(float min, float max)
+    {
+        return Random.Range(min, max);
+    }
+    public static float angleDirection(iPoint s, iPoint e)
 		{
 			return angleDirection(s.x, s.y, e.x, e.y);
 		}
