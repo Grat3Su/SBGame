@@ -266,9 +266,9 @@ class newpState
 
 	}
 
-    void jobChange()
-    {
-        
+    public void jobChange(int newJob)
+    {//직업 변경
+        job = newJob;
     }
 
 	void jobAction()// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
