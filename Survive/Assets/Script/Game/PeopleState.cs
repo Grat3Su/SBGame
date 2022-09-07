@@ -266,6 +266,11 @@ class newpState
 
 	}
 
+    void jobChange()
+    {
+        
+    }
+
 	void jobAction()// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
 	{
 		//낮은 확률로 fever 이벤트 발생? 한 1000분의 1
