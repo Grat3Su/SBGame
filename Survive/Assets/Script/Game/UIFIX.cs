@@ -158,7 +158,7 @@ public class UIFIX : iGUI
 		Matrix4x4 bkM = GUI.matrix;
 		GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
 
-		GL.Clear(true, true, new Color(0, 0, 0, 0.5f));				
+		GL.Clear(true, true, new Color(0, 0, 0, 0.5f));		
 		
 		setRGBA(1, 1, 1, 1);
 		setStringRGBA(1, 1, 1, 1);
