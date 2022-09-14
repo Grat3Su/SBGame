@@ -277,7 +277,10 @@ class newpState
 		if (job == 1)//≈Ω«Ë∞°
 		{
 			//∏ ¿ª ≈Ω«Ë«ÿ ∏  ∞Ê«Ëƒ°∏¶ ¥√∏Æ∞Ì ∞°≤˚ ªÁ∂˜¿ª ±∏«ÿø¬¥Ÿ
-			Math.random(0, 100);
+			if (Math.random(0, 100) > 80)
+				h.storage.addStorage(0, 1);
+
+			
 		}
 		else if (job == 2)//¿œ≤€
 		{
