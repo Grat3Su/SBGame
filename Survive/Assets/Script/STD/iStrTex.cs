@@ -22,8 +22,15 @@ public class iStrTex
 	// ============================================================
 	// static : runSt()를 void OnGUI()함수 내 서두 부분에 호출해야 함.
 	// ============================================================
+	static int max = 0;
 	public static void runSt()
 	{
+		if (max < stInfoNum)
+		{
+			max = stInfoNum;
+			//Debug.Log("max = " + max);
+		}
+
 		for (int i = 0; i < stInfoNum; i++)
 		{
 			ref StInfo info = ref stInfo[i];
@@ -44,7 +51,7 @@ public class iStrTex
 			cls = c;
 		}
 	}
-	static StInfo[] stInfo = new StInfo[100];
+	static StInfo[] stInfo = new StInfo[1000];
 	static int stInfoNum;
 
 	// ============================================================
@@ -218,7 +225,8 @@ public class iStrTex
 		return tex.tex;
 	}
 
-	public static void cbGetTexture(iStrTex st)
+	public delegate void MethodStTexture(iStrTex st);
+	public static void methodTexture(iStrTex st, MethodStTexture method)
 	{
 #if true// #issue
 		if (st.tex.tex != st.texReserve)
@@ -239,6 +247,25 @@ public class iStrTex
 		string sn = iGUI.instance.getStringName();
 		float ss = iGUI.instance.getStringSize();
 		Color sc = iGUI.instance.getStringRGBA();
+
+		if (method != null)
+			method(st);
+
+		iGUI.instance.setStringName(sn);
+		iGUI.instance.setStringSize(ss);
+		iGUI.instance.setStringRGBA(sc.r, sc.g, sc.b, sc.a);
+
+		RenderTexture.active = bkT;
+		//Camera.main.rect = bkR;
+		GUI.matrix = matrixBk;
+	}
+
+	public static void cbGetTexture(iStrTex st)
+	{
+		methodTexture(st, cbGetTexture_);
+	}
+	public static void cbGetTexture_(iStrTex st)
+	{
 		iGUI.instance.setStringName(st.stringName);
 		iGUI.instance.setStringSize(st.stringSize);
 		iGUI.instance.setStringRGBA(st.stringColor.r,
@@ -247,15 +274,6 @@ public class iStrTex
 									st.stringColor.a);
 
 		iGUI.instance.drawString(st.str, 0, 0);
-
-		iGUI.instance.setStringName(sn);
-		iGUI.instance.setStringSize(ss);
-		iGUI.instance.setStringRGBA(sc.r, sc.g, sc.b, sc.a);
-
-
-		RenderTexture.active = bkT;
-		//Camera.main.rect = bkR;
-		GUI.matrix = matrixBk;
 	}
 
 }

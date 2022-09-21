@@ -42,6 +42,10 @@ public class iGUI : MonoBehaviour
         GL.Clear(true, true, Color.clear);
         //GL.Clear(true, true, new Color(0, 0, 1, 0.5f));
     }
+        public void preCull()
+    {
+        GL.Clear(true, true, Color.clear);
+    }
 
     public void setProject()
 	{
@@ -299,7 +303,76 @@ public class iGUI : MonoBehaviour
 }
 
 class Math
-	{
+{
+    public static float linear(float rate, float a, float b)
+    {
+        rate = Mathf.Clamp(rate, 0, 1);
+        return a * (1 - rate) + b * rate;
+    }
+
+    public static float easeIn(float rate, float a, float b)
+    {// y = x^2
+        rate = Mathf.Clamp(rate, 0, 1);
+        rate = rate * rate * rate;
+        return a * (1 - rate) + b * rate;
+    }
+
+    public static float easeOut(float rate, float a, float b)
+    {// y = 1 - (x-1)^2
+        rate = Mathf.Clamp(rate, 0, 1);
+#if false// #issue bug
+			rate = rate - 1;
+			rate = 1f - rate * rate * rate;
+#else
+        rate = Mathf.Sin(90 * rate * Mathf.Deg2Rad);
+        rate = Mathf.Sin(90 * rate * Mathf.Deg2Rad);
+#endif
+        return a * (1 - rate) + b * rate;
+    }
+
+
+    public static float angleDirection(iPoint s, iPoint e)
+    {
+        return angleDirection(s.x, s.y, e.x, e.y);
+    }
+    public static float angleDirection(float sx, float sy, float ex, float ey)
+    {
+        sy = MainCamera.devHeight - sy;
+        ey = MainCamera.devHeight - ey;
+
+        iPoint v;
+        v.x = ex - sx;
+        v.y = ey - sy;
+        //return Mathf.Atan2(v.y, v.x) * 180 / Mathf.PI;
+        return Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg;
+    }
+
+    public static float angleRotate(float currDegree, float targetDegree, float speed)
+    {
+        if (currDegree == targetDegree)
+            return currDegree;
+
+        float diff = targetDegree - currDegree;
+        float ad = Mathf.Abs(diff);
+        if (ad > 180)
+        {
+            //ad = 180;
+            ad = Mathf.Abs(ad - 360);
+        }
+        float r = speed / ad;
+        if (r < 1.0f)
+        {
+            //currDegree = Math.angleRate(currDegree, targetDegree, r);
+            if (diff > 360) diff -= 360;
+            if (diff > 180) diff -= 360;
+            currDegree = currDegree + diff * r;
+        }
+        else
+            currDegree = targetDegree;
+
+        return currDegree;
+    }
+
     public static int random(int min, int max)
 	{
         return Random.Range(min, max);
@@ -308,45 +381,4 @@ class Math
     {
         return Random.Range(min, max);
     }
-    public static float angleDirection(iPoint s, iPoint e)
-		{
-			return angleDirection(s.x, s.y, e.x, e.y);
-		}
-		public static float angleDirection(float sx, float sy, float ex, float ey)
-		{
-			sy = MainCamera.devHeight - sy;
-			ey = MainCamera.devHeight - ey;
-
-			iPoint v;
-			v.x = ex - sx;
-			v.y = ey - sy;
-			//return Mathf.Atan2(v.y, v.x) * 180 / Mathf.PI;
-			return Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg;
-		}
-
-		public static float angleRotate(float currDegree, float targetDegree, float speed)
-		{
-			if( currDegree==targetDegree )
-				return currDegree;
-
-			float diff = targetDegree - currDegree;
-			float ad = Mathf.Abs(diff);
-			if (ad > 180)
-			{
-				//ad = 180;
-				ad = Mathf.Abs(ad - 360);
-			}
-			float r = speed / ad;
-			if (r < 1.0f)
-			{
-				//currDegree = Math.angleRate(currDegree, targetDegree, r);
-				if (diff > 360) diff -= 360;
-				if (diff > 180) diff -= 360;
-				currDegree = currDegree + diff * r;
-			}
-			else
-				currDegree = targetDegree;
-
-			return currDegree;
-		}
-	}
+}

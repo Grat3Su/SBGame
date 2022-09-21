@@ -189,7 +189,7 @@ public class UIFIX : iGUI
 			}
 			else if (i == 3)
 			{
-				strData = pEvent.getDay.stageExp;
+				strData = pEvent.getDay.mapExp;
 			}
 
 			if(strData > 0)

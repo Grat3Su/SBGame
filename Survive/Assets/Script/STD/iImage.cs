@@ -2,108 +2,146 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class iImage
+using STD;
+
+namespace STD
 {
-	public List<iTexture> listTex;
-
-	public iTexture tex;
-	public iPoint position;
-
-	public bool animation;
-	public int repeatIdx, repeatNum; // 0 : loop, 1 ~ : count
-	public int frame;
-	public float frameDt, _frameDt;
-	public float scale;
-
-	public iImage()
+	public class iImage
 	{
-		listTex = new List<iTexture>();
+		public List<iTexture> listTex;
 
-		//tex;
-		position = new iPoint(0, 0);
+		public iTexture tex;
+		public iPoint position;
 
-		animation = false;
-		repeatIdx = 0;
-		repeatNum = 0;
-		frame = 0;
-		_frameDt = 0.0167f;// 1 / 60
-		frameDt = 0.0f;
-		scale = 1.0f;
-	}
+		public bool animation;
+		public int repeatIdx, repeatNum; // 0 : loop, 1 ~ : count
+		public int frame;
+		public float frameDt, _frameDt;
+		public float scale;
 
-	public void add(iTexture t)
-	{
-		listTex.Add(t);
-		t.retainCount++;
-	}
-
-	public void set(int index)
-	{
-		frame = index;
-	}
-
-	public void paint(float dt)
-	{
-		paint(dt, new iPoint(0, 0));
-	}
-	public void paint(float dt, iPoint off)
-	{
-		if (animation)
+		public iImage()
 		{
-			frameDt += dt;
-			if (frameDt >= _frameDt)
+			listTex = new List<iTexture>();
+
+			//tex;
+			position = new iPoint(0, 0);
+
+			animation = false;
+			repeatIdx = 0;
+			repeatNum = 0;
+			frame = 0;
+			_frameDt = 0.0167f;// 1 / 60
+			frameDt = 0.0f;
+			scale = 1.0f;
+		}
+
+		public iImage clone()
+		{
+			iImage img = new iImage();
+			for (int i = 0; i < listTex.Count; i++)
+				img.add(listTex[i]);
+
+			img.tex = tex;
+			img.position = position;
+
+			img.animation = animation;
+			img.repeatIdx = repeatIdx;
+			img.repeatNum = repeatNum;
+			img.frame = frame;
+			img.frameDt = frameDt;
+			img._frameDt = _frameDt;
+			img.scale = scale;
+
+			return img;
+		}
+
+		public void add(iTexture t)
+		{
+			listTex.Add(t);
+			t.retainCount++;
+		}
+
+		public void set(int index)
+		{
+			frame = index;
+		}
+
+		public void paint(float dt)
+		{
+			paint(dt, new iPoint(0, 0));
+		}
+		public void paint(float dt, iPoint off)
+		{
+			if (animation)
 			{
-				frameDt -= _frameDt;
-				frame++;
-
-				if (frame == listTex.Count)
+				frameDt += dt;
+				if (frameDt >= _frameDt)
 				{
-					frame = 0;
-					repeatIdx++;
+					frameDt -= _frameDt;
+					frame++;
 
-					if (repeatNum != 0)
+					if (frame == listTex.Count)
 					{
-						if (repeatIdx == repeatNum)
+						frame = 0;
+						repeatIdx++;
+
+						if (repeatNum == 0)
+							;// loop
+						else// if (repeatNum != 0)
 						{
-							animation = false;
+							if (repeatIdx == repeatNum)
+							{
+								animation = false;
+							}
 						}
 					}
 				}
 			}
+
+			tex = listTex[frame];
+			Texture t = tex.tex;
+			//iGUI.instance.drawImage(t, position + off, iGUI.TOP | iGUI.LEFT);
+			off += position;
+			if (scale != 1.0f)
+			{
+				off.x += (1 - scale) * t.width / 2;
+				off.y += (1 - scale) * t.height / 2;
+			}
+			iGUI.instance.drawImage(t, off.x, off.y, scale, scale,
+				iGUI.TOP | iGUI.LEFT, 2, 0, iGUI.REVERSE_NONE);
 		}
 
-		tex = listTex[frame];
-		Texture t = tex.tex;
-		//iGUI.instance.drawImage(t, position + off, iGUI.TOP | iGUI.LEFT);
-		off += position;
-		if (scale != 1.0f)
+		public void startAnimation()
 		{
-			off.x += (1 - scale) * t.width / 2;
-			off.y += (1 - scale) * t.height / 2;
+			animation = true;
+			repeatIdx = 0;
+			frame = 0;
+			frameDt = 0.0f;
 		}
-		iGUI.instance.drawImage(t, off.x, off.y, scale, scale,
-			iGUI.TOP | iGUI.LEFT, 2, 0, iGUI.REVERSE_NONE);
-	}
 
-	public void startAnimation()
-	{
-		animation = true;
-		repeatIdx = 0;
-		frame = 0;
-		frameDt = 0.0f;
-	}
+		public iRect touchRect()
+		{
+			return touchRect(new iPoint(0, 0), new iSize(0, 0));
+		}
 
-	public iRect touchRect()
-	{
-		return touchRect(new iPoint(0, 0), new iSize(0, 0));
-	}
+		public iRect touchRect(iPoint off, iSize s)
+		{
+			return new iRect(position.x + off.x - s.width / 2,
+								position.y + off.y - s.height / 2,
+								tex.tex.width + s.width,
+								tex.tex.height + s.height);
+		}
 
-	public iRect touchRect(iPoint off, iSize s)
-	{
-		return new iRect(position.x + off.x - s.width / 2,
-							position.y + off.y - s.height / 2,
-							tex.tex.width + s.width,
-							tex.tex.height + s.height);
+		public iPoint center()
+		{
+			return new iPoint(position.x + tex.tex.width / 2,
+								position.y + tex.tex.height / 2);
+		}
+		public iPoint center(iPoint off)
+		{
+			return new iPoint(off.x + position.x + tex.tex.width / 2,
+								off.y + position.y + tex.tex.height / 2);
+		}
 	}
 }
 

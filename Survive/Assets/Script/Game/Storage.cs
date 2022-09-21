@@ -26,23 +26,8 @@ public struct Storage
 
     public int getStorage(int type)
 	{
-#if false
-        if (type == 0)
-            return people;
-        else if (type == 1)
-            return food;
-        else if (type == 2)
-            return water;
-        if (type == 3)
-            return labExp;
-        if (type == 4)
-            return labLevel;
-
-        return 0;
-#else
         int[] r = new int[] { people, food, labExp, labLevel, stage, stageExp };
         return r[type];
-#endif
     }
 
     public string getStorageText(int type)
@@ -127,6 +112,76 @@ public struct Storage
         Debug.Log("food : "+ food + "/" + _food);
         Debug.Log("labLevel : "+ labLevel + " / exp : "+labExp);
         Debug.Log("stage : "+ stage + " / exp : " + stageExp);
+    }
+}
+public class newStorage//저장고. 주로 자원 보관.
+{
+    public int people, _people;
+    public int food, _food;
+    public int lab, map;
+    public int labExp, mapExp;
 
+    public newStorage(int p, int f, int l, int m, int le, int me)
+    {
+        people = p;
+        food = f;
+        lab = l; labExp = le;
+        map = m; mapExp = me;
+
+        _people = lab * 3;
+        _food = lab * 5;
+    }
+    public string getStorageText(int type)
+    {
+        int[] r = new int[] { people, food, lab, map, labExp, mapExp };
+        int[] r0 = new int[] { _people, _food };
+
+        int need = lab < 10 ? 4 * lab : 2 * lab + 20;
+        if (type == 4)
+            return r[type] + " / " + need;
+        else if (type == 5)
+            return r[type] + " / " + r[type] * 4;
+        else if (type > 1)
+            return r[type] + "레벨";
+
+        return r[type] + " / " + r0[type];
+    }
+
+    public void update()
+    {
+        int need = lab < 10 ? 4 * lab : 2 * lab + 20;
+        while (labExp > need)
+        {
+            labExp -= need;
+            lab++;
+
+            _people = lab * 3;
+            _food = lab * 5;
+
+            need = lab < 10 ? 4 * lab : 2 * lab + 20;
+        }
+
+        if (people > _people)
+            people = _people;
+
+        if (food > _food)
+            food = _food;
+
+        //4 8 12 16 ...
+
+        while (mapExp > map * 4)
+        {
+            map++;
+        }
+
+        if (people > _people)
+            people = _people;
+        else if (people < 0)
+            people = 0;
+
+        if (food > _food)
+            food = _food;
+        else if (food == 0)
+            food = 0;
     }
 }

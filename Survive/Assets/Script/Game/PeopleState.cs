@@ -86,7 +86,7 @@ public class PeopleState : MonoBehaviour
 			Debug.Log(name + "복귀");
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 1);
-			h.getDay.stageExp += 1;
+			h.getDay.mapExp += 1;
 
 			int people = Math.random(0, 100);
 			if (people > 80)
@@ -140,7 +140,7 @@ public class PeopleState : MonoBehaviour
 			behave = 3;
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 2);
-			h.getDay.stageExp += 2;
+			h.getDay.mapExp += 2;
 			int people = Math.random(0, 100);
 			if (people > 80)
 			{
@@ -231,71 +231,70 @@ public class PeopleState : MonoBehaviour
 
 class newpState
 {//해야하는 일 : 각자일
-	public int[] jobLevel;
-	int jobExp;
+	public string pName;
+	public int job;
+	public int level;
+	public float exp;
 
-	string name;//이름
-	public int behave;// 0 : idle / 1 : move / 2 : attack / 2 : work / 3 : disease
-	bool defence;//습격?
-	public int takeTime;//맵에 없을 시간
-	public int job = 0;// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
-	public Sprite[][] sp;
-	public Event h;
-	public Texture jobTex;
+	public int takeTime;
 
-	void init()
+	void Start()
 	{
-		behave = 0;
-		defence = false;
-		jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
-		jobExp = 0;
-
-		string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
-		jobTex = Resources.Load<Texture>("people");
-		name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
-		Debug.Log(name + "구조");
-		//gameObject.name = name;
-		//이름 랜덤 생성
-
+		//이름은 외부에서 지정
 		job = 0;
-		int newjob = Math.random(0, 5);
+		level = 0;
+		exp = 0;
+		takeTime = 0;
 	}
 
-	void update()
+	// Update is called once per frame
+	void Update()
 	{
-
+		if (takeTime > 3)
+			jobAction();
 	}
 
-    public void jobChange(int newJob)
-    {//직업 변경
-        job = newJob;
-    }
-
-	void jobAction()// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
+	public void jobUpdate(int newJob)
 	{
-		//낮은 확률로 fever 이벤트 발생? 한 1000분의 1
+		job = newJob;
+	}
+
+	public void jobAction()// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
+	{
+		takeTime -= 4;
+		if (takeTime < 0)
+			takeTime = 0;
+
+		int bonus = level * 2;
+		AddItem item = new AddItem(0);
 		if (job == 1)//탐험가
 		{
 			//맵을 탐험해 맵 경험치를 늘리고 가끔 사람을 구해온다
-			if (Math.random(0, 100) > 80)
-				h.storage.addStorage(0, 1);
+			if (Random.Range(0, 100) > (80 - bonus))
+				item.people = 1;
 
-			
+			item.mapExp = 2 + bonus;//레벨에 따라 얻는 량 달라짐
+
 		}
 		else if (job == 2)//일꾼
 		{
 			//탐험한 맵을 바탕으로 맵의 자원을 수집한다
-			//확률은 맵 레벨에 따라 바뀌도록 한다
+			int mount = Random.Range(0, 5);
+			item.food = mount;
+
 		}
 		else if (job == 3)//농부
 		{
 			// 농사를 지어 안정적으로 식량을 수급한다
-			
+			int mount = Random.Range(0, 2) + 2 * level;
+			item.food = mount;
 		}
 		else if (job == 4)//연구원
 		{
 			//연구해서 연구 경험치를 올린다.
 			//연구 레벨이 오르면 자원 상한량이 오른다.
+			int mount = Random.Range(0, 2) + 2 * level;
+			item.labExp = mount;
 		}
 	}
 }

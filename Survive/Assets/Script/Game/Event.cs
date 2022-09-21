@@ -153,7 +153,7 @@ public class Event : MonoBehaviour
             item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
             item.takeTime = 4;
 
-            item.stageExp += 4;
+            item.mapExp += 4;
         }
         else if (type == DoEvent.Hunt)
         {
@@ -203,13 +203,13 @@ public class Event : MonoBehaviour
         storage.addStorage(0, item.people);
         storage.addStorage(1, item.food);
         storage.addStorage(3, item.labExp);
-        storage.addStorage(4, item.stageExp);
+        storage.addStorage(4, item.mapExp);
 
         //오늘 얻은 물건 저장
         getDay.people += item.people;
         getDay.food += item.food;
         getDay.labExp += item.labExp;
-        getDay.stageExp += item.stageExp;
+        getDay.mapExp += item.mapExp;
 
         if (item.people > 0)
             spawnPeople();
@@ -281,7 +281,7 @@ public struct AddItem
     public int food;
     public int takeTime;
     public int labExp;
-    public int stageExp;
+    public int mapExp;
 
     public AddItem(int init)
     {
@@ -289,6 +289,6 @@ public struct AddItem
         food = init;
         takeTime = init;
         labExp = init;
-        stageExp = init;
+        mapExp = init;
     }
 }
