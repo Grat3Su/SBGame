@@ -585,14 +585,7 @@ public class Proc : gGUI
 			drawString("동작 : " + stateTxt[ps.behave], new iPoint(450, 200), LEFT | HCENTER);
 			drawString("직업 : " + btnJobTxt[ps.job],	new iPoint(450, 250), LEFT | HCENTER);
 		}
-		//else
-		//{
-		//	drawRect(50, 50, 300, 300);//이미지
-		//	drawString("이름 : ", new iPoint(450, 100), LEFT | HCENTER);
-		//	drawString("레벨 : ", new iPoint(450, 150), LEFT | HCENTER);
-		//	drawString("동작 : ", new iPoint(450, 200), LEFT | HCENTER);
-		//	drawString("직업 : ", new iPoint(450, 250), LEFT | HCENTER);
-		//}
+
 		for (int i = 0; i < 2; i++)
 		{
 			//for (int j = 0; j < 2; j++)

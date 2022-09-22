@@ -208,7 +208,7 @@ public class PeopleState : MonoBehaviour
 
 		if (job == 0)
 		{
-			jobTex = Resources.Load<Texture>("people");
+			jobTex = Resources.Load<Texture>("jobless");
 		}
 		else if (job == 1)
 		{
@@ -216,7 +216,7 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 2)
 		{
-			jobTex = Resources.Load<Texture>("farmer");
+			jobTex = Resources.Load<Texture>("worker");
 		}
 		else if (job == 3)
 		{
