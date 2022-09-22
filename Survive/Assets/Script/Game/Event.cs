@@ -5,7 +5,7 @@ using UnityEngine;
 public class Event : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         pState = new PeopleState[100];
         initGame();
@@ -70,7 +70,7 @@ public class Event : MonoBehaviour
         }
     }
 
-    enum DoEvent
+    public enum DoEvent
     {
         Adventure,
         Hunt,
@@ -143,7 +143,7 @@ public class Event : MonoBehaviour
         storage.addStorage(0, -1);
     }
 
-    void doEvent(DoEvent type)
+    public void doEvent(DoEvent type)
     {
         string[] etype = new string[] { "탐험", "사냥", "연구" };
         AddItem item = new AddItem(0);
@@ -172,7 +172,7 @@ public class Event : MonoBehaviour
         updateEvent(item);
     }
 
-    void doRandEvent(DoEvent type)
+    public void doRandEvent(DoEvent type)
     {
         AddItem item = new AddItem(0);
         string[] etype = new string[] { "습격", "병" };
@@ -197,6 +197,18 @@ public class Event : MonoBehaviour
         }
         updateEvent(item);
     }
+    void skipDay()
+	{
+        int people = storage.getStorage(0);
+        for (int i = 0; i < people - 1; i++)
+        {
+            if (pState[i] != null)
+                pState[i].takeTime += 12;
+        }
+        hour = 0;
+        day++;
+        nextDay();
+	}
 
     void updateEvent(AddItem item)
     {
@@ -228,10 +240,10 @@ public class Event : MonoBehaviour
             //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
             doRandEvent((DoEvent)(Math.random(1, 5)));
 
-            int people = storage.getStorage(0);
-            for (int i = 0; i < people - 1; i++)
-                if (pState[i] != null)
-                    pState[i].comeBack();
+            //int people = storage.getStorage(0);
+            //for (int i = 0; i < people - 1; i++)
+            //    if (pState[i] != null)
+            //        pState[i].comeBack();
 
             newday = true;//보고창을 닫지 않으면 게임 속행 안되게
         }

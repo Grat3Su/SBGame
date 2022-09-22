@@ -158,6 +158,9 @@ public class newStorage//저장고. 주로 자원 보관.
             _people = lab * 3;
             _food = lab * 5;
 
+            if (_people > 100)
+                _people = 100;
+
             need = lab < 10 ? 4 * lab : 2 * lab + 20;
         }
 
@@ -171,6 +174,7 @@ public class newStorage//저장고. 주로 자원 보관.
 
         while (mapExp > map * 4)
         {
+            mapExp -= map * 4;
             map++;
         }
 

@@ -222,7 +222,7 @@ public class PeopleState : MonoBehaviour
 		{
 			jobTex = Resources.Load<Texture>("farmer");
 		}
-		else if (job == 3)
+		else if (job == 4)
 		{
 			jobTex = Resources.Load<Texture>("researcher");
 		}

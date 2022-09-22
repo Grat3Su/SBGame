@@ -160,7 +160,7 @@ namespace STD
 					//float r = Math.easeIn(aniDt / _aniDt, 0, 1);
 					//float r = Math.easeOut(aniDt / _aniDt, 0, 1);
 					position = openPoint * (1 - r) + closePoint * r;
-					Debug.LogFormat($"open {r} {position.x}, {position.y}");
+					//Debug.LogFormat($"open {r} {position.x}, {position.y}");
 				}
 				else if (state == iPopupState.proc)
 				{
@@ -184,7 +184,7 @@ namespace STD
 					float r = Math.linear(aniDt / _aniDt, 1, 0);
 					//float r = Math.easeIn(aniDt / _aniDt, 1, 0);// alpha 1 -> 0
 					position = openPoint * (1 - r) + closePoint * r;
-					Debug.LogFormat($"close {r} {position.x}, {position.y}");
+					//Debug.LogFormat($"close {r} {position.x}, {position.y}");
 				}
 			}
 			else if (style == iPopupStyle.zoom)

@@ -21,17 +21,23 @@ public class Proc : gGUI
 		popPerson.show(false);
 		popPersonInfo.show(false);
 		popNewDay.show(false);
-		popEvent.show(true);
+		popEvent.show(false);
 
 		//우선순위
 		MethodMouse[] m = new MethodMouse[]
 		{
-			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyNewDay
+			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyNewDay, keyPopEvent
 		};
 		for (int i = 0; i < m.Length; i++)
 			MainCamera.addMethodMouse(new MethodMouse(m[i]));
 
-		MainCamera.addMethodKeyboard(new MethodKeyboard(keyboardPlayer));
+		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
+		{
+			keyboardPlayer, keyboardPopEvent
+		};
+
+		for(int i = 0; i<mkeyboard.Length; i++)
+		MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
 	}
 
 	public override void free()
@@ -86,6 +92,8 @@ public class Proc : gGUI
 		return false;
 	}
 
+	Event playerEvent;
+
 	//=======================================================
 	// Player
 	//=======================================================
@@ -94,6 +102,10 @@ public class Proc : gGUI
 		pPos = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
 		speed = 50;
 		nextPos = new iPoint(0, 0);
+				
+		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
+		people = playerEvent.storage.getStorage(0) -1;
+		Debug.Log(playerEvent.storage.getStorage(0));
 	}
 
 	iPoint pPos;
@@ -163,7 +175,12 @@ public class Proc : gGUI
 
 	void drawPopTop(float dt)
 	{
-		stPersonInfo.setString(popTop.selected + "");
+		Storage sCheck = playerEvent.storage;
+		for(int i = 0; i<6; i++)
+		{
+
+		stPopTop.setString(sCheck.getStorage(i) + "");
+		}
 		popTop.paint(dt);
 	}
 
@@ -188,18 +205,22 @@ public class Proc : gGUI
 	{
 		setRGBA(0, 0, 0, 0.8f);
 		fillRect(0, 0, MainCamera.devWidth, 60);
-
+		setRGBA(1, 1, 1, 1);
 		iPoint p = new iPoint(5, 10);
 
 		for (int i = 0; i < 4; i++)
 		{
+			drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
+			string[] texname = new string[] { "people", "food", "lab", "map" };
+			Texture resource = Resources.Load<Texture>(texname[i]);
 			p.x = 5 + i * 150;
-			fillRect(p.x, p.y, 50, 50);
+			drawImage(resource, p, 40.0f / resource.width, 40.0f / resource.height, LEFT | HCENTER);
 		}
 	}
 
 	iRect checkScrollbar(int barW, int barH)
 	{
+		people = playerEvent.storage.getStorage(0) - 1;
 		// 가로 크기 / 총 크기
 		int miniWidth = 200;
 		int miniHeight = 500;
@@ -244,7 +265,7 @@ public class Proc : gGUI
 		img.add(st.tex);
 		pop.add(img);
 		stPerson = st;
-
+		people = playerEvent.storage.getStorage(0) - 1;
 		imgPersonBtn = new iImage[100];
 		stPersonBtn = new iStrTex[100][];
 		for (int i = 0; i < people; i++)
@@ -255,7 +276,7 @@ public class Proc : gGUI
 			for (int j = 0; j < 2; j++)
 			{
 				st = new iStrTex(methodStPersonBtn, 150, 50);
-				st.setString(j + "\n" + i + "번");
+				st.setString(j + "\n" + playerEvent.pState[i].name);
 				img.add(st.tex);
 
 				stPersonBtn[i][j] = st;
@@ -284,7 +305,7 @@ public class Proc : gGUI
 	{
 		setRGBA(0.3f, 0.3f, 0.3f, 0.5f);
 		fillRect(0, 0, 300, 600);
-
+		people = playerEvent.storage.getStorage(0) - 1;
 		setRGBA(1, 1, 1, 1);
 		for (int i = 0; i < people; i++)
 		{
@@ -390,6 +411,7 @@ public class Proc : gGUI
 				scroll = false;
 				firstPoint = point;
 				prevPoint = point;
+				people = playerEvent.storage.getStorage(0) - 1;
 				for (i = 0; i < people; i++)
 				{
 					if (imgPersonBtn[i].touchRect(p, s).containPoint(point))//클릭되면 ㅁ
@@ -518,8 +540,8 @@ public class Proc : gGUI
 				//직업 바꾸기 : 1
 				else
 				{
-					st = new iStrTex(methodStPersonInfoBtn, 150, 50);
-					st.setString(j + "\n" + " 직업 " + "\n" + i);
+					st = new iStrTex(methodStPersonInfoBtn, 50, 50);
+					st.setString(j + "\n" + ">" + "\n" + i);
 				}
 				img.add(st.tex);
 
@@ -528,7 +550,7 @@ public class Proc : gGUI
 			if (i == 0)
 				img.position = new iPoint(700 - 70, 10);
 			else
-				img.position = new iPoint(450, 250);
+				img.position = new iPoint(600, 250);
 			imgPersonInfoBtn[i] = img;
 		}
 
@@ -545,16 +567,32 @@ public class Proc : gGUI
 
 	public void methodStPersonInfo_(iStrTex st)
 	{
-		setRGBA(0.5f, 0.5f, 0.5f, 0.5f);
+		setRGBA(0.5f, 0.5f, 0.5f, 1f);
 		fillRect(0, 0, 700, 400);
 
 		setRGBA(1, 1, 1, 1);
-		drawRect(50, 50, 300, 300);//이미지
 
-		drawString("이름 : " + select + "번", new iPoint(450, 100), VCENTER | HCENTER);
-		drawString("레벨", new iPoint(450, 150), VCENTER | HCENTER);
-		drawString("동작", new iPoint(450, 200), VCENTER | HCENTER);
-
+		string[] stateTxt = new string[] { "움직임", "공격", "일", "병" };
+		string[] btnJobTxt = new string[] { "백수", "탐험가", "일꾼", "농부", "연구원" };
+		if (select != -1)
+		{
+			Texture personTex = playerEvent.pState[select].jobTex;
+			iPoint p = new iPoint(50, 50);
+			drawImage(personTex, p, 300.0f / personTex.width, 300.0f / personTex.height, LEFT | HCENTER);
+			PeopleState ps = playerEvent.pState[select];
+			drawString("이름 : " + ps.name,				new iPoint(450, 100), LEFT | HCENTER);
+			drawString("레벨 : " + ps.jobLevel[ps.job], new iPoint(450, 150), LEFT | HCENTER);
+			drawString("동작 : " + stateTxt[ps.behave], new iPoint(450, 200), LEFT | HCENTER);
+			drawString("직업 : " + btnJobTxt[ps.job],	new iPoint(450, 250), LEFT | HCENTER);
+		}
+		//else
+		//{
+		//	drawRect(50, 50, 300, 300);//이미지
+		//	drawString("이름 : ", new iPoint(450, 100), LEFT | HCENTER);
+		//	drawString("레벨 : ", new iPoint(450, 150), LEFT | HCENTER);
+		//	drawString("동작 : ", new iPoint(450, 200), LEFT | HCENTER);
+		//	drawString("직업 : ", new iPoint(450, 250), LEFT | HCENTER);
+		//}
 		for (int i = 0; i < 2; i++)
 		{
 			//for (int j = 0; j < 2; j++)
@@ -629,9 +667,6 @@ public class Proc : gGUI
 		switch (stat)
 		{
 			case iKeystate.Began:
-				scroll = false;
-				firstPoint = point;
-				prevPoint = point;
 				for (i = 0; i < 2; i++)
 				{
 					if (imgPersonInfoBtn[i].touchRect(p, s).containPoint(point))
@@ -657,8 +692,19 @@ public class Proc : gGUI
 					{
 						popPerson.selected = -1;
 						select = -1;
-						//open = false;
+						
 						popPersonInfo.show(false);
+					}
+					else if (popPersonInfo.selected == 1)
+					{
+						PeopleState ps = playerEvent.pState[select];
+						int job = ps.job + 1;
+						if (job > 4)
+							job = 0;
+						ps.jobUpdate(job);
+						Debug.Log("j "+job);
+						Debug.Log(ps.job);
+
 					}
 
 					popPersonInfo.selected = -1;
@@ -807,7 +853,7 @@ public class Proc : gGUI
 		for (int i = 0; i < btnPopEventTxt.Length; i++)
 		{
 			imgPopEventBtn[i].frame = (popEvent.selected == i ? 1 : 0);
-			imgPopEventBtn[i].paint(0.0f, new iPoint(75, 100));
+			imgPopEventBtn[i].paint(0.0f, new iPoint(75, 30));
 		}
 	}
 	public void methodStPopEventBtn(iStrTex st)
@@ -840,7 +886,67 @@ public class Proc : gGUI
 
 	bool keyPopEvent(iKeystate stat, iPoint point)
 	{
+		if (!popEvent.bShow)
+			return false;
+
+		int i, j = -1;
+		iPoint p;
+		p = popEvent.closePoint;
+		p.x += 75;
+		p.y += 30;
+		//75, 30
+		iSize s = new iSize(0, 0);
+
+		switch (stat)
+		{
+			case iKeystate.Began:				
+				for (i = 0; i < btnPopEventTxt.Length; i++)
+				{
+					if (imgPopEventBtn[i].touchRect(p, s).containPoint(point))
+					{
+						j = i;
+						break;
+					}
+				}
+				if (j != -1)
+				{
+					popEvent.selected = j;
+				}
+				break;
+
+			case iKeystate.Moved:
+				break;
+
+			case iKeystate.Ended:
+				if (popEvent.selected != -1)
+				{
+					switch(popEvent.selected)
+					{
+						case 0:
+							playerEvent.doEvent(Event.DoEvent.Adventure);
+							break;
+						case 1:
+							playerEvent.doEvent(Event.DoEvent.Hunt);
+							break;
+						case 2:
+							playerEvent.doEvent(Event.DoEvent.Research);
+							break;
+						case 3:
+							playerEvent.doEvent(Event.DoEvent.Adventure);
+							break;
+					}
+					popEvent.selected = -1;
+				}
+				break;
+		}
 		return false;
+	}
+	bool keyboardPopEvent(iKeystate stat, iKeyboard key)
+	{
+		if (!popEvent.bShow)
+			return false;
+
+		return true;
 	}
 }
 

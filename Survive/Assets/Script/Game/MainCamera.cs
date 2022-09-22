@@ -8,6 +8,7 @@ public class MainCamera : MonoBehaviour
 {
 	// 개발 해상도(1080p, 720p)
 	public static int devWidth = 1280, devHeight = 720;
+	public static GameObject mainCamera = null;
 
 	//mouse
 	public static MethodMouse[] methodMouse = new MethodMouse[100];
@@ -68,8 +69,9 @@ public class MainCamera : MonoBehaviour
 
 		loadGameHierachy();
 		addMethodMouse(keyGameHierachy);
-
-		new Main();
+		mainCamera = gameObject;
+		new Main();		
+		gameObject.AddComponent<Event>();
 	}
 
 	void Update()
