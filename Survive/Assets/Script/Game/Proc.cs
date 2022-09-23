@@ -33,7 +33,7 @@ public class Proc : gGUI
 
 		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
 		{
-			keyboardPlayer, keyboardPopEvent
+			keyboardPlayer, keyboardPopEvent, keyboardNewDay
 		};
 
 		for(int i = 0; i<mkeyboard.Length; i++)
@@ -93,16 +93,19 @@ public class Proc : gGUI
 	}
 
 	Event playerEvent;
+	bool newDayOpen;
 
 	//=======================================================
 	// Player
 	//=======================================================
 	void loadPlayer()
 	{
+		newDayOpen = false;
 		pPos = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
 		speed = 50;
 		nextPos = new iPoint(0, 0);
-				
+		psize = new iSize(50, 50);
+
 		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
 		people = playerEvent.storage.getStorage(0) -1;
 		Debug.Log(playerEvent.storage.getStorage(0));
@@ -111,7 +114,7 @@ public class Proc : gGUI
 	iPoint pPos;
 	iPoint nextPos;
 	int speed;
-
+	iSize psize;
 	void drawPlayer(float dt)
 	{
 		pPos.x += dt * nextPos.x * speed;
@@ -128,24 +131,73 @@ public class Proc : gGUI
 			pPos.y = MainCamera.devHeight - 50;
 
 		setRGBA(0, 1, 0, 1f);
-		fillRect(pPos.x, pPos.y, 50, 50);
+		fillRect(pPos.x, pPos.y, psize.width, psize.height);
 
 		nextPos = new iPoint(0, 0);
+
+		if (playerEvent.newday&&!newDayOpen)
+		{
+			popNewDay.show(true);
+			newDayOpen = true;
+		}
 	}
 
 	bool keyboardPlayer(iKeystate stat, iKeyboard key)
 	{
 		nextPos = new iPoint(0, 0);
 
-		if (key == iKeyboard.Down)
-			nextPos.y += 5;
-		else if (key == iKeyboard.Up)
-			nextPos.y -= 5;
+		switch(key)
+		{
+			case iKeyboard.Down:
+				nextPos.y += 5;
 
-		if (key == iKeyboard.Left)
-			nextPos.x -= 5;
-		else if (key == iKeyboard.Right)
-			nextPos.x += 5;
+				break;
+			case iKeyboard.Up:
+				nextPos.y -= 5;
+
+				break;
+			case iKeyboard.Left:
+				nextPos.x -= 5;
+
+				break;
+			case iKeyboard.Right:
+				nextPos.x += 5;
+
+				break;
+			case iKeyboard.Space:
+				float x, y;
+				x = pPos.x + psize.width;
+				y = pPos.y + (psize.height / 2) - 175;
+#if false
+				if (pPos.x > MainCamera.devWidth / 2)
+					popEvent.closePoint = new iPoint(pPos.x - 300 + 75, y);
+				else
+					popEvent.closePoint = new iPoint(x + 10, y);
+#else 
+				// 200, 350;
+				iPoint[] p = new iPoint[2];
+				p[0] = pPos + new iPoint(psize.width / 2, psize.height / 2);
+				p[1] = p[0] + new iPoint(psize.width, -175);
+
+				iPoint min = new iPoint(10, 10);
+				iPoint max = new iPoint(MainCamera.devWidth-500, MainCamera.devHeight - 380);
+
+				if (p[1].x < min.x)
+					p[1].x = min.x;
+				else if (p[1].x > max.x)
+					p[1].x = max.x;
+				if (p[1].y < min.y)
+					p[1].y = min.y;
+				else if (p[1].y > max.y)
+					p[1].y = max.y;
+
+				popEvent.openPoint = p[0];
+				popEvent.closePoint = p[1];
+#endif
+
+				popEvent.show(true);
+				break;
+		}
 
 		return false;
 	}
@@ -369,6 +421,8 @@ public class Proc : gGUI
 
 	void drawPopPerson(float dt)
 	{
+		if (popNewDay.bShow)
+			return;
 		if (MainCamera.mousePosition().x > MainCamera.devWidth - 50 && !open)
 		{
 			open = true;
@@ -461,7 +515,7 @@ public class Proc : gGUI
 			case iKeystate.Ended:
 				if (scroll == false)
 				{
-					if( popPerson.selected != -1 )// line 403
+					if (popPerson.selected != -1)// line 403
 						select = popPerson.selected;
 
 					if (popPersonInfo.bShow == false)
@@ -578,6 +632,7 @@ public class Proc : gGUI
 		{
 			Texture personTex = playerEvent.pState[select].jobTex;
 			iPoint p = new iPoint(50, 50);
+			fillRect(new Rect(p.x, p.y, 300,300));
 			drawImage(personTex, p, 300.0f / personTex.width, 300.0f / personTex.height, LEFT | HCENTER);
 			PeopleState ps = playerEvent.pState[select];
 			drawString("¿Ã∏ß : " + ps.name,				new iPoint(450, 100), LEFT | HCENTER);
@@ -608,7 +663,6 @@ public class Proc : gGUI
 
 		iPoint pos = new iPoint(0, 0);
 
-		GUI.color = Color.white;
 		if (index == 0 && bindex == 0)
 			setRGBA(1, 0, 0, 1);
 		else if (index == 0 && bindex == 1)
@@ -702,6 +756,7 @@ public class Proc : gGUI
 
 					popPersonInfo.selected = -1;
 				}
+
 				break;
 		}
 
@@ -741,7 +796,7 @@ public class Proc : gGUI
 		int w = MainCamera.devWidth - 200;
 		int h = MainCamera.devHeight - 200;
 		fillRect(0, 0, w, h);
-
+		setRGBA(1, 1, 1, 1f);
 		setStringRGBA(1, 1, 1, 1);
 		float size = getStringSize();
 		setStringSize(80);
@@ -767,7 +822,6 @@ public class Proc : gGUI
 		switch (stat)
 		{
 			case iKeystate.Began:
-				popNewDay.show(false);
 				break;
 
 			case iKeystate.Moved:
@@ -775,10 +829,24 @@ public class Proc : gGUI
 				break;
 
 			case iKeystate.Ended:
-
+				newDayOpen = false;
+				playerEvent.newday = false;
+				popNewDay.show(false);
 				break;
 		}
 
+		return true;
+	}
+	bool keyboardNewDay(iKeystate stat, iKeyboard key)
+	{
+		if (!popNewDay.bShow)
+			return false;
+		if (key == iKeyboard.Space)
+		{
+			newDayOpen = false;
+			playerEvent.newday = false;
+			popNewDay.show(false);
+		}
 		return true;
 	}
 
@@ -798,7 +866,7 @@ public class Proc : gGUI
 
 		iPopup pop = new iPopup();
 		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStPopEvent, 300, 500);
+		iStrTex st = new iStrTex(methodStPopEvent, 200, 350);
 		st.setString("0");
 		img.add(st.tex);
 		pop.add(img);
@@ -825,8 +893,10 @@ public class Proc : gGUI
 		}
 
 		pop.style = iPopupStyle.zoom;
-		pop.openPoint = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
-		pop.closePoint = new iPoint(MainCamera.devWidth/2 - 150, MainCamera.devHeight/2-250);
+		pop.openPoint = new iPoint(pPos.x,pPos.y);
+		//pop.closePoint = new iPoint(MainCamera.devWidth/2, MainCamera.devHeight/2);
+		pop.closePoint = new iPoint(pPos.x - 300 + 75, pPos.y + (psize.height / 2) - 175);
+
 		pop._aniDt = 0.2f;
 		popEvent = pop;
 	}
@@ -846,7 +916,7 @@ public class Proc : gGUI
 		for (int i = 0; i < btnPopEventTxt.Length; i++)
 		{
 			imgPopEventBtn[i].frame = (popEvent.selected == i ? 1 : 0);
-			imgPopEventBtn[i].paint(0.0f, new iPoint(75, 30));
+			imgPopEventBtn[i].paint(0.0f, new iPoint(10, 20));
 		}
 	}
 	public void methodStPopEventBtn(iStrTex st)
@@ -885,8 +955,8 @@ public class Proc : gGUI
 		int i, j = -1;
 		iPoint p;
 		p = popEvent.closePoint;
-		p.x += 75;
-		p.y += 30;
+		p.x += 10;
+		p.y += 20;
 		//75, 30
 		iSize s = new iSize(0, 0);
 
@@ -925,19 +995,27 @@ public class Proc : gGUI
 							playerEvent.doEvent(Event.DoEvent.Research);
 							break;
 						case 3:
-							playerEvent.doEvent(Event.DoEvent.Adventure);
+							playerEvent.doEvent(Event.DoEvent.SkipDay);
 							break;
 					}
-					popEvent.selected = -1;
 				}
+				popEvent.selected = -1;
+				popEvent.openPoint = new iPoint(pPos.x, pPos.y);
+				popEvent.show(false);
 				break;
 		}
-		return false;
+		return true;
 	}
 	bool keyboardPopEvent(iKeystate stat, iKeyboard key)
 	{
 		if (!popEvent.bShow)
 			return false;
+
+		if (key == iKeyboard.Space)
+		{
+			popEvent.openPoint = new iPoint(pPos.x, pPos.y);
+			//popEvent.show(false);
+		}
 
 		return true;
 	}

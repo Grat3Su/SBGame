@@ -45,6 +45,8 @@ public class Event : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        return;
+
         if (newday)
         {
             if (Input.GetKeyDown(KeyCode.Space))
@@ -76,7 +78,8 @@ public class Event : MonoBehaviour
         Hunt,
         Research,
         Defense,
-        Disease
+        Disease,
+        SkipDay
     }
     //스폰
     void spawnPeople()
@@ -100,14 +103,10 @@ public class Event : MonoBehaviour
                 float x = Math.random(-width, width);
                 float y = Math.random(-height, height);
                 go.transform.position = new Vector3(x, y, 0);
-                go.AddComponent<PeopleState>();
-                go.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("bush");
+                go.AddComponent<PeopleState>();                
                 go.name = "people" + i.ToString();
                 pState[i] = go.GetComponent<PeopleState>();
                 go.GetComponent<PeopleState>().h = this;
-                //Instantiate<GameObject>(go); : 복사
-
-                Resources.Load<Sprite>("bush_2");
             }
         }
     }
@@ -166,6 +165,12 @@ public class Event : MonoBehaviour
             int labLevel = storage.getStorage(4);
             item.labExp = labLevel < 5 ? Math.random(1, 3) : Math.random(2, 5);
             item.takeTime = 4;
+        }
+        else if(type == DoEvent.SkipDay)
+		{
+            skipDay();
+            Debug.Log("skipday");
+            return;
         }
         Debug.Log(etype[(int)type]);
 
@@ -244,8 +249,6 @@ public class Event : MonoBehaviour
             //for (int i = 0; i < people - 1; i++)
             //    if (pState[i] != null)
             //        pState[i].comeBack();
-
-            newday = true;//보고창을 닫지 않으면 게임 속행 안되게
         }
         else
         {
@@ -260,6 +263,7 @@ public class Event : MonoBehaviour
 
     void nextDay()
     {
+        newday = true;//보고창을 닫지 않으면 게임 속행 안되게
         Debug.Log("다음날");
 
         int people = storage.getStorage(0);

@@ -107,11 +107,11 @@ public struct Storage
         else if (food == 0)
             food = 0;
 
-        Debug.Log("------------------------------------------");
-        Debug.Log("peopel : "+people+"/"+_people);
-        Debug.Log("food : "+ food + "/" + _food);
-        Debug.Log("labLevel : "+ labLevel + " / exp : "+labExp);
-        Debug.Log("stage : "+ stage + " / exp : " + stageExp);
+        //Debug.Log("------------------------------------------");
+        //Debug.Log("peopel : "+people+"/"+_people);
+        //Debug.Log("food : "+ food + "/" + _food);
+        //Debug.Log("labLevel : "+ labLevel + " / exp : "+labExp);
+        //Debug.Log("stage : "+ stage + " / exp : " + stageExp);
     }
 }
 public class newStorage//저장고. 주로 자원 보관.

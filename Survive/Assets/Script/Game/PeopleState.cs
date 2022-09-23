@@ -28,14 +28,15 @@ public class PeopleState : MonoBehaviour
 		jobExp = 0;
 
 		string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
-		jobTex = Resources.Load<Texture>("people");
+		jobTex = Resources.Load<Texture>("jobless");
 		name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
-		Debug.Log(name + "구조");
+		//Debug.Log(name + "구조");
 		gameObject.name = name;
 		//이름 랜덤 생성
 
 		job = 0;
 		int newjob = Math.random(0, 5);
+		gameObject.AddComponent<SpriteRenderer>().sortingLayerName = "Layer 1";
 		jobUpdate(newjob);
 	}
 
@@ -55,7 +56,7 @@ public class PeopleState : MonoBehaviour
 		{
 			if (Math.random(0, 80 + jobLevel[job]) > 20)
 			{
-				Debug.Log("아무것도 얻지 못함");
+				//Debug.Log("아무것도 얻지 못함");
 
 				if (jobExp > jobLevel[job] * 2)
 				{
@@ -83,7 +84,7 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 1)
 		{
-			Debug.Log(name + "복귀");
+			//Debug.Log(name + "복귀");
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 1);
 			h.getDay.mapExp += 1;
@@ -93,18 +94,18 @@ public class PeopleState : MonoBehaviour
 			{
 				h.storage.addStorage(0, 1);
 				h.getDay.people += 1;
-				Debug.Log(name + "이 생존자 발견");
+				//Debug.Log(name + "이 생존자 발견");
 			}
-			Debug.Log(name + " 맵 경험치 1 획득");
+			//Debug.Log(name + " 맵 경험치 1 획득");
 		}
 		else if (job == 2)
 		{
 			jobTex = Resources.Load<Texture>("people");
-			Debug.Log(name + "복귀");
+			//Debug.Log(name + "복귀");
 			//식량/물 가저오기
 			int food = (int)((float)Math.random(0, 3) / 2 + 0.5f);
 			h.storage.addStorage(1, food);
-			Debug.Log(name + " 식량 " + food + " 획득");
+			//Debug.Log(name + " 식량 " + food + " 획득");
 			h.getDay.food += food;
 		}
 		else if (job == 3)
@@ -117,11 +118,11 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 4)
 		{
-			Debug.Log(name + "복귀");
+			//Debug.Log(name + "복귀");
 			//연구 포인트 1 추가
 			h.storage.addStorage(3, 2);
 			h.getDay.labExp += 2;
-			Debug.Log(name + " 연구 경험치 1 획득");
+			//Debug.Log(name + " 연구 경험치 1 획득");
 		}
 	}
 
@@ -146,9 +147,9 @@ public class PeopleState : MonoBehaviour
 			{
 				h.storage.addStorage(0, 1);
 				h.getDay.people += 1;
-				Debug.Log(name + "이 생존자 발견");
+				//Debug.Log(name + "이 생존자 발견");
 			}
-			Debug.Log(name + " 맵 경험치 2 획득");
+			//Debug.Log(name + " 맵 경험치 2 획득");
 		}
 		else if (job == 2)
 		{
@@ -158,7 +159,7 @@ public class PeopleState : MonoBehaviour
 			h.storage.addStorage(1, food);
 			h.getDay.food += food;
 
-			Debug.Log(name + " 식량 " + food + " 획득");
+			//Debug.Log(name + " 식량 " + food + " 획득");
 		}
 		else if (job == 3)
 		{
@@ -167,7 +168,7 @@ public class PeopleState : MonoBehaviour
 			int food = Math.random(3, 4);
 			h.storage.addStorage(1, food);
 			h.getDay.food += food;
-			Debug.Log(name + " 식량 " + food + " 획득");
+			//Debug.Log(name + " 식량 " + food + " 획득");
 		}
 		else if (job == 4)
 		{
@@ -175,7 +176,7 @@ public class PeopleState : MonoBehaviour
 			//연구 포인트 2 추가
 			h.storage.addStorage(3, 2);
 			h.getDay.labExp += 2;
-			Debug.Log(name + " 연구 경험치 2 획득");
+			//Debug.Log(name + " 연구 경험치 2 획득");
 		}
 		jobExp += 2;
 		if (jobExp > jobLevel[job] * 2)
@@ -206,26 +207,33 @@ public class PeopleState : MonoBehaviour
 		job = newjob;
 		jobExp = 0;//경험치 초기화
 
+		Sprite sp = Resources.Load<Sprite>("jobless");
 		if (job == 0)
 		{
 			jobTex = Resources.Load<Texture>("jobless");
+			sp = Resources.Load<Sprite>("jobless");
 		}
 		else if (job == 1)
 		{
 			jobTex = Resources.Load<Texture>("explorer");
+			sp = Resources.Load<Sprite>("explorer");
 		}
 		else if (job == 2)
 		{
 			jobTex = Resources.Load<Texture>("worker");
+			sp = Resources.Load<Sprite>("worker");
 		}
 		else if (job == 3)
 		{
 			jobTex = Resources.Load<Texture>("farmer");
+			sp = Resources.Load<Sprite>("farmer");
 		}
 		else if (job == 4)
 		{
 			jobTex = Resources.Load<Texture>("researcher");
+			sp = Resources.Load<Sprite>("researcher");
 		}
+		gameObject.GetComponent<SpriteRenderer>().sprite = sp;
 	}
 }
 
