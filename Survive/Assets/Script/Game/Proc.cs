@@ -786,8 +786,8 @@ public class Proc : gGUI
 	}
 
 	void methodStNewDay(iStrTex st)
-	{
-		iStrTex.methodTexture(st, methodStNewDay_);
+	{        
+        iStrTex.methodTexture(st, methodStNewDay_);
 	}
 
 	public void methodStNewDay_(iStrTex st)//진짜 그리는곳
@@ -800,7 +800,8 @@ public class Proc : gGUI
 		setStringRGBA(1, 1, 1, 1);
 		float size = getStringSize();
 		setStringSize(80);
-		drawString("New Day", w / 2, h / 2 - 150, VCENTER | HCENTER);
+        //playerEvent.day;
+		drawString(playerEvent.day+"일차", w / 2, h / 2 - 150, VCENTER | HCENTER);
 		setStringSize(30);
 
 		for (int i = 0; i < 4; i++)
@@ -811,7 +812,8 @@ public class Proc : gGUI
 
 	void drawNewDay(float dt)
 	{
-		popNewDay.paint(dt);
+        stNewDay.setString(playerEvent.day + " ");// click, move
+        popNewDay.paint(dt);
 	}
 
 	bool keyNewDay(iKeystate stat, iPoint point)

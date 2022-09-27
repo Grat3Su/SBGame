@@ -211,7 +211,6 @@ public class Event : MonoBehaviour
                 pState[i].takeTime += 12;
         }
         hour = 0;
-        day++;
         nextDay();
 	}
 
@@ -238,7 +237,6 @@ public class Event : MonoBehaviour
         if (hour > 11)//12시 땡
         {
             hour -= 12;
-            day++;
             nextDay();
 
             specialEvent = 0;//이벤트 초기화
@@ -263,7 +261,8 @@ public class Event : MonoBehaviour
 
     void nextDay()
     {
-        newday = true;//보고창을 닫지 않으면 게임 속행 안되게
+        newday = true;//보고창을 닫지 않으면 게임 속행 안되게 
+        day++;
         Debug.Log("다음날");
 
         int people = storage.getStorage(0);
