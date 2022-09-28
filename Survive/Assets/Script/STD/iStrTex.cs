@@ -34,10 +34,45 @@ public class iStrTex
 		for (int i = 0; i < stInfoNum; i++)
 		{
 			ref StInfo info = ref stInfo[i];
-			info.method(info.cls);
+			cbDraw(info.cls, info.method);
 		}
 		stInfoNum = 0;
 	}
+
+	private static void cbDraw(iStrTex st, MethodSt method)
+	{
+#if true// #issue
+		if (st.tex.tex != st.texReserve)
+			((RenderTexture)st.tex.tex).Release();
+#endif
+		st.tex.tex = st.texReserve;
+
+		RenderTexture bkT = RenderTexture.active;
+		RenderTexture.active = (RenderTexture)st.tex.tex;
+		//Rect bkR = Camera.main.rect;
+		//Camera.main.rect = new Rect(0, 0, 1, 1);
+		Matrix4x4 matrixBk = GUI.matrix;
+		GUI.matrix = Matrix4x4.TRS(
+			Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
+
+		GL.Clear(true, true, Color.clear);// add
+
+		string sn = iGUI.instance.getStringName();
+		float ss = iGUI.instance.getStringSize();
+		Color sc = iGUI.instance.getStringRGBA();
+
+		if (method != null)
+			method(st);
+
+		iGUI.instance.setStringName(sn);
+		iGUI.instance.setStringSize(ss);
+		iGUI.instance.setStringRGBA(sc.r, sc.g, sc.b, sc.a);
+
+		RenderTexture.active = bkT;
+		//Camera.main.rect = bkR;
+		GUI.matrix = matrixBk;
+	}
+
 
 	public delegate void MethodSt(iStrTex st);
 	public struct StInfo
@@ -225,46 +260,7 @@ public class iStrTex
 		return tex.tex;
 	}
 
-	public delegate void MethodStTexture(iStrTex st);
-	public static void methodTexture(iStrTex st, MethodStTexture method)
-	{
-#if true// #issue
-		if (st.tex.tex != st.texReserve)
-			((RenderTexture)st.tex.tex).Release();
-#endif
-		st.tex.tex = st.texReserve;
-
-		RenderTexture bkT = RenderTexture.active;
-		RenderTexture.active = (RenderTexture)st.tex.tex;
-		//Rect bkR = Camera.main.rect;
-		//Camera.main.rect = new Rect(0, 0, 1, 1);
-		Matrix4x4 matrixBk = GUI.matrix;
-		GUI.matrix = Matrix4x4.TRS(
-			Vector3.zero, Quaternion.identity, new Vector3(1, 1, 1));
-
-		GL.Clear(true, true, Color.clear);// add
-
-		string sn = iGUI.instance.getStringName();
-		float ss = iGUI.instance.getStringSize();
-		Color sc = iGUI.instance.getStringRGBA();
-
-		if (method != null)
-			method(st);
-
-		iGUI.instance.setStringName(sn);
-		iGUI.instance.setStringSize(ss);
-		iGUI.instance.setStringRGBA(sc.r, sc.g, sc.b, sc.a);
-
-		RenderTexture.active = bkT;
-		//Camera.main.rect = bkR;
-		GUI.matrix = matrixBk;
-	}
-
 	public static void cbGetTexture(iStrTex st)
-	{
-		methodTexture(st, cbGetTexture_);
-	}
-	public static void cbGetTexture_(iStrTex st)
 	{
 		iGUI.instance.setStringName(st.stringName);
 		iGUI.instance.setStringSize(st.stringSize);

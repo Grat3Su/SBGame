@@ -55,6 +55,7 @@ public class Proc : gGUI
 		drawPopInfo(dt);
 		drawPopEvent(dt);
 		drawNewDay(dt);
+
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
@@ -250,11 +251,6 @@ public class Proc : gGUI
 
 	public void methodStPopTop(iStrTex st)
 	{
-		iStrTex.methodTexture(st, methodStPopTop_);
-	}
-
-	public void methodStPopTop_(iStrTex st)
-	{
 		setRGBA(0, 0, 0, 0.8f);
 		fillRect(0, 0, MainCamera.devWidth, 60);
 		setRGBA(1, 1, 1, 1);
@@ -348,12 +344,8 @@ public class Proc : gGUI
 		offMax = new iPoint(0, 0);
 	}
 
-	public void methodStPerson(iStrTex st)
-	{
-		iStrTex.methodTexture(st, methodStPerson_);
-	}
 	int people = 30;
-	public void methodStPerson_(iStrTex st)
+	public void methodStPerson(iStrTex st)
 	{
 		setRGBA(0.3f, 0.3f, 0.3f, 0.5f);
 		fillRect(0, 0, 300, 600);
@@ -385,10 +377,6 @@ public class Proc : gGUI
 
 	public void methodStPersonBtn(iStrTex st)
 	{
-		iStrTex.methodTexture(st, methodStPersonBtn_);
-	}
-	public void methodStPersonBtn_(iStrTex st)
-	{
 		string[] strs = st.str.Split("\n");
 		int index = int.Parse(strs[0]);
 		string s = strs[1];
@@ -416,7 +404,6 @@ public class Proc : gGUI
 			popPerson.show(false);
 			open = false;
 		}
-
 	}
 
 	void drawPopPerson(float dt)
@@ -427,6 +414,11 @@ public class Proc : gGUI
 		{
 			open = true;
 			popPerson.show(true);
+		}
+		else if (MainCamera.mousePosition().x > MainCamera.devWidth - 200 && open)
+		{
+			if(closedt!=0)
+			closedt = 0;
 		}
 		else if (MainCamera.mousePosition().x < MainCamera.devWidth - 200
 			&& open && select == -1)
@@ -442,7 +434,7 @@ public class Proc : gGUI
 
 	bool keyPopPerson(iKeystate stat, iPoint point)
 	{
-		if (popPerson.bShow == false)
+		if (popPerson.bShow == false || popPerson.state == iPopupState.close)
 			return false;
 
 		if (popPerson.state != iPopupState.proc)
@@ -531,13 +523,12 @@ public class Proc : gGUI
 				}
 				break;
 		}
-
 		return false;
 	}
 
 	bool wheelPopPerson(iPoint point)
 	{
-		if (popNewDay.bShow)
+		if (popNewDay.bShow || popNewDay.state == iPopupState.close)
 			return false;
 
 		iPoint p = MainCamera.mousePosition();
@@ -616,11 +607,6 @@ public class Proc : gGUI
 	}
 	public void methodStPersonInfo(iStrTex st)
 	{
-		iStrTex.methodTexture(st, methodStPersonInfo_);
-	}
-
-	public void methodStPersonInfo_(iStrTex st)
-	{
 		setRGBA(0.5f, 0.5f, 0.5f, 1f);
 		fillRect(0, 0, 700, 400);
 
@@ -651,10 +637,6 @@ public class Proc : gGUI
 	}
 
 	public void methodStPersonInfoBtn(iStrTex st)
-	{
-		iStrTex.methodTexture(st, methodStPersonInfoBtn_);
-	}
-	public void methodStPersonInfoBtn_(iStrTex st)
 	{
 		string[] strs = st.str.Split("\n");
 		int index = int.Parse(strs[0]);
@@ -692,19 +674,9 @@ public class Proc : gGUI
 
 	bool keyPopInfo(iKeystate stat, iPoint point)
 	{
-		if (popPersonInfo.bShow == false)
+		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
 			return false;
 
-		if (popPersonInfo.state != iPopupState.proc)
-		{
-			// 화면 안에 있을때
-			return true;
-			// 없을대 false
-		}
-		else
-		{
-			// 없을대 false
-		}
 
 		int i, j = -1;
 		iPoint p;
@@ -759,13 +731,14 @@ public class Proc : gGUI
 
 				break;
 		}
-
 		return true;
 	}
 
 	iPopup popNewDay = null;
 
 	iStrTex stNewDay;
+	int newDayNum;
+	float newDayDt;
 	void createNewDay()//새로운 날 ui : 얻은 자원 , 총 자원, 이벤트 요약?
 	{
 		iPopup pop = new iPopup();
@@ -779,46 +752,123 @@ public class Proc : gGUI
 
 		int w = MainCamera.devWidth;
 		pop.style = iPopupStyle.zoom;
+		//pop.methodOpen = openPopNewDay;
+		pop.methodClose = closePopNewDay;
+		pop.methodDrawBefore = drawPopNewDay;
 		pop.openPoint = new iPoint(w / 2, MainCamera.devHeight / 2);
 		pop.closePoint = new iPoint((w - (w - 200)) / 2, 100);
 		pop._aniDt = 0.5f;
 		popNewDay = pop;
+
+		newDayNum = 0;
+		newDayDt = -0.5f;
+	}
+
+	void closePopNewDay(iPopup pop)
+	{
+		newDayNum = 0;
+		newDayDt = -0.5f;
+	}
+
+	void drawPopNewDay(float dt, iPopup pop, iPoint zero)
+	{
+		if( newDayNum < 4 )
+		{
+			newDayDt += dt;
+			if( newDayDt > 0.5f )
+			{
+				newDayDt = 0.0f;
+				newDayNum++;
+				stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
+			}
+		}
 	}
 
 	void methodStNewDay(iStrTex st)
-	{        
-        iStrTex.methodTexture(st, methodStNewDay_);
-	}
-
-	public void methodStNewDay_(iStrTex st)//진짜 그리는곳
 	{
 		setRGBA(0f, 0f, 0f, 0.8f);
 		int w = MainCamera.devWidth - 200;
 		int h = MainCamera.devHeight - 200;
 		fillRect(0, 0, w, h);
+		setRGBA(0.3f, 0.3f, 0.3f, 1f);
+		fillRect(10, 10, w - 20, h - 20);
 		setRGBA(1, 1, 1, 1f);
 		setStringRGBA(1, 1, 1, 1);
 		float size = getStringSize();
 		setStringSize(80);
-        //playerEvent.day;
-		drawString(playerEvent.day+"일차", w / 2, h / 2 - 150, VCENTER | HCENTER);
+		//playerEvent.day;
+		int strData = playerEvent.day;
+		drawString(strData + "일차", w / 2, h / 2 - 150, VCENTER | HCENTER);
 		setStringSize(30);
 
-		for (int i = 0; i < 4; i++)
-			drawString("0 개", w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+		string[] texname = new string[] { "people", "food", "lab", "map" };
+		string[] strs = st.str.Split(" ");
+		int n = int.Parse(strs[0]);
+		for (int i = 0; i < n; i++)
+		{
+			//fillRect(w / 4 * (i + 1) - 150, h / 2 + 100, 100,100);
+			setStringRGBA(1, 1, 1, 1);
+			Texture resource = Resources.Load<Texture>(texname[i]);
+			iPoint p = new iPoint(w / 4 * (i + 1) - 150, h / 2 + 30);
+			drawImage(resource, p, 50.0f / resource.width, 50.0f / resource.height, VCENTER | HCENTER);
+			drawString(playerEvent.storage.getStorage(i) + "", w / 4 * (i + 1) - 150, h / 2 + 100, VCENTER | HCENTER);
+
+			setStringRGBA(0, 1, 0, 1);
+			if (i == 0)
+			{
+				drawString("+ "+playerEvent.plusItem.people, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+				setStringRGBA(1, 0, 0, 1);
+				drawString("- " + playerEvent.minusItem.people, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
+			}
+			else if (i == 1)
+			{
+				drawString("+ " + playerEvent.plusItem.food, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+				setStringRGBA(1, 0, 0, 1);
+				drawString("- " + playerEvent.minusItem.food, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
+			}
+			else if (i == 2)
+			{
+				drawString("+ " + playerEvent.plusItem.labExp, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+				setStringRGBA(1, 0, 0, 1);
+				drawString("- " + playerEvent.minusItem.labExp, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
+			}
+			else if (i == 3)
+			{
+				drawString("+ " + playerEvent.plusItem.mapExp, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+				setStringRGBA(1, 0, 0, 1);
+				drawString("- " + playerEvent.minusItem.mapExp, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
+			}
+		}
 
 		setStringSize(size);
 	}
 
+	iPopup popResource(iPoint p, float dt)
+	{
+		iPopup pop = new iPopup();
+		iImage img = new iImage();
+		iStrTex st = new iStrTex(methodStPopTop, MainCamera.devWidth, 60);
+		st.setString("0");
+		img.add(st.tex);
+		pop.add(img);
+		stPopTop = st;
+
+		pop.style = iPopupStyle.move;
+		pop.openPoint = p;
+		pop.closePoint = p;
+		pop._aniDt = 0.5f;
+		return pop;
+	}
+
 	void drawNewDay(float dt)
 	{
-        stNewDay.setString(playerEvent.day + " ");// click, move
+		stNewDay.setString(newDayNum+" "+ playerEvent.day);// click, move
         popNewDay.paint(dt);
 	}
 
 	bool keyNewDay(iKeystate stat, iPoint point)
 	{
-		if (popNewDay.bShow == false)
+		if (popNewDay.bShow == false || popNewDay.state == iPopupState.close)
 			return false;
 
 		switch (stat)
@@ -833,6 +883,7 @@ public class Proc : gGUI
 			case iKeystate.Ended:
 				newDayOpen = false;
 				playerEvent.newday = false;
+				playerEvent.initDay();
 				popNewDay.show(false);
 				break;
 		}
@@ -841,14 +892,16 @@ public class Proc : gGUI
 	}
 	bool keyboardNewDay(iKeystate stat, iKeyboard key)
 	{
-		if (!popNewDay.bShow)
+		if (!popNewDay.bShow|| popNewDay.state == iPopupState.close)
 			return false;
 		if (key == iKeyboard.Space)
 		{
 			newDayOpen = false;
 			playerEvent.newday = false;
+			playerEvent.initDay();
 			popNewDay.show(false);
 		}
+		
 		return true;
 	}
 
@@ -905,11 +958,6 @@ public class Proc : gGUI
 
 	public void methodStPopEvent(iStrTex st)
 	{
-		iStrTex.methodTexture(st, methodStPopEvent_);
-	}
-
-	public void methodStPopEvent_(iStrTex st)
-	{
 		setRGBA(0.5f, 0.5f, 0.5f, 0.8f);
 		fillRect(0, 0, 300,700);
 
@@ -922,10 +970,6 @@ public class Proc : gGUI
 		}
 	}
 	public void methodStPopEventBtn(iStrTex st)
-	{
-		iStrTex.methodTexture(st, methodStPopEventBtn_);
-	}
-	public void methodStPopEventBtn_(iStrTex st)
 	{
 		string[] strs = st.str.Split("\n");
 		int index = int.Parse(strs[0]);
@@ -951,7 +995,7 @@ public class Proc : gGUI
 
 	bool keyPopEvent(iKeystate stat, iPoint point)
 	{
-		if (!popEvent.bShow)
+		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
 
 		int i, j = -1;
@@ -1010,13 +1054,12 @@ public class Proc : gGUI
 	}
 	bool keyboardPopEvent(iKeystate stat, iKeyboard key)
 	{
-		if (!popEvent.bShow)
+		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
 
 		if (key == iKeyboard.Space)
 		{
 			popEvent.openPoint = new iPoint(pPos.x, pPos.y);
-			//popEvent.show(false);
 		}
 
 		return true;

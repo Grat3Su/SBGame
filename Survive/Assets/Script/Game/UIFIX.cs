@@ -174,24 +174,7 @@ public class UIFIX : iGUI
 		
 		setStringSize(30);
 		for (int i = 0; i<4; i++)		
-		{			
-			if (i == 0)
-			{
-				strData = pEvent.getDay.people;
-			}
-			else if (i == 1)
-			{
-				strData = pEvent.getDay.food;
-			}
-			else if (i == 2)
-			{
-				strData = pEvent.getDay.labExp;
-			}
-			else if (i == 3)
-			{
-				strData = pEvent.getDay.mapExp;
-			}
-
+		{
 			if(strData > 0)
 				setStringRGBA(0, 1, 0, 1);
 

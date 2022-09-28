@@ -11,7 +11,8 @@ public class Event : MonoBehaviour
         initGame();
     }
 
-    public AddItem getDay;
+    public AddItem plusItem;
+    public AddItem minusItem;
     bool gameover;
     public Storage storage;
     public int day;
@@ -30,7 +31,8 @@ public class Event : MonoBehaviour
         //storage = new Storage(1, 5, 0, 1, 0, 1);
         specialEvent = 0;
         storage = new Storage(40, 15, 1, 10, 40, 10);
-        getDay = new AddItem(0);//하루 지나면 초기화
+        plusItem = new AddItem(0);//하루 지나면 초기화
+        minusItem = new AddItem(0);//하루 지나면 초기화
         day = 0;
         hour = 0;
         workman = 0;
@@ -42,6 +44,12 @@ public class Event : MonoBehaviour
         newday = false;
     }
 
+    public void initDay()
+	{
+        plusItem.init();
+        minusItem.init();
+	}
+
     // Update is called once per frame
     void Update()
     {
@@ -52,7 +60,6 @@ public class Event : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 newday = false;
-                getDay = new AddItem(0);//하루 지나면 초기화
             }
             return;
         }
@@ -222,10 +229,25 @@ public class Event : MonoBehaviour
         storage.addStorage(4, item.mapExp);
 
         //오늘 얻은 물건 저장
-        getDay.people += item.people;
-        getDay.food += item.food;
-        getDay.labExp += item.labExp;
-        getDay.mapExp += item.mapExp;
+        if (item.people > 0)
+            plusItem.people += item.people;
+        else if (item.people < 0)
+            minusItem.people += item.people;
+
+        if (item.food > 0)
+            plusItem.food += item.food;
+        else if (item.food < 0)
+            minusItem.food += item.food;
+
+        if (item.labExp > 0)
+             plusItem.labExp += item.labExp;
+        else if (item.labExp < 0)
+            minusItem.labExp += item.labExp;
+
+        if (item.mapExp > 0)
+             plusItem.mapExp += item.mapExp;
+        else if (item.mapExp < 0)
+            minusItem.mapExp += item.mapExp;
 
         if (item.people > 0)
             spawnPeople();
@@ -270,11 +292,13 @@ public class Event : MonoBehaviour
 
         if (food < people)
         {
-            getDay.food -= food;
-            getDay.people = food - people;
+            minusItem.food += food;
+            minusItem.people += food - people;
         }
         else
-            getDay.food = -people;
+        {
+            minusItem.food += people;
+        }
         storage.peopleTakeItem();
         
         if (people != storage.getStorage(0))//자원을 사용한 후와 사람 수가 다르다
@@ -305,5 +329,13 @@ public struct AddItem
         takeTime = init;
         labExp = init;
         mapExp = init;
+    }
+    public void init()
+	{
+        people      = 0;
+        food        = 0;
+        takeTime    = 0;
+        labExp      = 0;
+        mapExp      = 0;
     }
 }

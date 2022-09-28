@@ -87,13 +87,13 @@ public class PeopleState : MonoBehaviour
 			//Debug.Log(name + "복귀");
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 1);
-			h.getDay.mapExp += 1;
+			h.plusItem.mapExp += 1;
 
 			int people = Math.random(0, 100);
 			if (people > 80)
 			{
 				h.storage.addStorage(0, 1);
-				h.getDay.people += 1;
+				h.plusItem.people += 1;
 				//Debug.Log(name + "이 생존자 발견");
 			}
 			//Debug.Log(name + " 맵 경험치 1 획득");
@@ -106,7 +106,7 @@ public class PeopleState : MonoBehaviour
 			int food = (int)((float)Math.random(0, 3) / 2 + 0.5f);
 			h.storage.addStorage(1, food);
 			//Debug.Log(name + " 식량 " + food + " 획득");
-			h.getDay.food += food;
+			h.plusItem.food += food;
 		}
 		else if (job == 3)
 		{
@@ -114,14 +114,14 @@ public class PeopleState : MonoBehaviour
 			//식량 1 추가
 			int food = (int)((float)Math.random(3, 4) / 2 + 0.5f);
 			h.storage.addStorage(1, food);
-			h.getDay.food += food;
+			h.plusItem.food += food;
 		}
 		else if (job == 4)
 		{
 			//Debug.Log(name + "복귀");
 			//연구 포인트 1 추가
 			h.storage.addStorage(3, 2);
-			h.getDay.labExp += 2;
+			h.plusItem.labExp += 1;
 			//Debug.Log(name + " 연구 경험치 1 획득");
 		}
 	}
@@ -141,12 +141,12 @@ public class PeopleState : MonoBehaviour
 			behave = 3;
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 2);
-			h.getDay.mapExp += 2;
+			h.plusItem.mapExp += 2;
 			int people = Math.random(0, 100);
 			if (people > 80)
 			{
 				h.storage.addStorage(0, 1);
-				h.getDay.people += 1;
+				h.plusItem.people += 1;
 				//Debug.Log(name + "이 생존자 발견");
 			}
 			//Debug.Log(name + " 맵 경험치 2 획득");
@@ -157,7 +157,7 @@ public class PeopleState : MonoBehaviour
 			//식량/물 가저오기
 			int food = Math.random(0, 3);
 			h.storage.addStorage(1, food);
-			h.getDay.food += food;
+			h.plusItem.food += food;
 
 			//Debug.Log(name + " 식량 " + food + " 획득");
 		}
@@ -167,7 +167,7 @@ public class PeopleState : MonoBehaviour
 			//식량 1 추가
 			int food = Math.random(3, 4);
 			h.storage.addStorage(1, food);
-			h.getDay.food += food;
+			h.plusItem.food += food;
 			//Debug.Log(name + " 식량 " + food + " 획득");
 		}
 		else if (job == 4)
@@ -175,7 +175,7 @@ public class PeopleState : MonoBehaviour
 			behave = 3;
 			//연구 포인트 2 추가
 			h.storage.addStorage(3, 2);
-			h.getDay.labExp += 2;
+			h.plusItem.labExp += 1;
 			//Debug.Log(name + " 연구 경험치 2 획득");
 		}
 		jobExp += 2;
