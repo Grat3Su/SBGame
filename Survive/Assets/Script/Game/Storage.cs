@@ -87,6 +87,9 @@ public struct Storage
             _people = labLevel * 3;
             _food = labLevel * 5;
 
+            if (_people > 100)
+                _people = 100;
+
             need = labLevel < 10 ? 4 * labLevel : 2 * labLevel + 20;
         }
 
@@ -158,11 +161,11 @@ public class newStorage//저장고. 주로 자원 보관.
             _people = lab * 3;
             _food = lab * 5;
 
-            if (_people > 100)
-                _people = 100;
-
             need = lab < 10 ? 4 * lab : 2 * lab + 20;
         }
+
+        if (_people > 100)
+            _people = 100;
 
         if (people > _people)
             people = _people;
@@ -181,7 +184,7 @@ public class newStorage//저장고. 주로 자원 보관.
         if (people > _people)
             people = _people;
         else if (people < 0)
-            people = 0;
+            people = -1;
 
         if (food > _food)
             food = _food;

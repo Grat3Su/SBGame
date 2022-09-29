@@ -199,8 +199,6 @@ public class UIFIX : iGUI
 		GUI.matrix = bkM;
 	}
 
-	float alpha;
-
 	void updateinfo(int type)//상세정보
 	{
 		if (resourceView == null)

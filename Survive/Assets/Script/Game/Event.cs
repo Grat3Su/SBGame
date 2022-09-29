@@ -30,7 +30,7 @@ public class Event : MonoBehaviour
     {
         //storage = new Storage(1, 5, 0, 1, 0, 1);
         specialEvent = 0;
-        storage = new Storage(40, 15, 1, 10, 40, 10);
+        storage = new Storage(15, 15, 1, 10, 40, 10);
         plusItem = new AddItem(0);//하루 지나면 초기화
         minusItem = new AddItem(0);//하루 지나면 초기화
         day = 0;
@@ -67,7 +67,6 @@ public class Event : MonoBehaviour
         if (gameover)
             if (Input.GetKeyDown(KeyCode.Space))
             {
-                initGame();
                 return;
             }
         if (Input.GetKeyDown(KeyCode.Space))
@@ -91,19 +90,11 @@ public class Event : MonoBehaviour
     //스폰
     void spawnPeople()
     {
-        int people = storage.getStorage(0)-1;
-
-        if (people > 100)
-            people = 100;
-
-        for (int i = 0; i < people; i++)
+        for (int i = 0; i < 100; i++)
         {
             if (pState[i] == null)
             {
                 GameObject go = new GameObject();
-
-                //go.AddComponent<SpriteRenderer>().sprite = Resources.Load<Sprite>("meat");
-                //go.transform.Scale = new Vector2(5, 5);
 
                 float height = Camera.main.orthographicSize;
                 float width = Camera.main.aspect * height;
@@ -111,7 +102,7 @@ public class Event : MonoBehaviour
                 float y = Math.random(-height, height);
                 go.transform.position = new Vector3(x, y, 0);
                 go.AddComponent<PeopleState>();                
-                go.name = "people" + i.ToString();
+                go.name = "null";
                 pState[i] = go.GetComponent<PeopleState>();
                 go.GetComponent<PeopleState>().h = this;
             }
@@ -120,32 +111,35 @@ public class Event : MonoBehaviour
 
     void deletePeople()
     {
-        int people = storage.getStorage(0)-1;//플래이어는 빼야함
+        int people = storage.getStorage(0);
 
         if (people < 0)
             people = 0;
+        
         for (int i = people; i < 100; i++)
         {
             if (pState[i] == null)
                 return;
-
+            pState[i].behave = 4;
             Debug.Log(pState[i].name + "사망");
-            Destroy(pState[i].gameObject);
-            pState[i] = null;
+            //Destroy(pState[i].gameObject);
+            pState[i].name = "null";
         }
     }
     //지정해서 삭제
     void deletePeople(int idx)
     {
         Destroy(pState[idx]);
-        int people = storage.getStorage(0)-1;//플래이어는 빼야함
+        int people = storage.getStorage(0);
 
-        Debug.Log(pState[idx].name + "사망");
+        pState[idx].behave = 4;
 
         for (int i = idx; i <people; i++)
         {
             pState[i] = pState[i + 1];
         }
+        pState[99] = new PeopleState();
+
         storage.addStorage(0, -1);
     }
 
@@ -206,13 +200,28 @@ public class Event : MonoBehaviour
             item.food = -weak;
             item.people = Math.random(0, 100) > 80 ? -Math.random(0, weak) : 0;
             item.takeTime = 4;
+            getDisease(weak);
         }
         updateEvent(item);
     }
+
+    void getDisease(int weak)
+	{
+        for(int i = 0;i<weak;)
+		{
+            int target = Math.random(0, storage.getStorage(0));
+            if (pState[target].behave != 3)
+			{
+                pState[target].behave = 3;
+                i++;
+            }
+		}
+        Debug.Log("병 : " + weak);
+	}
     void skipDay()
 	{
         int people = storage.getStorage(0);
-        for (int i = 0; i < people - 1; i++)
+        for (int i = 0; i < people; i++)
         {
             if (pState[i] != null)
                 pState[i].takeTime += 12;
@@ -273,7 +282,7 @@ public class Event : MonoBehaviour
         else
         {
             int people = storage.getStorage(0);
-            for (int i = 0; i < people - 1; i++)
+            for (int i = 0; i < people; i++)
             {
                 if(pState[i]!=null)
                 pState[i].takeTime += item.takeTime;
@@ -304,7 +313,7 @@ public class Event : MonoBehaviour
         if (people != storage.getStorage(0))//자원을 사용한 후와 사람 수가 다르다
             deletePeople();
 
-        if (storage.getStorage(0) == 0)
+        if (storage.getStorage(0) == -1)
         {
             deletePeople();
             gameover = true;

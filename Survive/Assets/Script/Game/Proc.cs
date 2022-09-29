@@ -108,7 +108,7 @@ public class Proc : gGUI
 		psize = new iSize(50, 50);
 
 		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
-		people = playerEvent.storage.getStorage(0) -1;
+		people = playerEvent.storage.getStorage(0);
 		Debug.Log(playerEvent.storage.getStorage(0));
 	}
 
@@ -268,7 +268,8 @@ public class Proc : gGUI
 
 	iRect checkScrollbar(int barW, int barH)
 	{
-		people = playerEvent.storage.getStorage(0) - 1;
+		people = playerEvent.storage.getStorage(0);
+		Debug.Log(people);
 		// 가로 크기 / 총 크기
 		int miniWidth = 200;
 		int miniHeight = 500;
@@ -313,9 +314,10 @@ public class Proc : gGUI
 		img.add(st.tex);
 		pop.add(img);
 		stPerson = st;
-		people = playerEvent.storage.getStorage(0) - 1;
+		people = playerEvent.storage.getStorage(0);
 		imgPersonBtn = new iImage[100];
 		stPersonBtn = new iStrTex[100][];
+#if false
 		for (int i = 0; i < people; i++)
 		{
 			stPersonBtn[i] = new iStrTex[2];
@@ -324,7 +326,7 @@ public class Proc : gGUI
 			for (int j = 0; j < 2; j++)
 			{
 				st = new iStrTex(methodStPersonBtn, 150, 50);
-				st.setString(j + "\n" + playerEvent.pState[i].name);
+				st.setString(j + "\n" + playerEvent.pState[i].name + "\n" +i);
 				img.add(st.tex);
 
 				stPersonBtn[i][j] = st;
@@ -332,8 +334,30 @@ public class Proc : gGUI
 			img.position = new iPoint(20, 10 + 60 * i);
 			imgPersonBtn[i] = img;
 		}
+#else
+		for (int i = 0; i < 100; i++)
+		{
+			stPersonBtn[i] = new iStrTex[2];
+
+			img = new iImage();
+			for (int j = 0; j < 2; j++)
+			{
+				st = new iStrTex(methodStPersonBtn, 150, 50);
+				string s = "null";
+				if (i < people) s = playerEvent.pState[i].name;
+				st.setString(j + "\n" + s + "\n" + i);
+				img.add(st.tex);
+
+				stPersonBtn[i][j] = st;
+			}
+			img.position = new iPoint(20, 10 + 60 * i);
+			imgPersonBtn[i] = img;
+		}
+#endif
 
 		pop.style = iPopupStyle.move;
+		pop.methodClose = closePopPerson;
+		pop.methodOpen = closePopPerson;
 		pop.openPoint = new iPoint(MainCamera.devWidth, (MainCamera.devHeight - 500) / 2);
 		pop.closePoint = new iPoint(MainCamera.devWidth - 210, (MainCamera.devHeight - 500) / 2);
 		pop._aniDt = 0.2f;
@@ -349,12 +373,17 @@ public class Proc : gGUI
 	{
 		setRGBA(0.3f, 0.3f, 0.3f, 0.5f);
 		fillRect(0, 0, 300, 600);
-		people = playerEvent.storage.getStorage(0) - 1;
+		people = playerEvent.storage.getStorage(0);
 		setRGBA(1, 1, 1, 1);
 		for (int i = 0; i < people; i++)
 		{
-			//for (int j = 0; j < 2; j++)
-			//	stPersonBtn[i][j].setString(j + "\n" + i + "번");
+			for (int j = 0; j < 2; j++)
+			{
+				string s = playerEvent.pState[i].name;
+				if (s == null)
+					s = "null";
+				stPersonBtn[i][j].setString(j + "\n" + s + "\n" + i);
+			}
 			imgPersonBtn[i].frame = (popPerson.selected == i ? 1 : 0);
 			imgPersonBtn[i].paint(0.0f, offPerson);
 		}
@@ -379,10 +408,15 @@ public class Proc : gGUI
 	{
 		string[] strs = st.str.Split("\n");
 		int index = int.Parse(strs[0]);
+		int pindex = int.Parse(strs[2]);
 		string s = strs[1];
 		setRGBA(1, 1, 1, 1);
 		if (index == 0)
+		{
 			setRGBA(1, 1, 1, 1);
+			if(playerEvent.pState[pindex].behave == 3)
+				setRGBA(0, 1, 0, 1);
+		}
 		else
 			setRGBA(0.3f, 0.3f, 0.3f, 1);
 
@@ -398,12 +432,19 @@ public class Proc : gGUI
 	void closePerson(float dt)
 	{
 		closedt += dt;
-		if (closedt > 3)
+		if (closedt > 1)
 		{
 			closedt = 0;
 			popPerson.show(false);
 			open = false;
 		}
+	}
+
+	void closePopPerson(iPopup pop)
+	{
+		people = playerEvent.storage.getStorage(0);
+		offMin = new iPoint(0, 490 - 60 * people);
+		offPerson = new iPoint(0, 0);
 	}
 
 	void drawPopPerson(float dt)
@@ -424,7 +465,7 @@ public class Proc : gGUI
 			&& open && select == -1)
 			closePerson(dt);
 
-		stPerson.setString(popPerson.selected + " " + offPerson.y);// click, move
+		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + playerEvent.storage.getStorage(0));// click, move
 
 		popPerson.paint(dt);
 	}
@@ -457,7 +498,7 @@ public class Proc : gGUI
 				scroll = false;
 				firstPoint = point;
 				prevPoint = point;
-				people = playerEvent.storage.getStorage(0) - 1;
+				people = playerEvent.storage.getStorage(0);
 				for (i = 0; i < people; i++)
 				{
 					if (imgPersonBtn[i].touchRect(p, s).containPoint(point))//클릭되면 ㅁ
@@ -752,8 +793,8 @@ public class Proc : gGUI
 
 		int w = MainCamera.devWidth;
 		pop.style = iPopupStyle.zoom;
-		//pop.methodOpen = openPopNewDay;
-		pop.methodClose = closePopNewDay;
+		pop.methodOpen = closePopNewDay;
+		pop.methodOpen= closePopNewDay;
 		pop.methodDrawBefore = drawPopNewDay;
 		pop.openPoint = new iPoint(w / 2, MainCamera.devHeight / 2);
 		pop.closePoint = new iPoint((w - (w - 200)) / 2, 100);
@@ -843,23 +884,6 @@ public class Proc : gGUI
 		setStringSize(size);
 	}
 
-	iPopup popResource(iPoint p, float dt)
-	{
-		iPopup pop = new iPopup();
-		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStPopTop, MainCamera.devWidth, 60);
-		st.setString("0");
-		img.add(st.tex);
-		pop.add(img);
-		stPopTop = st;
-
-		pop.style = iPopupStyle.move;
-		pop.openPoint = p;
-		pop.closePoint = p;
-		pop._aniDt = 0.5f;
-		return pop;
-	}
-
 	void drawNewDay(float dt)
 	{
 		stNewDay.setString(newDayNum+" "+ playerEvent.day);// click, move
@@ -881,10 +905,17 @@ public class Proc : gGUI
 				break;
 
 			case iKeystate.Ended:
-				newDayOpen = false;
-				playerEvent.newday = false;
-				playerEvent.initDay();
-				popNewDay.show(false);
+				if(newDayNum<4)
+				{
+					newDayNum = 4;
+				}
+				else
+				{
+					newDayOpen = false;
+					playerEvent.newday = false;
+					playerEvent.initDay();					
+					popNewDay.show(false);
+				}
 				break;
 		}
 
@@ -894,12 +925,19 @@ public class Proc : gGUI
 	{
 		if (!popNewDay.bShow|| popNewDay.state == iPopupState.close)
 			return false;
-		if (key == iKeyboard.Space)
+		if (stat==iKeystate.Began && key == iKeyboard.Space)
 		{
-			newDayOpen = false;
-			playerEvent.newday = false;
-			playerEvent.initDay();
-			popNewDay.show(false);
+			if (newDayNum < 4)
+			{
+				newDayNum = 4;
+			}
+			else
+			{
+				newDayOpen = false;
+				playerEvent.newday = false;
+				playerEvent.initDay();
+				popNewDay.show(false);
+			}
 		}
 		
 		return true;

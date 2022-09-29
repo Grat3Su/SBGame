@@ -11,9 +11,9 @@ public class PeopleState : MonoBehaviour
 	public int[] jobLevel;
 	int jobExp;
 
-	string name;//이름
-	public int behave;// 0 : idle / 1 : move / 2 : attack / 2 : work / 3 : disease
-	bool defence;//습격?
+	public string name;//이름
+	public int behave;// 0 : idle / 1 : move / 2 : attack / 2 : work / 3 : disease / 4: 사망	
+	int healthTime;
 	public int takeTime;//맵에 없을 시간
 	public int job = 0;// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
 	public Sprite[][] sp;
@@ -22,10 +22,14 @@ public class PeopleState : MonoBehaviour
 
 	void Start()
 	{
+		init();
+	}
+	public void init()
+	{
 		behave = 0;
-		defence = false;
 		jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
 		jobExp = 0;
+		healthTime = 3;
 
 		string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
 		jobTex = Resources.Load<Texture>("jobless");
@@ -43,8 +47,25 @@ public class PeopleState : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if (takeTime > 4)
+		if (takeTime > 4&&behave!=3)
 			jobAction();
+		else if(behave == 3)
+		{
+			if (healthTime > 0)
+			{
+				healthTime--;
+			}
+			else if (healthTime == 0)
+			{
+				healthTime = 3;
+				behave = 0;
+				Debug.Log("나음");
+			}
+			takeTime -= 4;
+		}
+
+		if (behave == 4)
+			name = "null";
 	}
 
 	//강제 복귀
@@ -138,7 +159,7 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 1)
 		{
-			behave = 3;
+			behave = 2;
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 2);
 			h.plusItem.mapExp += 2;
@@ -147,36 +168,31 @@ public class PeopleState : MonoBehaviour
 			{
 				h.storage.addStorage(0, 1);
 				h.plusItem.people += 1;
-				//Debug.Log(name + "이 생존자 발견");
 			}
-			//Debug.Log(name + " 맵 경험치 2 획득");
 		}
 		else if (job == 2)
 		{
-			behave = 3;
+			behave = 2;
 			//식량/물 가저오기
 			int food = Math.random(0, 3);
 			h.storage.addStorage(1, food);
 			h.plusItem.food += food;
 
-			//Debug.Log(name + " 식량 " + food + " 획득");
 		}
 		else if (job == 3)
 		{
-			behave = 3;
+			behave = 2;
 			//식량 1 추가
 			int food = Math.random(3, 4);
 			h.storage.addStorage(1, food);
 			h.plusItem.food += food;
-			//Debug.Log(name + " 식량 " + food + " 획득");
 		}
 		else if (job == 4)
 		{
-			behave = 3;
+			behave = 2;
 			//연구 포인트 2 추가
 			h.storage.addStorage(3, 2);
 			h.plusItem.labExp += 1;
-			//Debug.Log(name + " 연구 경험치 2 획득");
 		}
 		jobExp += 2;
 		if (jobExp > jobLevel[job] * 2)
