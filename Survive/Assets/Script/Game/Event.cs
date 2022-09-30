@@ -39,13 +39,14 @@ public class Event : MonoBehaviour
         explorer = 0;
         deletePeople();
         gameover = false;
-        spawnPeople();
+        spawnfir();
         map = new int[] {50, 100, 300 };
         newday = false;
     }
 
     public void initDay()
 	{
+        spawnPeople();
         plusItem.init();
         minusItem.init();
 	}
@@ -88,8 +89,9 @@ public class Event : MonoBehaviour
         SkipDay
     }
     //스폰
-    void spawnPeople()
+    void spawnfir()
     {
+        int people = storage.getStorage(0);
         for (int i = 0; i < 100; i++)
         {
             if (pState[i] == null)
@@ -102,10 +104,38 @@ public class Event : MonoBehaviour
                 float y = Math.random(-height, height);
                 go.transform.position = new Vector3(x, y, 0);
                 go.AddComponent<PeopleState>();                
-                go.name = "null";
                 pState[i] = go.GetComponent<PeopleState>();
                 go.GetComponent<PeopleState>().h = this;
+                if (i < people)
+                {
+                    string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
+                    string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
+                    go.name = name;
+                    go.GetComponent<PeopleState>().name = name;
+                }
+				else
+				{
+                    go.name = "null";
+                    go.GetComponent<PeopleState>().name = "null";
+				}
             }
+        }
+    }
+
+    void spawnPeople()
+	{
+        int people = storage.getStorage(0);
+        for (int i = people - 1; i > -1; i--)
+        {
+            if (pState[i].name == "null")
+            {
+                string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
+                string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
+                pState[i].name = name;
+                pState[i].gameObject.name = name;
+            }
+            else
+                break;
         }
     }
 
@@ -121,9 +151,8 @@ public class Event : MonoBehaviour
             if (pState[i] == null)
                 return;
             pState[i].behave = 4;
-            Debug.Log(pState[i].name + "사망");
-            //Destroy(pState[i].gameObject);
             pState[i].name = "null";
+            pState[i].gameObject.name = "null";
         }
     }
     //지정해서 삭제
@@ -133,14 +162,14 @@ public class Event : MonoBehaviour
         int people = storage.getStorage(0);
 
         pState[idx].behave = 4;
+        PeopleState ps = pState[idx];
 
         for (int i = idx; i <people; i++)
         {
             pState[i] = pState[i + 1];
         }
-        pState[99] = new PeopleState();
-
-        storage.addStorage(0, -1);
+        if(pState[99] == null)
+            pState[99] = ps;
     }
 
     public void doEvent(DoEvent type)
@@ -223,7 +252,7 @@ public class Event : MonoBehaviour
         int people = storage.getStorage(0);
         for (int i = 0; i < people; i++)
         {
-            if (pState[i] != null)
+            if (pState[i].name != "null")
                 pState[i].takeTime += 12;
         }
         hour = 0;
@@ -258,33 +287,28 @@ public class Event : MonoBehaviour
         else if (item.mapExp < 0)
             minusItem.mapExp += item.mapExp;
 
-        if (item.people > 0)
-            spawnPeople();
-        else if (item.people < 0)
+        if (item.people < 0)
             deletePeople();
 
         hour += item.takeTime;
 
         if (hour > 11)//12시 땡
         {
+            spawnPeople();
             hour -= 12;
             nextDay();
 
             specialEvent = 0;//이벤트 초기화
             //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
             doRandEvent((DoEvent)(Math.random(1, 5)));
-
-            //int people = storage.getStorage(0);
-            //for (int i = 0; i < people - 1; i++)
-            //    if (pState[i] != null)
-            //        pState[i].comeBack();
         }
         else
         {
+            spawnPeople();
             int people = storage.getStorage(0);
             for (int i = 0; i < people; i++)
             {
-                if(pState[i]!=null)
+                if(pState[i].name != "null")
                 pState[i].takeTime += item.takeTime;
             }
         }
@@ -295,14 +319,13 @@ public class Event : MonoBehaviour
         newday = true;//보고창을 닫지 않으면 게임 속행 안되게 
         day++;
         Debug.Log("다음날");
-
         int people = storage.getStorage(0);
         int food = storage.getStorage(1);
 
         if (food < people)
         {
             minusItem.food += food;
-            minusItem.people += food - people;
+            minusItem.people -= food - people;
         }
         else
         {
@@ -319,7 +342,7 @@ public class Event : MonoBehaviour
             gameover = true;
             Debug.Log("게임오버");
         }
-        
+
     }
 
 }

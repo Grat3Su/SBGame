@@ -38,6 +38,8 @@ public class Proc : gGUI
 
 		for(int i = 0; i<mkeyboard.Length; i++)
 		MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
+
+		MainCamera.addMethodWheel(new MethodWheel(wheelPopPerson));
 	}
 
 	public override void free()
@@ -109,7 +111,6 @@ public class Proc : gGUI
 
 		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
 		people = playerEvent.storage.getStorage(0);
-		Debug.Log(playerEvent.storage.getStorage(0));
 	}
 
 	iPoint pPos;
@@ -269,7 +270,6 @@ public class Proc : gGUI
 	iRect checkScrollbar(int barW, int barH)
 	{
 		people = playerEvent.storage.getStorage(0);
-		Debug.Log(people);
 		// 가로 크기 / 총 크기
 		int miniWidth = 200;
 		int miniHeight = 500;
@@ -388,20 +388,23 @@ public class Proc : gGUI
 			imgPersonBtn[i].paint(0.0f, offPerson);
 		}
 
-		iRect rt = checkScrollbar(200 - 20,
+		if (playerEvent.storage.getStorage(0) > 9)
+		{
+			iRect rt = checkScrollbar(200 - 20,
 									500 - 40);
-		// 상하 스크롤바
-		float x = 200 - 20;
-		float y = 10;
-		float w = 10;
-		float h = 500 - 20;
-		setRGBA(0, 0, 0, 1f);
-		fillRect(x + w / 2 - 2, y, 4, h);
+			// 상하 스크롤바
+			float x = 200 - 20;
+			float y = 10;
+			float w = 10;
+			float h = 500 - 20;
+			setRGBA(0, 0, 0, 1f);
+			fillRect(x + w / 2 - 2, y, 4, h);
 
-		// 손잡이
-		y += 10 + rt.origin.y;
-		h = rt.size.height;
-		fillRect(x, y, w, h);
+			// 손잡이
+			y += 10 + rt.origin.y;
+			h = rt.size.height;
+			fillRect(x, y, w, h);
+		}
 	}
 
 	public void methodStPersonBtn(iStrTex st)
@@ -464,8 +467,8 @@ public class Proc : gGUI
 		else if (MainCamera.mousePosition().x < MainCamera.devWidth - 200
 			&& open && select == -1)
 			closePerson(dt);
-
-		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + playerEvent.storage.getStorage(0));// click, move
+		people = playerEvent.storage.getStorage(0);
+		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + people);// click, move
 
 		popPerson.paint(dt);
 	}
@@ -532,16 +535,18 @@ public class Proc : gGUI
 
 				if (scroll)
 				{
-					mp = point - prevPoint;
-					prevPoint = point;
+					if (playerEvent.storage.getStorage(0) > 8)
+					{
+						mp = point - prevPoint;
+						prevPoint = point;
 
-					//offX += mp.x;
-					offPerson.y += mp.y;
-					if (offPerson.y < offMin.y)
-						offPerson.y = offMin.y;
-					else if (offPerson.y > offMax.y)
-						offPerson.y = offMax.y;
-
+						//offX += mp.x;
+						offPerson.y += mp.y;
+						if (offPerson.y < offMin.y)
+							offPerson.y = offMin.y;
+						else if (offPerson.y > offMax.y)
+							offPerson.y = offMax.y;
+					}
 				}
 				break;
 
@@ -571,6 +576,9 @@ public class Proc : gGUI
 	{
 		if (popNewDay.bShow || popNewDay.state == iPopupState.close)
 			return false;
+
+		//if (playerEvent.storage.getStorage(0) < 9)
+		//	return false;
 
 		iPoint p = MainCamera.mousePosition();
 		if (p.x > popPerson.closePoint.x && p.x < popPerson.closePoint.x + 200 &&
@@ -607,10 +615,10 @@ public class Proc : gGUI
 		select = -1;
 
 		//닫는버튼 / 직업 바꾸기 버튼 두 개만 필요
-		imgPersonInfoBtn = new iImage[2]; // 0 : 닫기 1 : 직업 바꾸기
-		stPersonInfoBtn = new iStrTex[2][];//눌렸을 때
+		imgPersonInfoBtn = new iImage[3]; // 0 : 닫기 1 : < 직업 바꾸기 | 2 : > 직업바꾸기
+		stPersonInfoBtn = new iStrTex[3][];//눌렸을 때
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			stPersonInfoBtn[i] = new iStrTex[2];
 
@@ -624,6 +632,11 @@ public class Proc : gGUI
 					st.setString(j + "\n" + " X " + "\n" + i);
 				}
 				//직업 바꾸기 : 1
+				else if(i == 1)
+				{
+					st = new iStrTex(methodStPersonInfoBtn, 50, 50);
+					st.setString(j + "\n" + "<" + "\n" + i);
+				}
 				else
 				{
 					st = new iStrTex(methodStPersonInfoBtn, 50, 50);
@@ -635,8 +648,10 @@ public class Proc : gGUI
 			}
 			if (i == 0)
 				img.position = new iPoint(700 - 70, 10);
-			else
-				img.position = new iPoint(600, 250);
+			else if (i == 1)
+				img.position = new iPoint(450, 300);
+			else if (i == 2)
+				img.position = new iPoint(550, 300);
 			imgPersonInfoBtn[i] = img;
 		}
 
@@ -657,10 +672,9 @@ public class Proc : gGUI
 		string[] btnJobTxt = new string[] { "백수", "탐험가", "일꾼", "농부", "연구원" };
 		if (select != -1)
 		{
-			Texture personTex = playerEvent.pState[select].jobTex;
 			iPoint p = new iPoint(50, 50);
 			fillRect(new Rect(p.x, p.y, 300,300));
-			drawImage(personTex, p, 300.0f / personTex.width, 300.0f / personTex.height, LEFT | HCENTER);
+			drawImage(playerEvent.pState[select].jobTex, p, 300.0f / playerEvent.pState[select].jobTex.width, 300.0f / playerEvent.pState[select].jobTex.height, LEFT | HCENTER);
 			PeopleState ps = playerEvent.pState[select];
 			drawString("이름 : " + ps.name,				new iPoint(450, 100), LEFT | HCENTER);
 			drawString("레벨 : " + ps.jobLevel[ps.job], new iPoint(450, 150), LEFT | HCENTER);
@@ -668,7 +682,7 @@ public class Proc : gGUI
 			drawString("직업 : " + btnJobTxt[ps.job],	new iPoint(450, 250), LEFT | HCENTER);
 		}
 
-		for (int i = 0; i < 2; i++)
+		for (int i = 0; i < 3; i++)
 		{
 			//for (int j = 0; j < 2; j++)
 			//	stPersonBtn[i][j].setString(j + "\n" + i + "번");
@@ -688,9 +702,9 @@ public class Proc : gGUI
 
 		if (index == 0 && bindex == 0)
 			setRGBA(1, 0, 0, 1);
-		else if (index == 0 && bindex == 1)
+		else if (index == 0 && bindex > 0)
 			setRGBA(1, 1, 1, 1);
-		else if (index == 1)
+		else if (index > 0)
 		{
 			setRGBA(0.3f, 0.3f, 0.3f, 1);
 		}
@@ -727,7 +741,7 @@ public class Proc : gGUI
 		switch (stat)
 		{
 			case iKeystate.Began:
-				for (i = 0; i < 2; i++)
+				for (i = 0; i < 3; i++)
 				{
 					if (imgPersonInfoBtn[i].touchRect(p, s).containPoint(point))
 					{
@@ -758,13 +772,18 @@ public class Proc : gGUI
 					else if (popPersonInfo.selected == 1)
 					{
 						PeopleState ps = playerEvent.pState[select];
+						int job = ps.job - 1;
+						if (job < 0)
+							job = 4;
+						ps.jobUpdate(job);
+					}
+					else if (popPersonInfo.selected == 2)
+					{
+						PeopleState ps = playerEvent.pState[select];
 						int job = ps.job + 1;
 						if (job > 4)
 							job = 0;
 						ps.jobUpdate(job);
-						Debug.Log("j "+job);
-						Debug.Log(ps.job);
-
 					}
 
 					popPersonInfo.selected = -1;
@@ -794,7 +813,7 @@ public class Proc : gGUI
 		int w = MainCamera.devWidth;
 		pop.style = iPopupStyle.zoom;
 		pop.methodOpen = closePopNewDay;
-		pop.methodOpen= closePopNewDay;
+		pop.methodClose= closePopNewDay;
 		pop.methodDrawBefore = drawPopNewDay;
 		pop.openPoint = new iPoint(w / 2, MainCamera.devHeight / 2);
 		pop.closePoint = new iPoint((w - (w - 200)) / 2, 100);
@@ -809,6 +828,7 @@ public class Proc : gGUI
 	{
 		newDayNum = 0;
 		newDayDt = -0.5f;
+		stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
 	}
 
 	void drawPopNewDay(float dt, iPopup pop, iPoint zero)
@@ -852,7 +872,8 @@ public class Proc : gGUI
 			Texture resource = Resources.Load<Texture>(texname[i]);
 			iPoint p = new iPoint(w / 4 * (i + 1) - 150, h / 2 + 30);
 			drawImage(resource, p, 50.0f / resource.width, 50.0f / resource.height, VCENTER | HCENTER);
-			drawString(playerEvent.storage.getStorage(i) + "", w / 4 * (i + 1) - 150, h / 2 + 100, VCENTER | HCENTER);
+			
+			drawString(playerEvent.storage.getStorageText(i) + "", w / 4 * (i + 1) - 150, h / 2 + 100, VCENTER | HCENTER);
 
 			setStringRGBA(0, 1, 0, 1);
 			if (i == 0)
@@ -869,15 +890,15 @@ public class Proc : gGUI
 			}
 			else if (i == 2)
 			{
-				drawString("+ " + playerEvent.plusItem.labExp, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
-				setStringRGBA(1, 0, 0, 1);
-				drawString("- " + playerEvent.minusItem.labExp, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
+				drawString("+ " + playerEvent.plusItem.labExp + " exp", w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+				setStringRGBA(1, 1, 1, 1);
+				drawString(playerEvent.storage.getStorageText(4), w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
 			}
 			else if (i == 3)
 			{
-				drawString("+ " + playerEvent.plusItem.mapExp, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
-				setStringRGBA(1, 0, 0, 1);
-				drawString("- " + playerEvent.minusItem.mapExp, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
+				drawString("+ " + playerEvent.plusItem.mapExp + " exp", w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
+				setStringRGBA(1, 1, 1, 1);
+				drawString(playerEvent.storage.getStorageText(5), w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
 			}
 		}
 

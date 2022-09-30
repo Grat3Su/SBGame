@@ -30,13 +30,7 @@ public class PeopleState : MonoBehaviour
 		jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
 		jobExp = 0;
 		healthTime = 3;
-
-		string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
 		jobTex = Resources.Load<Texture>("jobless");
-		name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
-		//Debug.Log(name + "구조");
-		gameObject.name = name;
-		//이름 랜덤 생성
 
 		job = 0;
 		int newjob = Math.random(0, 5);
@@ -47,7 +41,9 @@ public class PeopleState : MonoBehaviour
 	// Update is called once per frame
 	void Update()
 	{
-		if (takeTime > 4&&behave!=3)
+		if (name == "null")
+			return;
+		if (takeTime > 3 && behave!=3)
 			jobAction();
 		else if(behave == 3)
 		{
@@ -151,7 +147,7 @@ public class PeopleState : MonoBehaviour
 	{// 0 : 백수 / 1 : 방위대원 / 2 : 탐험가 / 3 : 농부 / 4 : 연구원
 	 //taketime ==4
 		takeTime -= 4;
-
+		Debug.Log("work");
 		if (job == 0)
 		{
 			//맵 배회
@@ -275,7 +271,10 @@ class newpState
 	void Update()
 	{
 		if (takeTime > 3)
+		{
+			Debug.Log("work");
 			jobAction();
+		}
 	}
 
 	public void jobUpdate(int newJob)
@@ -285,6 +284,7 @@ class newpState
 
 	public void jobAction()// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
 	{
+		Debug.Log("work");
 		takeTime -= 4;
 		if (takeTime < 0)
 			takeTime = 0;
