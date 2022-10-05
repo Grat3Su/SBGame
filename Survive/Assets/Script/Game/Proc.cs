@@ -140,6 +140,7 @@ public class Proc : gGUI
 		if (playerEvent.newday&&!newDayOpen)
 		{
 			popNewDay.show(true);
+            popPerson.show(false);
 			newDayOpen = true;
 		}
 	}

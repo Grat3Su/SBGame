@@ -17,6 +17,7 @@ public class Event : MonoBehaviour
     public Storage storage;
     public int day;
     int hour;
+    int curp;
     public PeopleState[] pState;
     public int workman;
     public int explorer;
@@ -29,6 +30,7 @@ public class Event : MonoBehaviour
     void initGame()
     {
         //storage = new Storage(1, 5, 0, 1, 0, 1);
+        curp = 0;
         specialEvent = 0;
         storage = new Storage(15, 15, 1, 10, 40, 10);
         plusItem = new AddItem(0);//하루 지나면 초기화
@@ -54,6 +56,8 @@ public class Event : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if(curp!=storage.getStorage(0))
+            spawnPeople();
         return;
 
         if (newday)
@@ -96,6 +100,7 @@ public class Event : MonoBehaviour
         {
             if (pState[i] == null)
             {
+                curp++;
                 GameObject go = new GameObject();
 
                 float height = Camera.main.orthographicSize;
@@ -129,6 +134,7 @@ public class Event : MonoBehaviour
         {
             if (pState[i].name == "null")
             {
+                curp++;
                 string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
                 string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
                 pState[i].name = name;
@@ -268,7 +274,9 @@ public class Event : MonoBehaviour
 
         //오늘 얻은 물건 저장
         if (item.people > 0)
+        {
             plusItem.people += item.people;
+        }
         else if (item.people < 0)
             minusItem.people += item.people;
 
@@ -294,7 +302,6 @@ public class Event : MonoBehaviour
 
         if (hour > 11)//12시 땡
         {
-            spawnPeople();
             hour -= 12;
             nextDay();
 
@@ -304,7 +311,6 @@ public class Event : MonoBehaviour
         }
         else
         {
-            spawnPeople();
             int people = storage.getStorage(0);
             for (int i = 0; i < people; i++)
             {
