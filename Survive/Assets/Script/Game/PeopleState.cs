@@ -10,15 +10,16 @@ public class PeopleState : MonoBehaviour
 
 	public int[] jobLevel;
 	int jobExp;
+	public iPoint pos;
 
 	public string name;//이름
-	public int behave;// 0 : idle / 1 : move / 2 : attack / 2 : work / 3 : disease / 4: 사망	
+	public int behave;// 0 : idle / 1 : move / 2 : back / 3 : work / 4 : disease / 5: 사망	
+	public float moveDt;
 	int healthTime;
 	public int takeTime;//맵에 없을 시간
 	public int job = 0;// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
 	public Sprite[][] sp;
 	public Event h;
-	public Texture jobTex;
 
 	void Start()
 	{
@@ -26,11 +27,12 @@ public class PeopleState : MonoBehaviour
 	}
 	public void init()
 	{
-		behave = 0;
+		pos = new iPoint(0, 0);
+		behave = 1;
+		moveDt = 0f;
 		jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
 		jobExp = 0;
 		healthTime = 3;
-		jobTex = Resources.Load<Texture>("jobless");
 
 		job = 0;
 		int newjob = Math.random(0, 5);
@@ -43,9 +45,9 @@ public class PeopleState : MonoBehaviour
 	{
 		if (name == "null")
 			return;
-		if (takeTime > 3 && behave!=3)
+		if (takeTime > 3 && behave==3)
 			jobAction();
-		else if(behave == 3)
+		else if(behave == 4)
 		{
 			if (healthTime > 0)
 			{
@@ -60,7 +62,7 @@ public class PeopleState : MonoBehaviour
 			takeTime -= 4;
 		}
 
-		if (behave == 4)
+		if (behave == 5)
 			name = "null";
 	}
 
@@ -117,7 +119,6 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 2)
 		{
-			jobTex = Resources.Load<Texture>("people");
 			//Debug.Log(name + "복귀");
 			//식량/물 가저오기
 			int food = (int)((float)Math.random(0, 3) / 2 + 0.5f);
@@ -155,7 +156,6 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 1)
 		{
-			behave = 2;
 			//탐험. 가끔 생존자 발견
 			h.storage.addStorage(4, 2);
 			h.plusItem.mapExp += 2;
@@ -168,7 +168,6 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 2)
 		{
-			behave = 2;
 			//식량/물 가저오기
 			int food = Math.random(0, 3);
 			h.storage.addStorage(1, food);
@@ -177,7 +176,6 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 3)
 		{
-			behave = 2;
 			//식량 1 추가
 			int food = Math.random(3, 4);
 			h.storage.addStorage(1, food);
@@ -185,7 +183,6 @@ public class PeopleState : MonoBehaviour
 		}
 		else if (job == 4)
 		{
-			behave = 2;
 			//연구 포인트 2 추가
 			h.storage.addStorage(3, 2);
 			h.plusItem.labExp += 1;
@@ -222,27 +219,22 @@ public class PeopleState : MonoBehaviour
 		Sprite sp = Resources.Load<Sprite>("jobless");
 		if (job == 0)
 		{
-			jobTex = Resources.Load<Texture>("jobless");
 			sp = Resources.Load<Sprite>("jobless");
 		}
 		else if (job == 1)
 		{
-			jobTex = Resources.Load<Texture>("explorer");
 			sp = Resources.Load<Sprite>("explorer");
 		}
 		else if (job == 2)
 		{
-			jobTex = Resources.Load<Texture>("worker");
 			sp = Resources.Load<Sprite>("worker");
 		}
 		else if (job == 3)
 		{
-			jobTex = Resources.Load<Texture>("farmer");
 			sp = Resources.Load<Sprite>("farmer");
 		}
 		else if (job == 4)
 		{
-			jobTex = Resources.Load<Texture>("researcher");
 			sp = Resources.Load<Sprite>("researcher");
 		}
 		gameObject.GetComponent<SpriteRenderer>().sprite = sp;

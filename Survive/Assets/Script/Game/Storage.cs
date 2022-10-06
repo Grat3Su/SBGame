@@ -4,7 +4,8 @@ using UnityEngine;
 
 public struct Storage
 {
-    int people, _people;
+    public int people;
+    int _people;
     int food, _food;
     int labExp;
     int labLevel;

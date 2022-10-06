@@ -367,9 +367,10 @@ public class UIFIX : iGUI
 		setRGBA(0, 0, 0, 0.5f);
 		fillRect(texpinfoView.width/2, 0, 300, 900);
 		setRGBA(1, 1, 1, 1);
-		Texture people = pEvent.pState[curidx].jobTex;
+		//Texture people = pEvent.pState[curidx].jobTex;
+		//Util.createTexture(texname[jobindex])
 		iPoint p = new iPoint(50, 50);
-		drawImage(people, p, 300.0f / people.width, 300.0f / people.height, LEFT | HCENTER);
+		//drawImage(people, p, 300.0f / people.width, 300.0f / people.height, LEFT | HCENTER);
 
 		float stringSize = getStringSize();
         PeopleState prople = pEvent.pState[curidx];

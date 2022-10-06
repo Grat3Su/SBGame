@@ -134,6 +134,7 @@ public class Event : MonoBehaviour
         {
             if (pState[i].name == "null")
             {
+                pState[i].behave = 0;
                 curp++;
                 string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
                 string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
@@ -180,6 +181,8 @@ public class Event : MonoBehaviour
 
     public void doEvent(DoEvent type)
     {
+        for (int i = 0; i < storage.people; i++)
+            pState[i].behave = 1;
         string[] etype = new string[] { "탐험", "사냥", "연구" };
         AddItem item = new AddItem(0);
         if (type == DoEvent.Adventure)

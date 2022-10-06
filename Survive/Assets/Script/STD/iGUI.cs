@@ -310,6 +310,13 @@ class Math
         return a * (1 - rate) + b * rate;
     }
 
+    public static iPoint linear(float rate, iPoint a, iPoint b)
+    {
+        rate = Mathf.Clamp(rate, 0, 1);
+        return a * (1 - rate) + b * rate;
+    }
+
+
     public static float easeIn(float rate, float a, float b)
     {// y = x^2
         rate = Mathf.Clamp(rate, 0, 1);
