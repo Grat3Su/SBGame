@@ -181,8 +181,8 @@ public class Event : MonoBehaviour
 
     public void doEvent(DoEvent type)
     {
-        for (int i = 0; i < storage.people; i++)
-            pState[i].behave = 1;
+        //for (int i = 0; i < storage.people; i++)
+        //    pState[i].behave = 1;
         string[] etype = new string[] { "탐험", "사냥", "연구" };
         AddItem item = new AddItem(0);
         if (type == DoEvent.Adventure)

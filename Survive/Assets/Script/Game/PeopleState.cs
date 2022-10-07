@@ -28,7 +28,7 @@ public class PeopleState : MonoBehaviour
 	public void init()
 	{
 		pos = new iPoint(0, 0);
-		behave = 1;
+		behave = 0;
 		moveDt = 0f;
 		jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
 		jobExp = 0;
