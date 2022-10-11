@@ -18,7 +18,7 @@ public enum iKeyboard
 	Right,
 	Up,
 	Down,
-	Space
+	Space,
 };
 
 public delegate bool MethodKeyboard(iKeystate stat, iKeyboard key);

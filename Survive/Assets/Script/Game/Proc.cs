@@ -51,8 +51,8 @@ public class Proc : gGUI
 	public override void draw(float dt)
 	{
 		drawBg(dt);
-		drawPlayer(dt);
 		drawPeople(dt);
+		drawPlayer(dt);
 		drawPopTop(dt);
 		drawPopPerson(dt);
 		drawPopInfo(dt);
@@ -133,10 +133,11 @@ public class Proc : gGUI
 		else if (pPos.y > MainCamera.devHeight - 50)
 			pPos.y = MainCamera.devHeight - 50;
 
-		setRGBA(0, 1, 0, 1f);
-		fillRect(pPos.x, pPos.y, psize.width, psize.height);
-
-		nextPos = new iPoint(0, 0);
+		//setRGBA(0, 1, 0, 1f);//Util.createTexture(texname[ps.job])
+        //fillRect(pPos.x, pPos.y, psize.width, psize.height);
+        
+        drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
+        nextPos = new iPoint(0, 0);
 
 	}
 
@@ -195,6 +196,7 @@ public class Proc : gGUI
 				popEvent.openPoint = p[0];
 				popEvent.closePoint = p[1];
 #endif
+                if(!popEvent.bShow)
 				popEvent.show(true);
 				break;
 		}
@@ -223,10 +225,8 @@ public class Proc : gGUI
 			new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 150),//home
 			new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight - 150),//street
 			new iPoint(MainCamera.devWidth / 2, -50),//up
+			new iPoint(200, MainCamera.devHeight - 150),//fireld
 			new iPoint(MainCamera.devWidth - 280, MainCamera.devHeight/2 - 130),//lab
-			new iPoint(MainCamera.devWidth / 2, -50),
-
-
 		};
 		float len = 0f, l = 0f;
 		for (int i = 0; i < 2; i++)
@@ -278,7 +278,26 @@ public class Proc : gGUI
 		for (int i = 0; i < people; i++)
 		{
 			PeopleState ps = playerEvent.pState[i];
-			if (ps.moveDt < 0f)
+
+            int at = ps.job != 4 ? 2 : 3;
+            switch (ps.job)
+            {
+                case 0:
+                    at = 1;
+                    break;
+                case 1:
+                case 2:
+                    at = 2;
+                    break;
+                case 3:
+                    at = 3;
+                    break;
+                case 4:
+                    at = 4;
+                    break;
+            }
+
+            if (ps.moveDt < 0f)
 			{
 				ps.moveDt += dt;
 				continue;
@@ -290,9 +309,8 @@ public class Proc : gGUI
 				if (r < moveRate)
 					ps.pos = Math.linear(r / moveRate, peopleInOut[0], peopleInOut[1]);
 				else
-				{
-					int at = ps.job != 4 ? 2 : 3;
-					ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[at]);
+				{					
+                    ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[at]);
 				}
 
 				ps.moveDt += dt;
@@ -307,8 +325,7 @@ public class Proc : gGUI
 				float r = ps.moveDt / _moveDt;
 				if (r < moveRate)
 				{
-					int at = ps.job != 4 ? 2 : 3;
-					ps.pos = Math.linear(r / moveRate, peopleInOut[at], peopleInOut[1]);
+                    ps.pos = Math.linear(r / moveRate, peopleInOut[at], peopleInOut[1]);
 				}
 				else
 					ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[0]);
@@ -322,7 +339,7 @@ public class Proc : gGUI
 			setRGBA(1, 1, 1, 1);
 			string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
 			Texture peopleTex = Util.createTexture(texname[ps.job]);
-			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, LEFT | HCENTER);
+			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
 			
 			Texture building = Util.createTexture("house");
 			drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 200), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
@@ -993,7 +1010,7 @@ public class Proc : gGUI
 						if (job > 4)
 							job = 0;
 						ps.jobUpdate(job);
-						if (ps.behave == 3)
+						if (ps.behave == 1)
 						{
 							ps.behave = 2;
 							ps.moveDt = -0.2f;
@@ -1356,6 +1373,7 @@ public class Proc : gGUI
 		if (key == iKeyboard.Space)
 		{
 			popEvent.openPoint = new iPoint(pPos.x, pPos.y);
+            //popEvent.show(false);
 		}
 
 		return true;
