@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class PeopleState : MonoBehaviour
@@ -18,6 +20,7 @@ public class PeopleState : MonoBehaviour
 	int healthTime;
 	public int takeTime;//맵에 없을 시간
 	public int job = 0;// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
+	public int jobReserve;
 	public Sprite[][] sp;
 	public Event h;
 
@@ -35,6 +38,7 @@ public class PeopleState : MonoBehaviour
 		healthTime = 3;
 
 		job = 0;
+		jobReserve = -1;
 		int newjob = Math.random(0, 5);
 		gameObject.AddComponent<SpriteRenderer>().sortingLayerName = "Layer 1";
 		jobUpdate(newjob);
@@ -45,7 +49,7 @@ public class PeopleState : MonoBehaviour
 	{
 		if (name == "null")
 			return;
-		if (takeTime > 3 && behave==3)
+		if (takeTime > 3 && behave==2)
 			jobAction();
 		else if(behave == 4)
 		{
@@ -66,89 +70,15 @@ public class PeopleState : MonoBehaviour
 			name = "null";
 	}
 
-	//강제 복귀
-	public void comeBack()
-	{
-		jobExp += 1;
-
-		if (jobLevel[job] < 20)
-		{
-			if (Math.random(0, 80 + jobLevel[job]) > 20)
-			{
-				//Debug.Log("아무것도 얻지 못함");
-
-				if (jobExp > jobLevel[job] * 2)
-				{
-					jobExp -= 2;
-					jobLevel[job]++;
-				}
-			}
-		}
-
-		if (jobExp > jobLevel[job] * 2)
-		{
-			jobExp -= 2;
-			jobLevel[job]++;
-		}
-		//2시간 이상이면 절반 가져옴
-		if (takeTime < 2)
-		{
-			takeTime = 0;
-			return;
-		}
-
-		if (job == 0)
-		{
-			//맵 배회
-		}
-		else if (job == 1)
-		{
-			//Debug.Log(name + "복귀");
-			//탐험. 가끔 생존자 발견
-			h.storage.addStorage(4, 1);
-			h.plusItem.mapExp += 1;
-
-			int people = Math.random(0, 100);
-			if (people > 80)
-			{
-				h.storage.addStorage(0, 1);
-				h.plusItem.people += 1;
-				//Debug.Log(name + "이 생존자 발견");
-			}
-			//Debug.Log(name + " 맵 경험치 1 획득");
-		}
-		else if (job == 2)
-		{
-			//Debug.Log(name + "복귀");
-			//식량/물 가저오기
-			int food = (int)((float)Math.random(0, 3) / 2 + 0.5f);
-			h.storage.addStorage(1, food);
-			//Debug.Log(name + " 식량 " + food + " 획득");
-			h.plusItem.food += food;
-		}
-		else if (job == 3)
-		{
-			Debug.Log(name + "복귀");
-			//식량 1 추가
-			int food = (int)((float)Math.random(3, 4) / 2 + 0.5f);
-			h.storage.addStorage(1, food);
-			h.plusItem.food += food;
-		}
-		else if (job == 4)
-		{
-			//Debug.Log(name + "복귀");
-			//연구 포인트 1 추가
-			h.storage.addStorage(3, 2);
-			h.plusItem.labExp += 1;
-			//Debug.Log(name + " 연구 경험치 1 획득");
-		}
-	}
-
 	void jobAction()//-> 
 	{// 0 : 백수 / 1 : 방위대원 / 2 : 탐험가 / 3 : 농부 / 4 : 연구원
 	 //taketime ==4
 		takeTime -= 4;
-		Debug.Log("work");
+		if (takeTime < 0)
+			takeTime = 0;
+		//Debug.Log("work");
+		int bonus = jobLevel[job] * 2;
+
 		if (job == 0)
 		{
 			//맵 배회
@@ -157,40 +87,40 @@ public class PeopleState : MonoBehaviour
 		else if (job == 1)
 		{
 			//탐험. 가끔 생존자 발견
-			h.storage.addStorage(4, 2);
-			h.plusItem.mapExp += 2;
-			int people = Math.random(0, 100);
-			if (people > 80)
+			if (Random.Range(0, 100) > (80 - bonus))
 			{
 				h.storage.addStorage(0, 1);
 				h.plusItem.people += 1;
 			}
+			h.storage.addStorage(4, 2 + bonus);
+			h.plusItem.mapExp += 2;
 		}
 		else if (job == 2)
 		{
 			//식량/물 가저오기
-			int food = Math.random(0, 3);
-			h.storage.addStorage(1, food);
-			h.plusItem.food += food;
-
+			int mount = Math.random(bonus, bonus + 3);
+			h.plusItem.food += mount;
+			h.storage.addStorage(1, mount);
 		}
 		else if (job == 3)
 		{
-			//식량 1 추가
-			int food = Math.random(3, 4);
-			h.storage.addStorage(1, food);
-			h.plusItem.food += food;
+			//식량 추가
+			int mount = Math.random(bonus, bonus + 2);
+			h.storage.addStorage(1, mount);
+			h.plusItem.food += mount;
 		}
 		else if (job == 4)
 		{
 			//연구 포인트 2 추가
-			h.storage.addStorage(3, 2);
-			h.plusItem.labExp += 1;
+			int mount = Math.random(bonus, bonus + 2);
+			h.storage.addStorage(3, mount);
+			h.plusItem.labExp += mount;
 		}
+
 		jobExp += 2;
-		if (jobExp > jobLevel[job] * 2)
+		if (jobExp > jobLevel[job] * 5)
 		{
-			jobExp -= 2;
+			jobExp -= (jobLevel[job]-1) * 5;
 			jobLevel[job]++;
 		}
 	}
@@ -238,79 +168,5 @@ public class PeopleState : MonoBehaviour
 			sp = Resources.Load<Sprite>("researcher");
 		}
 		gameObject.GetComponent<SpriteRenderer>().sprite = sp;
-	}
-}
-
-class newpState
-{//해야하는 일 : 각자일
-	public string pName;
-	public int job;
-	public int level;
-	public float exp;
-
-	public int takeTime;
-
-	void Start()
-	{
-		//이름은 외부에서 지정
-		job = 0;
-		level = 0;
-		exp = 0;
-		takeTime = 0;
-	}
-
-	// Update is called once per frame
-	void Update()
-	{
-		if (takeTime > 3)
-		{
-			Debug.Log("work");
-			jobAction();
-		}
-	}
-
-	public void jobUpdate(int newJob)
-	{
-		job = newJob;
-	}
-
-	public void jobAction()// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
-	{
-		Debug.Log("work");
-		takeTime -= 4;
-		if (takeTime < 0)
-			takeTime = 0;
-
-		int bonus = level * 2;
-		AddItem item = new AddItem(0);
-		if (job == 1)//탐험가
-		{
-			//맵을 탐험해 맵 경험치를 늘리고 가끔 사람을 구해온다
-			if (Random.Range(0, 100) > (80 - bonus))
-				item.people = 1;
-
-			item.mapExp = 2 + bonus;//레벨에 따라 얻는 량 달라짐
-
-		}
-		else if (job == 2)//일꾼
-		{
-			//탐험한 맵을 바탕으로 맵의 자원을 수집한다
-			int mount = Random.Range(0, 5);
-			item.food = mount;
-
-		}
-		else if (job == 3)//농부
-		{
-			// 농사를 지어 안정적으로 식량을 수급한다
-			int mount = Random.Range(0, 2) + 2 * level;
-			item.food = mount;
-		}
-		else if (job == 4)//연구원
-		{
-			//연구해서 연구 경험치를 올린다.
-			//연구 레벨이 오르면 자원 상한량이 오른다.
-			int mount = Random.Range(0, 2) + 2 * level;
-			item.labExp = mount;
-		}
 	}
 }

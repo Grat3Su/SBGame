@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using STD;
+using Unity.Collections.LowLevel.Unsafe;
 
 public class Proc : gGUI
 {
@@ -41,6 +42,9 @@ public class Proc : gGUI
 			MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
 
 		MainCamera.addMethodWheel(new MethodWheel(wheelPopPerson));
+
+		loadDisplay();
+		addDisplay("whaaaaa", new iPoint(50, 50));
 	}
 
 	public override void free()
@@ -59,6 +63,7 @@ public class Proc : gGUI
 		drawPopEvent(dt);
 		drawNewDay(dt);
 
+		drawDisplay(dt);
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
@@ -239,6 +244,16 @@ public class Proc : gGUI
 		}
 		moveRate = l / len;
 		setPeople(1, cbPeopleGo);
+	}
+
+	int newJob;
+	void cbChangeJob()
+	{
+		if (select == -1)
+			return;
+		PeopleState ps = playerEvent.pState[select];
+		if (ps.job != newJob)
+			ps.jobUpdate(newJob);
 	}
 
 	void cbPeopleGo()
@@ -448,7 +463,6 @@ public class Proc : gGUI
 		Storage sCheck = playerEvent.storage;
 		for (int i = 0; i < 6; i++)
 		{
-
 			stPopTop.setString(sCheck.getStorage(i) + "");
 		}
 		popTop.paint(dt);
@@ -477,8 +491,6 @@ public class Proc : gGUI
 		{
 			drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
 			string[] texname = new string[] { "people", "food", "lab", "map" };
-			//Texture resource = Util.createTexture(texname[i]);
-			//Texture resource = Resources.Load<Texture>(texname[i]);
 			p.x = 5 + i * 150;
 			drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
 		}
@@ -876,9 +888,11 @@ public class Proc : gGUI
 		pop.style = iPopupStyle.zoom;
 		pop.openPoint = new iPoint(MainCamera.devWidth, MainCamera.devHeight);
 		pop.closePoint = new iPoint(MainCamera.devWidth / 2 - 350, MainCamera.devHeight / 2 - 200);
+		pop.methodClose = closePopInfo;
 		pop._aniDt = 0.5f;
 		popPersonInfo = pop;
 	}
+
 	public void methodStPersonInfo(iStrTex st)
 	{
 		setRGBA(0.5f, 0.5f, 0.5f, 1f);
@@ -886,7 +900,7 @@ public class Proc : gGUI
 
 		setRGBA(1, 1, 1, 1);
 
-		string[] stateTxt = new string[] { "움직임", "공격", "일", "병" };
+		string[] stateTxt = new string[] { "쉬는중", "이동", "이동", "일", "병" };
 		string[] btnJobTxt = new string[] { "백수", "탐험가", "일꾼", "농부", "연구원" };
 		string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
 		if (select != -1)
@@ -948,6 +962,28 @@ public class Proc : gGUI
 		popPersonInfo.paint(dt);
 	}
 
+	void closePopInfo(iPopup pop)
+	{
+		bool exist = false;
+		for(int i=0; i<people; i++)
+		{
+			// 작업이 바뀌었으면, 이동....
+			// exit = true;
+			//if( jobReserve!=-1 )
+			//{
+			//	job = jobReserve;
+			//	jobReserve = -1;
+			//	///
+			//	// exist = true;
+			//}
+		}
+
+		if( exist )
+		{
+			// display....작업이동중;;;;
+		}
+	}
+
 	bool keyPopInfo(iKeystate stat, iPoint point)
 	{
 		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
@@ -993,11 +1029,12 @@ public class Proc : gGUI
 					else if (popPersonInfo.selected == 1)
 					{
 						PeopleState ps = playerEvent.pState[select];
-						int job = ps.job - 1;
-						if (job < 0)
-							job = 4;
-						ps.jobUpdate(job);
-						if (ps.behave == 3)
+						newJob = ps.job - 1;
+						if (newJob < 0)
+							newJob = 4;
+						//ps.jobUpdate(newJob);
+						methodPeople = cbChangeJob;
+						if (ps.behave != 2&& ps.behave != 0)
 						{
 							ps.behave = 2;
 							ps.moveDt = -0.2f;
@@ -1006,11 +1043,11 @@ public class Proc : gGUI
 					else if (popPersonInfo.selected == 2)
 					{
 						PeopleState ps = playerEvent.pState[select];
-						int job = ps.job + 1;
-						if (job > 4)
-							job = 0;
-						ps.jobUpdate(job);
-						if (ps.behave == 1)
+						newJob = ps.job + 1;
+						if (newJob > 4)
+							newJob = 0;
+						methodPeople = cbChangeJob;
+						if (ps.behave != 2 && ps.behave != 0)
 						{
 							ps.behave = 2;
 							ps.moveDt = -0.2f;
@@ -1028,6 +1065,8 @@ public class Proc : gGUI
 	iPopup popNewDay = null;
 
 	iStrTex stNewDay;
+	iImage imgNewDayBtn;
+	iStrTex[] stNewDayBtn;
 	int newDayNum;
 	float newDayDt;
 	void createNewDay()//새로운 날 ui : 얻은 자원 , 총 자원, 이벤트 요약?
@@ -1040,6 +1079,16 @@ public class Proc : gGUI
 		img.add(st.tex);
 		pop.add(img);
 		stNewDay = st;
+		imgNewDayBtn = new iImage();
+		stNewDayBtn = new iStrTex[2];
+
+		for(int i = 0; i<2; i++)
+		{
+			if(i == 0)
+			{
+				
+			}
+		}
 
 		int w = MainCamera.devWidth;
 		pop.style = iPopupStyle.zoom;
@@ -1061,6 +1110,8 @@ public class Proc : gGUI
 		newDayDt = -0.5f;
 		stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
 	}
+
+	//void methodStNewDay
 
 	void drawPopNewDay(float dt, iPopup pop, iPoint zero)
 	{
@@ -1289,7 +1340,7 @@ public class Proc : gGUI
 		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
 
-		int i, j = -1;
+		int i;
 		iPoint p;
 		p = popEvent.closePoint;
 		p.x += 10;
@@ -1378,6 +1429,110 @@ public class Proc : gGUI
 
 		return true;
 	}
+
+	class DisplayInfo
+	{
+		public iStrTex st;
+		public string s;
+		public iPoint p;
+		public float dt;
+
+		public virtual bool paint(float dt) { return false; }
+	}
+
+	class DisplayDmg : DisplayInfo
+	{
+		public DisplayDmg(iStrTex.MethodSt m)
+		{
+
+		}
+
+		public override bool paint(float dt) 
+		{
+			return false;
+		}
+	}
+
+	class DisplayMoney : DisplayInfo
+	{
+		public DisplayMoney(iStrTex.MethodSt m)
+		{
+
+		}
+		public override bool paint(float dt)
+		{
+			return false;
+		}
+	}
+
+	void methodDisplayInfo(iStrTex st)
+	{
+		if (st.str == null)
+			return;
+		setStringRGBA(0, 0, 1, 1);
+		setStringSize(50);
+		drawString(st.str, 0, 0, TOP | LEFT);				
+	}
+
+	DisplayInfo[] _di;
+	DisplayInfo[] di;
+	int diNum;
+
+	void loadDisplay()
+	{
+		_di = new DisplayInfo[10];
+		for(int i=  0; i<10; i++)
+		{
+			DisplayInfo d = new DisplayInfo();
+
+			d.st = new iStrTex(methodDisplayInfo, 200, 80);
+			d.dt = 2.0f;
+
+			_di[i] = d;
+		}
+		di = new DisplayInfo[10];
+		diNum = 0;
+	}
+
+	void drawDisplay(float dt)
+	{
+		for(int i = 0; i<diNum; i++)
+		{
+			float r = di[i].dt / 2.0f;
+			// di[i].p,  
+			di[i].st.setString(di[i].s);
+			di[i].st.drawString(di[i].p, TOP | LEFT);
+
+			di[i].dt += dt;
+			
+			if (di[i].dt > 2.0f )
+			{
+				diNum--;
+				di[i] = di[diNum];
+				i--;
+				Debug.Log(diNum);
+			}
+		}
+	}
+
+	void addDisplay(string str, iPoint p)
+	{
+		for(int i=0; i<10; i++)
+		{
+			if (_di[i].dt >= 2.0f )
+			{
+				//_di[i].st.setString(str);
+				_di[i].s = str;
+				_di[i].dt = 0.0f;
+				_di[i].p = p;
+
+				di[diNum] = _di[i];
+				//di[i].s = str;
+				diNum++;
+				return;
+			}
+		}
+	}
 }
 
 class Scroll //그려야하는 위치. 스크롤바 크기, 
@@ -1437,4 +1592,5 @@ class Scroll //그려야하는 위치. 스크롤바 크기,
 
 		return new iRect(bX, bY, bW, bH);
 	}
+
 }

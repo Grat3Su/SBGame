@@ -303,6 +303,13 @@ public class Event : MonoBehaviour
 
         hour += item.takeTime;
 
+        int people = storage.getStorage(0);
+        for (int i = 0; i < people; i++)
+        {
+            if(pState[i].name != "null")
+            pState[i].takeTime += item.takeTime;
+        }
+
         if (hour > 11)//12시 땡
         {
             hour -= 12;
@@ -311,15 +318,6 @@ public class Event : MonoBehaviour
             specialEvent = 0;//이벤트 초기화
             //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
             doRandEvent((DoEvent)(Math.random(1, 5)));
-        }
-        else
-        {
-            int people = storage.getStorage(0);
-            for (int i = 0; i < people; i++)
-            {
-                if(pState[i].name != "null")
-                pState[i].takeTime += item.takeTime;
-            }
         }
     }
 
