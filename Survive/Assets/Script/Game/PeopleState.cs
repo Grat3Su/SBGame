@@ -13,6 +13,8 @@ public class PeopleState : MonoBehaviour
 	public int[] jobLevel;
 	int jobExp;
 	public iPoint pos;
+	public iPoint curPos;
+	public iPoint nextPos;
 
 	public string name;//이름
 	public int behave;// 0 : idle / 1 : move / 2 : back / 3 : work / 4 : disease / 5: 사망	
@@ -31,19 +33,17 @@ public class PeopleState : MonoBehaviour
 	public void init()
 	{
 		pos = new iPoint(0, 0);
+		curPos = new iPoint(0, 0);
+		nextPos = new iPoint(0, 0);
 		behave = 0;
 		moveDt = 0f;
 		jobLevel = new int[5] { 0, 1, 1, 1, 1 };//한번 일이 끝날때마다 레벨 상승?
 		jobExp = 0;
 		healthTime = 3;
 
-		job = 0;
-		jobReserve = -1;
-		int newjob = Math.random(0, 5);
-		gameObject.AddComponent<SpriteRenderer>().sortingLayerName = "Layer 1";
-		jobUpdate(newjob);
+		//job = 0;
+		jobReserve = -1;		
 	}
-
 	// Update is called once per frame
 	void Update()
 	{
@@ -82,7 +82,7 @@ public class PeopleState : MonoBehaviour
 		if (job == 0)
 		{
 			//맵 배회
-			behave = 0;
+			//behave = 0;
 		}
 		else if (job == 1)
 		{
@@ -167,6 +167,6 @@ public class PeopleState : MonoBehaviour
 		{
 			sp = Resources.Load<Sprite>("researcher");
 		}
-		gameObject.GetComponent<SpriteRenderer>().sprite = sp;
+		//gameObject.GetComponent<SpriteRenderer>().sprite = sp;
 	}
 }

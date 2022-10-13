@@ -22,13 +22,17 @@ public class Event : MonoBehaviour
     public int workman;
     public int explorer;
     int[] map;
-
+    public int[] jobless;
+    public int joblessNum;
+    
     public bool newday;
 
     public int specialEvent;
 
     void initGame()
     {
+        jobless = new int[100];
+        joblessNum = 0;
         //storage = new Storage(1, 5, 0, 1, 0, 1);
         curp = 0;
         specialEvent = 0;
@@ -44,6 +48,7 @@ public class Event : MonoBehaviour
         spawnfir();
         map = new int[] {50, 100, 300 };
         newday = false;
+
     }
 
     public void initDay()
@@ -111,12 +116,21 @@ public class Event : MonoBehaviour
                 go.AddComponent<PeopleState>();                
                 pState[i] = go.GetComponent<PeopleState>();
                 go.GetComponent<PeopleState>().h = this;
+                go.AddComponent<SpriteRenderer>().sortingLayerName = "Layer 1";
                 if (i < people)
                 {
                     string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
                     string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
                     go.name = name;
                     go.GetComponent<PeopleState>().name = name;
+                    
+                    int newjob = Math.random(0, 5);
+                    pState[i].jobUpdate(newjob);
+                    if(newjob == 0)
+					{
+                        jobless[joblessNum] = i;
+                        joblessNum++;
+					}
                 }
 				else
 				{
@@ -277,7 +291,7 @@ public class Event : MonoBehaviour
 
         //오늘 얻은 물건 저장
         if (item.people > 0)
-        {
+        {            
             plusItem.people += item.people;
         }
         else if (item.people < 0)
