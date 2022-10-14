@@ -12,7 +12,7 @@ public class Main
 	{
 		me = this;
 
-		currScene = createGameObject("Proc");
+		currScene = createGameObject("Intro");
 		nextScene = null;
 	}
 

@@ -147,6 +147,14 @@ public class Proc : gGUI
         drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
         nextPos = new iPoint(0, 0);
 	}
+	bool keyPlayer(iKeystate stat, iPoint point)
+	{
+		if(stat == iKeystate.Began)
+		{
+		}
+
+		return false;
+	}
 
 	bool keyboardPlayer(iKeystate stat, iKeyboard key)
 	{
@@ -230,8 +238,8 @@ public class Proc : gGUI
 		_moveDt = 3f;
 		peopleInOut = new iPoint[]
 		{
-			new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 150),//home
-			new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight - 150),//street
+			new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 130),//home
+			new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight - 130),//street
 			new iPoint(MainCamera.devWidth / 2, -50),//up
 			new iPoint(200, MainCamera.devHeight - 150),//field
 			new iPoint(MainCamera.devWidth - 280, MainCamera.devHeight/2 - 130),//lab
@@ -311,8 +319,18 @@ public class Proc : gGUI
 		for (int i = 0; i < people; i++)
 		{
 			PeopleState ps = playerEvent.pState[i];
+			
+			setRGBA(1, 1, 1, 1);			
+			string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
+			Texture peopleTex = Util.createTexture(texname[ps.job]);
+			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
 
-            int at = ps.job != 4 ? 2 : 3;
+
+			Texture building = Util.createTexture("house");
+			drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 200), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
+			drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight / 2 - 150), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
+
+			int at = ps.job != 4 ? 2 : 3;
             switch (ps.job)
             {
                 case 0:
@@ -340,7 +358,7 @@ public class Proc : gGUI
 				// go
 				float r = ps.moveDt / _moveDt;
 				if (r < moveRate)
-					ps.pos = Math.linear(r / moveRate, ps.curPos, peopleInOut[1]);
+					ps.pos = Math.linear(r / moveRate, peopleInOut[0], peopleInOut[1]);
 				else
 				{
 					ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[at]);
@@ -375,14 +393,6 @@ public class Proc : gGUI
 					endOfBack = false;
 				}
 			}
-			setRGBA(1, 1, 1, 1);
-			string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
-			Texture peopleTex = Util.createTexture(texname[ps.job]);
-			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
-			
-			Texture building = Util.createTexture("house");
-			drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 200), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
-			drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight/2 - 150), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
 		}
 
 		if (methodPeople != null)
@@ -464,8 +474,7 @@ public class Proc : gGUI
 					ps.nextPos.x += -50 + Math.random(0, 100);
 					ps.nextPos.y += -50 + Math.random(0, 100);
 				}
-			}
-
+			}			
 #else
 			jobdt += dt;
 			if (ps.behave != 3)
