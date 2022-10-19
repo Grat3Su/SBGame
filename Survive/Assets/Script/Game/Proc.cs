@@ -182,7 +182,10 @@ public class Proc : gGUI
 				if (methodPeople != null)
 					break;
 
-				float x, y;
+                if (popPersonInfo.bShow)
+                    popPersonInfo.show(false);
+
+                float x, y;
 				x = pPos.x + psize.width;
 				y = pPos.y + (psize.height / 2) - 175;
 #if false
@@ -877,7 +880,7 @@ public class Proc : gGUI
 		return false;
 	}
 
-	bool wheelPopPerson(iPoint point)
+    bool wheelPopPerson(iPoint point)
 	{
 		if (popNewDay.bShow || popPerson.state == iPopupState.close)
 			return false;
@@ -1066,8 +1069,7 @@ public class Proc : gGUI
 	{
 		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
 			return false;
-
-
+        
 		int i, j = -1;
 		iPoint p;
 		p = popPersonInfo.closePoint;
@@ -1134,13 +1136,37 @@ public class Proc : gGUI
 
 					popPersonInfo.selected = -1;
 				}
-
 				break;
 		}
 		return true;
 	}
 
-	iPopup popNewDay = null;
+    bool keyboardPersonInfo(iKeystate stat, iKeyboard key)
+    {
+        switch(key)
+        {
+            case iKeyboard.Down:
+                select++;
+                if (select > 4)
+                    select = 4;
+                break;
+            case iKeyboard.Up:
+                select--;
+                if (select < 0)
+                    select = 0;
+                break;
+            case iKeyboard.Space:
+                select = -1;
+                break;
+        }
+        popPersonInfo.selected = select;
+        return false;
+    }
+
+    // ===========================
+    // New Day Report
+    // ==========================
+    iPopup popNewDay = null;
 
 	iStrTex stNewDay;
 	iImage imgNewDayBtn;

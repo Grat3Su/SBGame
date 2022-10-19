@@ -31,6 +31,7 @@ public class Intro : gGUI
 		// 정말종료?
 
 		loadTitle();
+        loadMenu();
 	}
 
 	public override void free()
@@ -42,6 +43,7 @@ public class Intro : gGUI
 	{
 		drawBG();
 		drawTitle(dt);
+        drawMenu(dt);
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
@@ -51,7 +53,10 @@ public class Intro : gGUI
 			Debug.Log(point.x + ", " + point.y);
 			//Main.me.reset("Proc");
 		}
-		return false;
+        keyPopMenu(stat, point);
+        
+
+        return false;
 	}
 
 	iPopup popTitle = null;
@@ -75,13 +80,13 @@ public class Intro : gGUI
 		//splitNum = 0;
 		//titledt = 1.0f;
 		//st.setString(splitNum + " S U R V I V E");
-		title_dt = 1f;
+		title_dt = 0.5f;
 		stTitle = st;
 
 		pop.style = iPopupStyle.move;
 		pop.openPoint = new iPoint(MainCamera.devWidth / 2 - st.wid / 2, MainCamera.devHeight/2);
 		pop.closePoint = new iPoint(MainCamera.devWidth /2 - st.wid / 2, 10);
-		pop._aniDt = 0.5f;
+		pop._aniDt = 0.1f;
 		popTitle = pop;
 
 		pop.show(true);
@@ -111,8 +116,12 @@ public class Intro : gGUI
 		if (!popTitle.bShow)
 			return;
 
-		if (titleOffy < 250)
-			titledt += dt;
+        if (titleOffy < 150)
+            titledt += dt;
+        else if(!popMenu.bShow)
+        {
+            popMenu.show(true);            
+        }
 
 		if (titledt > title_dt)
 		{
@@ -123,7 +132,7 @@ public class Intro : gGUI
 			{
 				if(title_dt > 0.05f)
 					title_dt = 0.05f;
-				titleOffy += 250 * dt;
+				titleOffy += 300 * dt*5;
 			}
 		}
 
@@ -171,18 +180,18 @@ public class Intro : gGUI
 				//닫기 : 0
 				if (i == 0)
 				{
-					st = new iStrTex(methodStMenuBtn, 60, 60);
+					st = new iStrTex(methodStMenuBtn, 150, 150);
 					st.setString(j + "\n" + " Start " + "\n" + i);
 				}
 				//직업 바꾸기 : 1
 				else if (i == 1)
 				{
-					st = new iStrTex(methodStMenuBtn, 60, 60);
+					st = new iStrTex(methodStMenuBtn, 150, 150);
 					st.setString(j + "\n" + "How to Play" + "\n" + i);
 				}
 				else
 				{
-					st = new iStrTex(methodStMenuBtn, 60, 60);
+					st = new iStrTex(methodStMenuBtn, 150, 150);
 					st.setString(j + "\n" + "Quit" + "\n" + i);
 				}
 				img.add(st.tex);
@@ -190,23 +199,25 @@ public class Intro : gGUI
 				stMenuBtn[i][j] = st;
 			}
 			if (i == 0)
-				img.position = new iPoint(223, 520);
+				img.position = new iPoint(250, 400);
 			else if (i == 1)
-				img.position = new iPoint(513, 5422);
-			else if (i == 2)
-				img.position = new iPoint(1042, 508);
+				img.position = new iPoint(500, 400);
+            //img.position = new iPoint(750, 400);
+            else if (i == 2)
+				img.position = new iPoint(1000, 400);
 			imgMenuBtn[i] = img;
 		}
 
 		pop.style = iPopupStyle.zoom;
 		pop.openPoint = new iPoint(MainCamera.devWidth/2, MainCamera.devHeight/2);
-		pop.closePoint = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);		
+		pop.closePoint = new iPoint(0,0);		
 		pop._aniDt = 0.5f;
 		popMenu = pop;
 	}
 	public void methodStMenu(iStrTex st)
 	{
-		for (int i = 0; i < 3; i++)
+        setRGBA(1, 1, 1, 1);
+        for (int i = 0; i < 3; i++)
 		{
 			imgMenuBtn[i].frame = (popMenu.selected == i ? 1 : 0);
 			imgMenuBtn[i].paint(0.0f, new iPoint(0, 0));
@@ -215,13 +226,95 @@ public class Intro : gGUI
 
 	public void methodStMenuBtn(iStrTex st)
 	{
+        string[] strs = st.str.Split("\n");
+        int index = int.Parse(strs[0]);
+        int bindex = int.Parse(strs[2]);
+        string s = strs[1];
 
-	}
+        iPoint pos = new iPoint(0, 0);
 
-	void drawMenu()
+        if (index == 0)
+        {
+            setRGBA(0, 0, 0, 1);
+            setRGBA(0.8f, 0.8f, 0.8f, 1);
+            setStringRGBA(0, 0, 0, 1);
+        }
+
+        else if (index > 0)
+        {
+            setRGBA(0.3f, 0.3f, 0.3f, 1);
+        }
+
+        int w = st.tex.tex.width;
+        int h = st.tex.tex.height;
+
+        //fillRect(0, 0, w, h);
+        string[] texname = new string[] { "explorer", "researcher", "jobless" };
+        
+        drawString(s, w/2, 10, VCENTER | HCENTER);
+        pos.x = w / 2;
+        pos.y = h / 2;        
+        Texture tex = Util.createTexture(texname[bindex]);
+        drawImage(tex, pos, 100.0f/tex.width, 100.0f/tex.height, VCENTER | HCENTER);
+    }
+
+	void drawMenu(float dt)
 	{
+        stMenu.setString(popMenu.selected + "");
+        popMenu.paint(dt);
+    }
 
-	}
+    bool keyPopMenu(iKeystate stat, iPoint point)
+    {
+        if (popMenu.bShow == false)
+            return false;
 
-	
+        iPoint p;
+        p = popMenu.closePoint;
+        iSize s = new iSize(0, 0);
+        int i = 0;
+        switch (stat)
+        {
+            case iKeystate.Began:
+                for(i = 0; i<imgMenuBtn.Length; i++)
+                {
+                    if (imgMenuBtn[i].touchRect(p, s).containPoint(point))
+                        popMenu.selected = i;
+                }
+                break;
+            case iKeystate.Moved:
+                i = popMenu.selected;
+                if (i == -1) break;
+                if (imgMenuBtn[i].touchRect(p, s).containPoint(point) == false)
+                {
+                    //Debug.Log("음:취소");
+
+                    popMenu.selected = -1;
+                }
+                break;
+            case iKeystate.Ended:
+                i = popMenu.selected;
+
+                switch (i)
+                {
+                    case 0:
+                        Main.me.reset("Proc");
+                        break;
+                    case 1:
+                        Debug.Log("h2p");
+                        break;
+                    case 2:
+                        Debug.Log("quit");
+                        break;
+                    case 3:
+                        break;
+                }
+                popMenu.selected = -1;
+                break;
+
+        }
+                return false;
+    }
+
+
 }
