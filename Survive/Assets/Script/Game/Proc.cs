@@ -37,7 +37,7 @@ public class Proc : gGUI
 		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
 		{
 			keyboardPlayer, keyboardPopEvent, keyboardNewDay,
-        };
+		};
 
 		for (int i = 0; i < mkeyboard.Length; i++)
 			MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
@@ -142,14 +142,14 @@ public class Proc : gGUI
 			pPos.y = MainCamera.devHeight - 50;
 
 		//setRGBA(0, 1, 0, 1f);//Util.createTexture(texname[ps.job])
-        //fillRect(pPos.x, pPos.y, psize.width, psize.height);
-        
-        drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
-        nextPos = new iPoint(0, 0);
+		//fillRect(pPos.x, pPos.y, psize.width, psize.height);
+
+		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
+		nextPos = new iPoint(0, 0);
 	}
 	bool keyPlayer(iKeystate stat, iPoint point)
 	{
-		if(stat == iKeystate.Began)
+		if (stat == iKeystate.Began)
 		{
 		}
 
@@ -182,10 +182,10 @@ public class Proc : gGUI
 				if (methodPeople != null)
 					break;
 
-                if (popPersonInfo.bShow)
-                    popPersonInfo.show(false);
+				if (popPersonInfo.bShow)
+					popPersonInfo.show(false);
 
-                float x, y;
+				float x, y;
 				x = pPos.x + psize.width;
 				y = pPos.y + (psize.height / 2) - 175;
 #if false
@@ -214,8 +214,8 @@ public class Proc : gGUI
 				popEvent.openPoint = p[0];
 				popEvent.closePoint = p[1];
 #endif
-                if(!popEvent.bShow)
-				popEvent.show(true);
+				if (!popEvent.bShow)
+					popEvent.show(true);
 				break;
 		}
 
@@ -303,13 +303,13 @@ public class Proc : gGUI
 			if ((behave == 1 && ps.behave == 0) || behave == 2)
 			{
 				ps.behave = behave;// 1 or 2 go or back
-				ps.moveDt = -0.2f * i;				
+				ps.moveDt = -0.2f * i;
 				ps.curPos = ps.pos;
 			}
 		}
 		methodPeople = method;
 	}
-	
+
 	void drawPeople(float dt)
 	{
 		people = playerEvent.storage.people;
@@ -322,8 +322,8 @@ public class Proc : gGUI
 		for (int i = 0; i < people; i++)
 		{
 			PeopleState ps = playerEvent.pState[i];
-			
-			setRGBA(1, 1, 1, 1);			
+
+			setRGBA(1, 1, 1, 1);
 			string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
 			Texture peopleTex = Util.createTexture(texname[ps.job]);
 			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
@@ -334,24 +334,24 @@ public class Proc : gGUI
 			drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight / 2 - 150), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
 
 			int at = ps.job != 4 ? 2 : 3;
-            switch (ps.job)
-            {
-                case 0:
-                    at = 1;
-                    break;
-                case 1:
-                case 2:
-                    at = 2;
-                    break;
-                case 3:
-                    at = 3;
-                    break;
-                case 4:
-                    at = 4;
-                    break;
-            }
+			switch (ps.job)
+			{
+				case 0:
+					at = 1;
+					break;
+				case 1:
+				case 2:
+					at = 2;
+					break;
+				case 3:
+					at = 3;
+					break;
+				case 4:
+					at = 4;
+					break;
+			}
 
-            if (ps.moveDt < 0f)
+			if (ps.moveDt < 0f)
 			{
 				ps.moveDt += dt;
 				continue;
@@ -379,6 +379,7 @@ public class Proc : gGUI
 			else if (ps.behave == 2)
 			{
 				// back
+
 				float r = ps.moveDt / _moveDt;
 				if (r < moveRate)
 					ps.pos = Math.linear(r / moveRate, ps.curPos, peopleInOut[1]);
@@ -400,7 +401,7 @@ public class Proc : gGUI
 
 		if (methodPeople != null)
 		{
-			if( endOfGo && endOfBack )
+			if (endOfGo && endOfBack)
 			{
 				methodPeople();
 				methodPeople = null;
@@ -415,7 +416,7 @@ public class Proc : gGUI
 		for (int i = 0; i < jobnum; i++)
 		{
 			PeopleState ps = playerEvent.pState[playerEvent.jobless[i]];
-			
+
 			float x = ps.pos.x + (Math.random(-1, 1) * 50) + (Math.random(0, 1) * psize.width);
 			float y = ps.pos.y + (Math.random(-1, 1) * 50) + (Math.random(0, 1) * psize.height);
 			if (x > 0 && x < MainCamera.devWidth)
@@ -428,7 +429,7 @@ public class Proc : gGUI
 
 	float jobdt;
 	void drawJobless(float dt)
-	{		
+	{
 		int jobnum = playerEvent.joblessNum;
 
 		for (int i = 0; i < jobnum; i++)
@@ -439,9 +440,9 @@ public class Proc : gGUI
 				break;
 
 			float speed = 50f * dt;
-			if( ps.curPos != ps.nextPos )
+			if (ps.curPos != ps.nextPos)
 			{
-				if( ps.curPos.x < ps.nextPos.x )
+				if (ps.curPos.x < ps.nextPos.x)
 				{
 					ps.curPos.x += speed;
 					if (ps.curPos.x > ps.nextPos.x)
@@ -470,14 +471,14 @@ public class Proc : gGUI
 			else
 			{
 				jobdt += dt;
-				if( jobdt > 2.0f )
+				if (jobdt > 2.0f)
 				{
 					jobdt = 0f;
 					ps.nextPos = ps.curPos;
 					ps.nextPos.x += -50 + Math.random(0, 100);
 					ps.nextPos.y += -50 + Math.random(0, 100);
 				}
-			}			
+			}
 #else
 			jobdt += dt;
 			if (ps.behave != 3)
@@ -624,24 +625,7 @@ public class Proc : gGUI
 		people = playerEvent.storage.people;
 		imgPersonBtn = new iImage[100];
 		stPersonBtn = new iStrTex[100][];
-#if false
-		for (int i = 0; i < people; i++)
-		{
-			stPersonBtn[i] = new iStrTex[2];
 
-			img = new iImage();
-			for (int j = 0; j < 2; j++)
-			{
-				st = new iStrTex(methodStPersonBtn, 150, 50);
-				st.setString(j + "\n" + playerEvent.pState[i].name + "\n" +i);
-				img.add(st.tex);
-
-				stPersonBtn[i][j] = st;
-			}
-			img.position = new iPoint(20, 10 + 60 * i);
-			imgPersonBtn[i] = img;
-		}
-#else
 		for (int i = 0; i < 100; i++)
 		{
 			stPersonBtn[i] = new iStrTex[2];
@@ -660,7 +644,6 @@ public class Proc : gGUI
 			img.position = new iPoint(20, 10 + 60 * i);
 			imgPersonBtn[i] = img;
 		}
-#endif
 
 		pop.style = iPopupStyle.move;
 		pop.methodClose = closePopPerson;
@@ -759,8 +742,11 @@ public class Proc : gGUI
 
 	void drawPopPerson(float dt)
 	{
-		if (popNewDay.bShow)
+		if (popNewDay.bShow || popEvent.bShow)
+		{
+			popPerson.show(false);
 			return;
+		}
 		if (MainCamera.mousePosition().x > MainCamera.devWidth - 50 && !open)
 		{
 			open = true;
@@ -774,8 +760,7 @@ public class Proc : gGUI
 		else if (MainCamera.mousePosition().x < MainCamera.devWidth - 200
 			&& open && select == -1)
 			closePerson(dt);
-		people = playerEvent.storage.people;
-		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + people);// click, move
+		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + playerEvent.storage.people);// click, move
 
 		popPerson.paint(dt);
 	}
@@ -806,12 +791,11 @@ public class Proc : gGUI
 				{
 					if (imgPersonBtn[i].touchRect(p, s).containPoint(point))//클릭되면 ㅁ
 					{
-                        popPerson.selected = i;
-                        break;
+						popPerson.selected = i;
+						break;
 					}
 				}
 				break;
-
 			case iKeystate.Moved:
 				if (scroll == false)
 				{
@@ -867,7 +851,7 @@ public class Proc : gGUI
 		return false;
 	}
 
-    bool wheelPopPerson(iPoint point)
+	bool wheelPopPerson(iPoint point)
 	{
 		if (popNewDay.bShow || popPerson.state == iPopupState.close)
 			return false;
@@ -979,7 +963,7 @@ public class Proc : gGUI
 			drawString("이름 : " + ps.name, new iPoint(450, 100), LEFT | HCENTER);
 			drawString("레벨 : " + ps.jobLevel[ps.job], new iPoint(450, 150), LEFT | HCENTER);
 			string s = stateTxt[ps.behave];
-			if( ps.job==0 && ps.behave==3 )
+			if (ps.job == 0 && ps.behave == 3)
 				s = stateTxt[0];
 			drawString("동작 : " + s, new iPoint(450, 200), LEFT | HCENTER);
 			drawString("직업 : " + btnJobTxt[ps.job], new iPoint(450, 250), LEFT | HCENTER);
@@ -1033,7 +1017,7 @@ public class Proc : gGUI
 	void closePopInfo(iPopup pop)
 	{
 		bool exist = false;
-		for(int i=0; i<people; i++)
+		for (int i = 0; i < people; i++)
 		{
 			// 작업이 바뀌었으면, 이동....
 			// exit = true;
@@ -1046,7 +1030,7 @@ public class Proc : gGUI
 			//}
 		}
 
-		if( exist )
+		if (exist)
 		{
 			// display....작업이동중;;;;
 		}
@@ -1056,7 +1040,7 @@ public class Proc : gGUI
 	{
 		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
 			return false;
-        
+
 		int i;
 		iPoint p;
 		p = popPersonInfo.closePoint;
@@ -1069,8 +1053,8 @@ public class Proc : gGUI
 				{
 					if (imgPersonInfoBtn[i].touchRect(p, s).containPoint(point))
 					{
-                        popPersonInfo.selected = i;
-                        break;
+						popPersonInfo.selected = i;
+						break;
 					}
 				}
 				break;
@@ -1096,7 +1080,7 @@ public class Proc : gGUI
 							newJob = 4;
 						//ps.jobUpdate(newJob);
 						methodPeople = cbChangeJob;
-						if (ps.behave != 2&& ps.behave != 0)
+						if (ps.behave != 2 && ps.behave != 0)
 						{
 							ps.behave = 2;
 							ps.moveDt = -0.2f;
@@ -1122,11 +1106,11 @@ public class Proc : gGUI
 		}
 		return true;
 	}
-    
-    // ===========================
-    // New Day Report
-    // ==========================
-    iPopup popNewDay = null;
+
+	// ===========================
+	// New Day Report
+	// ==========================
+	iPopup popNewDay = null;
 
 	iStrTex stNewDay;
 	iImage imgNewDayBtn;
@@ -1146,11 +1130,11 @@ public class Proc : gGUI
 		imgNewDayBtn = new iImage();
 		stNewDayBtn = new iStrTex[2];
 
-		for(int i = 0; i<2; i++)
+		for (int i = 0; i < 2; i++)
 		{
-			if(i == 0)
+			if (i == 0)
 			{
-				
+
 			}
 		}
 
@@ -1169,7 +1153,7 @@ public class Proc : gGUI
 	}
 
 	void closePopNewDay(iPopup pop)
-	{		
+	{
 		newDayNum = 0;
 		newDayDt = -0.5f;
 		stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
@@ -1307,7 +1291,7 @@ public class Proc : gGUI
 				popNewDay.show(false);
 			}
 		}
-
+		eventMove = 0.0f;
 		return true;
 	}
 
@@ -1395,6 +1379,10 @@ public class Proc : gGUI
 
 	void drawPopEvent(float dt)
 	{
+		if (popEvent.bShow && eventMove < 0.3f)
+		{
+			eventMove += dt;
+		}
 		stPopEvent.setString(popEvent.selected + "");
 		popEvent.paint(dt);
 	}
@@ -1420,11 +1408,11 @@ public class Proc : gGUI
 					if (imgPopEventBtn[i].touchRect(p, s).containPoint(point))
 					{
 						Debug.Log("음:선택");
- 						popEvent.selected = i;
+						popEvent.selected = i;
 						break;
 					}
 				}
-				if( popEvent.selected==-1 )
+				if (popEvent.selected == -1)
 				{
 					popEvent.openPoint = new iPoint(pPos.x, pPos.y);
 					popEvent.show(false);
@@ -1434,7 +1422,7 @@ public class Proc : gGUI
 			case iKeystate.Moved:
 				i = popEvent.selected;
 				if (i == -1) break;
-				if (imgPopEventBtn[i].touchRect(p, s).containPoint(point)==false)
+				if (imgPopEventBtn[i].touchRect(p, s).containPoint(point) == false)
 				{
 					Debug.Log("음:취소");
 					popEvent.selected = -1;
@@ -1450,7 +1438,7 @@ public class Proc : gGUI
 				switch (i)
 				{
 					case 0:
-						playerEvent.doEvent(Event.DoEvent.Adventure);						
+						playerEvent.doEvent(Event.DoEvent.Adventure);
 						setPeople(1, cbPeopleGo);
 						break;
 					case 1:
@@ -1463,7 +1451,7 @@ public class Proc : gGUI
 						break;
 					case 3:
 						playerEvent.doEvent(Event.DoEvent.SkipDay);
-						
+
 						break;
 				}
 				if (playerEvent.newday)
@@ -1475,38 +1463,73 @@ public class Proc : gGUI
 		return true;
 	}
 	void cbPeopleBack()
-	{		
+	{
 		popPerson.show(false);
 		popNewDay.show(true);
 	}
 
+	float eventMove = 0.5f;
 	bool keyboardPopEvent(iKeystate stat, iKeyboard key)
 	{
 		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
-
-        int eventSelect = popEvent.selected;
-
-        if (key == iKeyboard.Down)
-        {
-            eventSelect++;
-            if (eventSelect > 3)
-                eventSelect = 3;
-        }
-        else if (key == iKeyboard.Up)
-        {
-            eventSelect--;
-            if (eventSelect < 0)
-                eventSelect = 0;
-        }
-        else if (key == iKeyboard.Space)
+		if (eventMove < 0.3f)
 		{
+			return true;
+		}
+		eventMove = 0.0f;
+		int eventSelect = popEvent.selected;
+
+		if (key == iKeyboard.Down)
+		{
+			eventSelect++;
+			if (eventSelect > 3)
+				eventSelect = 3;
+		}
+		else if (key == iKeyboard.Up)
+		{
+			eventSelect--;
+			if (eventSelect < 0)
+				eventSelect = 0;
+		}
+		else if (key == iKeyboard.Space)
+		{
+			Debug.Log(popEvent.selected);
+			eventMove = 0.5f;
 			popEvent.openPoint = new iPoint(pPos.x, pPos.y);
-            //popEvent.show(false);
+			if (popEvent.selected != -1)
+			{
+				switch (popEvent.selected)
+				{
+					case 0:
+						playerEvent.doEvent(Event.DoEvent.Adventure);
+						setPeople(1, cbPeopleGo);
+						break;
+					case 1:
+						playerEvent.doEvent(Event.DoEvent.Hunt);
+						setPeople(1, cbPeopleGo);
+						break;
+					case 2:
+						playerEvent.doEvent(Event.DoEvent.Research);
+						setPeople(1, cbPeopleGo);
+						break;
+					case 3:
+						playerEvent.doEvent(Event.DoEvent.SkipDay);
+
+						break;
+				}
+				eventSelect = -1;
+				popEvent.selected = -1;
+				if (playerEvent.newday)
+					setPeople(2, cbPeopleBack);
+
+				popEvent.openPoint = new iPoint(pPos.x, pPos.y);
+				popEvent.show(false);
+			}
 		}
 
-        popEvent.selected = eventSelect;
-        return true;
+		popEvent.selected = eventSelect;
+		return true;
 	}
 
 	class DisplayInfo
@@ -1526,7 +1549,7 @@ public class Proc : gGUI
 
 		}
 
-		public override bool paint(float dt) 
+		public override bool paint(float dt)
 		{
 			return false;
 		}
@@ -1550,7 +1573,7 @@ public class Proc : gGUI
 			return;
 		setStringRGBA(0, 0, 1, 1);
 		setStringSize(50);
-		drawString(st.str, 0, 0, TOP | LEFT);				
+		drawString(st.str, 0, 0, TOP | LEFT);
 	}
 
 	DisplayInfo[] _di;
@@ -1560,7 +1583,7 @@ public class Proc : gGUI
 	void loadDisplay()
 	{
 		_di = new DisplayInfo[10];
-		for(int i=  0; i<10; i++)
+		for (int i = 0; i < 10; i++)
 		{
 			DisplayInfo d = new DisplayInfo();
 
@@ -1575,7 +1598,7 @@ public class Proc : gGUI
 
 	void drawDisplay(float dt)
 	{
-		for(int i = 0; i<diNum; i++)
+		for (int i = 0; i < diNum; i++)
 		{
 			float r = di[i].dt / 2.0f;
 			// di[i].p,  
@@ -1583,8 +1606,8 @@ public class Proc : gGUI
 			di[i].st.drawString(di[i].p, TOP | LEFT);
 
 			di[i].dt += dt;
-			
-			if (di[i].dt > 2.0f )
+
+			if (di[i].dt > 2.0f)
 			{
 				diNum--;
 				di[i] = di[diNum];
@@ -1596,9 +1619,9 @@ public class Proc : gGUI
 
 	void addDisplay(string str, iPoint p)
 	{
-		for(int i=0; i<10; i++)
+		for (int i = 0; i < 10; i++)
 		{
-			if (_di[i].dt >= 2.0f )
+			if (_di[i].dt >= 2.0f)
 			{
 				//_di[i].st.setString(str);
 				_di[i].s = str;

@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 public class gGUI : iGUI
 {
+	~gGUI()
+	{
+		DestroyImmediate(texFbo);		
+	}
+
 	bool initialize;
 	void Start()
 	{
@@ -16,8 +21,6 @@ public class gGUI : iGUI
 		Camera.onPreRender = onPrev;
 		Camera.onPostRender = onEnd;
 
-		MainCamera.addMethodMouse(new MethodMouse(key));
-		MainCamera.addMethodWheel(new MethodWheel(wheel));
 		initialize = true;
 	}
 	//void Update() { }
@@ -101,7 +104,10 @@ public class gGUI : iGUI
 		// 1. OnRenderObject
 		if (initialize)
 		{
+			MainCamera.addMethodMouse(new MethodMouse(key));
+			MainCamera.addMethodWheel(new MethodWheel(wheel));
 			load();
+
 			initialize = false;
 		}
 		iStrTex.runSt();

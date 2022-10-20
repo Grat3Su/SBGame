@@ -101,13 +101,13 @@ public class Event : MonoBehaviour
     void spawnfir()
     {
         int people = storage.getStorage(0);
+        Transform parent = GameObject.Find("People").transform;
         for (int i = 0; i < 100; i++)
         {
             if (pState[i] == null)
             {
                 curp++;
                 GameObject go = new GameObject();
-
                 float height = Camera.main.orthographicSize;
                 float width = Camera.main.aspect * height;
                 float x = Math.random(-width, width);
@@ -117,6 +117,7 @@ public class Event : MonoBehaviour
                 pState[i] = go.GetComponent<PeopleState>();
                 go.GetComponent<PeopleState>().h = this;
                 go.AddComponent<SpriteRenderer>().sortingLayerName = "Layer 1";
+                go.transform.parent = parent;
                 if (i < people)
                 {
                     string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };

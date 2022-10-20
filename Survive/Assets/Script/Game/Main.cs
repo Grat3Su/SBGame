@@ -7,12 +7,13 @@ public class Main
 	public static Main me;
 
 	gGUI currScene, nextScene;
+	GameObject maincamera;
 
 	public Main()
 	{
 		me = this;
-
-		currScene = createGameObject("Proc");
+		maincamera = GameObject.Find("Main Camera");
+		currScene = createGameObject("Intro");
 		nextScene = null;
 	}
 
@@ -20,13 +21,16 @@ public class Main
 	{
 		nextScene = createGameObject(name);
 
+		//GameObject.Destroy(currScene.gameObject);
+		currScene.free();
 		GameObject.Destroy(currScene);
 		currScene = nextScene;
 	}
 
 	gGUI createGameObject(string nameGUI)
 	{
-		GameObject go = new GameObject(nameGUI);
+		//GameObject go = new GameObject(nameGUI);
+		GameObject go = maincamera;
 
 		var type = System.Type.GetType(nameGUI);
 		gGUI scene = (gGUI)go.AddComponent(type);

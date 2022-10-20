@@ -18,6 +18,21 @@ public class MainCamera : MonoBehaviour
 		methodMouse[numMethodMouse] = mm;
 		numMethodMouse++;
 	}
+	public static void destroyMethodMouse(MethodMouse mm)
+	{
+		for (int i = 0; i < numMethodMouse; i++)
+		{
+			if (methodMouse[i] == mm)
+			{
+				numMethodMouse--;
+				for (int j = i; j < numMethodMouse; j++)
+				{
+					methodMouse[i] = methodMouse[j];
+				}
+				return;
+			}
+		}
+	}
 	public static void runMethodMouse(iKeystate stat, iPoint point)
 	{
 		for (int i = numMethodMouse - 1; i > -1; i--)
@@ -37,6 +52,21 @@ public class MainCamera : MonoBehaviour
 		methodWheel[numMethodWheel] = mm;
 		numMethodWheel++;
 	}
+	public static void destroyMethodWheel(MethodWheel mm)
+	{
+		for (int i = 0; i < numMethodWheel; i++)
+		{
+			if (methodWheel[i] == mm)
+			{
+				numMethodWheel--;
+				for (int j = i; j < numMethodWheel; j++)
+				{
+					methodWheel[i] = methodWheel[j];
+				}
+				return;
+			}
+		}
+	}
 	public static void runMethodWheel(iPoint point)
 	{
 		for (int i = numMethodWheel - 1; i > -1; i--)
@@ -53,6 +83,21 @@ public class MainCamera : MonoBehaviour
 	{
 		methodKeyboard[numMethodKeyboard] = mm;
 		numMethodKeyboard++;
+	}
+	public static void destroyMethodKeyboard(MethodKeyboard mm)
+	{
+		for(int i = 0; i<numMethodKeyboard; i++)
+		{
+			if(methodKeyboard[i] == mm)
+			{
+				numMethodKeyboard--;
+				for(int j = i; j< numMethodKeyboard; j++)
+				{
+					methodKeyboard[i] = methodKeyboard[j];
+				}
+				return;
+			}
+		}
 	}
 	public static void runMethodKeyboard(iKeystate stat, iKeyboard key)
 	{
