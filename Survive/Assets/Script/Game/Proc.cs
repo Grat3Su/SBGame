@@ -36,8 +36,8 @@ public class Proc : gGUI
 
 		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
 		{
-			keyboardPlayer, keyboardPopEvent, keyboardNewDay
-		};
+			keyboardPlayer, keyboardPopEvent, keyboardNewDay,
+        };
 
 		for (int i = 0; i < mkeyboard.Length; i++)
 			MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
@@ -788,18 +788,11 @@ public class Proc : gGUI
 		if (popPerson.bShow == false || popPerson.state == iPopupState.close)
 			return false;
 
-		if (popPerson.state != iPopupState.proc)
-		{
-			// 화면 안에 있을때
-			return true;
-			// 없을대 false
-		}
-
 		iPoint p;
 		p = popPerson.closePoint;
 		p.y += offPerson.y;
 
-		int i, j = -1;
+		int i;
 		iSize s = new iSize(0, 0);
 
 		switch (stat)
@@ -813,15 +806,9 @@ public class Proc : gGUI
 				{
 					if (imgPersonBtn[i].touchRect(p, s).containPoint(point))//클릭되면 ㅁ
 					{
-						j = i;
-						break;
+                        popPerson.selected = i;
+                        break;
 					}
-				}
-				if (j != -1)
-				{
-					// audio play button 효과음
-					popPerson.selected = j;
-					//select = j;// line 440
 				}
 				break;
 
@@ -1070,7 +1057,7 @@ public class Proc : gGUI
 		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
 			return false;
         
-		int i, j = -1;
+		int i;
 		iPoint p;
 		p = popPersonInfo.closePoint;
 		iSize s = new iSize(0, 0);
@@ -1082,14 +1069,9 @@ public class Proc : gGUI
 				{
 					if (imgPersonInfoBtn[i].touchRect(p, s).containPoint(point))
 					{
-						j = i;
-						break;
+                        popPersonInfo.selected = i;
+                        break;
 					}
-				}
-				if (j != -1)
-				{
-					// audio play button 효과음
-					popPersonInfo.selected = j;
 				}
 				break;
 
@@ -1140,29 +1122,7 @@ public class Proc : gGUI
 		}
 		return true;
 	}
-
-    bool keyboardPersonInfo(iKeystate stat, iKeyboard key)
-    {
-        switch(key)
-        {
-            case iKeyboard.Down:
-                select++;
-                if (select > 4)
-                    select = 4;
-                break;
-            case iKeyboard.Up:
-                select--;
-                if (select < 0)
-                    select = 0;
-                break;
-            case iKeyboard.Space:
-                select = -1;
-                break;
-        }
-        popPersonInfo.selected = select;
-        return false;
-    }
-
+    
     // ===========================
     // New Day Report
     // ==========================
@@ -1525,13 +1485,28 @@ public class Proc : gGUI
 		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
 
-		if (key == iKeyboard.Space)
+        int eventSelect = popEvent.selected;
+
+        if (key == iKeyboard.Down)
+        {
+            eventSelect++;
+            if (eventSelect > 3)
+                eventSelect = 3;
+        }
+        else if (key == iKeyboard.Up)
+        {
+            eventSelect--;
+            if (eventSelect < 0)
+                eventSelect = 0;
+        }
+        else if (key == iKeyboard.Space)
 		{
 			popEvent.openPoint = new iPoint(pPos.x, pPos.y);
             //popEvent.show(false);
 		}
 
-		return true;
+        popEvent.selected = eventSelect;
+        return true;
 	}
 
 	class DisplayInfo
