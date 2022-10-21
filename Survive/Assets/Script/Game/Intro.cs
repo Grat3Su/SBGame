@@ -47,7 +47,10 @@ public class Intro : gGUI
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
+		if (stat == iKeystate.Began)
+			Debug.Log(point.x + ", " + point.y);
 		keyPopMenu(stat, point);
+		keyPopH2P(stat, point);
 
 		return false;
 	}
@@ -94,12 +97,13 @@ public class Intro : gGUI
 		string s = " ";
 		for (int i = 0; i < splitNum; i++)
 			s += strs[i + 1];
+		setStringName("BMJUA_ttf");
 
 		setRGBA(0, 0, 0, 1);
-		setStringSize(150);
+		setStringSize(180);
 		drawString(s, new iPoint(st.wid / 2, st.hei / 2 + 100 - titleOffy), VCENTER | HCENTER);
 		//Debug.Log(s);
-		setStringSize(30);
+		//setStringSize(50);
 		//350,200
 	}
 
@@ -109,7 +113,7 @@ public class Intro : gGUI
 		if (!popTitle.bShow)
 			return;
 
-		if (titleOffy < 150)
+		if (titleOffy < 200)
 			titledt += dt;
 		else if (!popMenu.bShow)
 		{
@@ -128,7 +132,6 @@ public class Intro : gGUI
 				titleOffy += 300 * dt * 5;
 			}
 		}
-
 		stTitle.setString(splitNum + " S U R V I V E " + titleOffy);
 		popTitle.paint(dt);
 	}
@@ -139,6 +142,7 @@ public class Intro : gGUI
 		//fillRect(0, 0, MainCamera.devWidth, MainCamera.devHeight);
 
 		//Util.createTexture("IntroBG");
+		setStringName("BMJUA_ttf");
 		drawImage(Util.createTexture("IntroBG"), new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2), (float)MainCamera.devWidth / Util.createTexture("IntroBG").width, (float)MainCamera.devHeight / Util.createTexture("IntroBG").height, VCENTER | HCENTER);
 		setStringSize(30);
 		drawString("------@gmail.com", new iPoint(50, MainCamera.devHeight - 50), LEFT | HCENTER);
@@ -162,6 +166,7 @@ public class Intro : gGUI
 
 		imgMenuBtn = new iImage[4]; // 0 : start / 1 : h2p / 2: Quit
 		stMenuBtn = new iStrTex[4][];//눌렸을 때
+		setStringSize(30);
 
 		for (int i = 0; i < 4; i++)
 		{
@@ -173,23 +178,23 @@ public class Intro : gGUI
 				//닫기 : 0
 				if (i == 0)
 				{
-					st = new iStrTex(methodStMenuBtn, 150, 150);
+					st = new iStrTex(methodStMenuBtn, 200, 150);
 					st.setString(j + "\n" + " Start " + "\n" + i);
 				}
 				//직업 바꾸기 : 1
 				else if (i == 1)
 				{
-					st = new iStrTex(methodStMenuBtn, 150, 150);
+					st = new iStrTex(methodStMenuBtn, 200, 150);
 					st.setString(j + "\n" + "How to Play" + "\n" + i);
 				}
 				else if (i == 2)
 				{
-					st = new iStrTex(methodStMenuBtn, 150, 150);
+					st = new iStrTex(methodStMenuBtn, 200, 150);
 					st.setString(j + "\n" + "Option" + "\n" + i);
 				}
 				else
 				{
-					st = new iStrTex(methodStMenuBtn, 150, 150);
+					st = new iStrTex(methodStMenuBtn, 200, 150);
 					st.setString(j + "\n" + "Quit" + "\n" + i);
 				}
 				img.add(st.tex);
@@ -232,6 +237,7 @@ public class Intro : gGUI
 
 		iPoint pos = new iPoint(0, 0);
 
+		setStringName("BMJUA_ttf");
 		if (index == 0)
 		{
 			setRGBA(1, 1, 1, 1);
@@ -321,72 +327,73 @@ public class Intro : gGUI
 	iPopup popH2P = null;
 	iStrTex stH2P;
 	iImage[] imgH2PBtn;
-	iStrTex[][] stH2PBtn;
+	int pageIdx;
 	void loadH2P()
 	{
 		iPopup pop = new iPopup();
 
 		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStH2P, MainCamera.devWidth, MainCamera.devHeight);
+		iStrTex st = new iStrTex(methodStH2P, 500, MainCamera.devHeight - 100);
+		pageIdx = 0;
+		st.setString(""+pageIdx);
 		img.add(st.tex);
 		pop.add(img);
 		stH2P = st;
 
 		imgH2PBtn = new iImage[3]; // 0 : start / 1 : h2p / 2: Quit
-	 	stH2PBtn = new iStrTex[3][];//눌렸을 때
 
+		string[] strName = new string[3] { "X", "<", ">" };
+		iPoint[] pos = new iPoint[] {
+			new iPoint(450, 0),
+			new iPoint(-70, 550),
+			new iPoint(520, 550)
+		};
 		for (int i = 0; i < 3; i++)
 		{
-			stH2PBtn[i] = new iStrTex[2];
-
 			img = new iImage();
 			for (int j = 0; j < 2; j++)
 			{
-				//닫기 : 0
-				if (i == 0)
-				{
-					st = new iStrTex(methodStH2PBtn, 50, 50);
-					st.setString(j + "\n" + " X " + "\n" + i);
-				}
-				//직업 바꾸기 : 1
-				else if (i == 1)
-				{
-					st = new iStrTex(methodStH2PBtn, 50, 50);
-					st.setString(j + "\n" + "<" + "\n" + i);
-				}
-				else if (i == 2)
-				{
-					st = new iStrTex(methodStH2PBtn, 50, 50);
-					st.setString(j + "\n" + ">" + "\n" + i);
-				}
+				st = new iStrTex(methodStH2PBtn, 80, 80);
+				st.setString(j + "\n" + strName[i] + "\n" + i);
 				img.add(st.tex);
-
-				stH2PBtn[i][j] = st;
 			}
-			if (i == 0)
-				img.position = new iPoint(200, 450);
-			else if (i == 1)
-				img.position = new iPoint(450, 450);
-			else if (i == 2)
-				img.position = new iPoint(700, 450);
+			img.position = pos[i];
+			pop.add(img);
 			imgH2PBtn[i] = img;
 		}
 
 		pop.style = iPopupStyle.zoom;
-		pop.openPoint = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
-		pop.closePoint = new iPoint(0, 0);
+		pop.openPoint = new iPoint(500, 500);
+		pop.closePoint = new iPoint((MainCamera.devWidth-500)/2, 50);
 		pop._aniDt = 0.5f;
 		popH2P = pop;
 	}
 
 	void methodStH2P(iStrTex st)
 	{
-		fillRect(MainCamera.devWidth / 2 - 30, 50, 60, 80);
+		
+
+		setRGBA(1, 1, 1, 1);
+		fillRect(0, 0, 500, MainCamera.devHeight - 100);
+
+		setStringSize(50);
+		setStringRGBA(1, 0, 0, 1);
+		drawString(""+pageIdx, 250, 300, VCENTER | HCENTER);
+		if( pageIdx==0 )
+		{
+
+		}
+		else if (pageIdx == 1)
+		{
+
+		}
+		else if (pageIdx == 2)
+		{
+
+		}
 
 		for (int i = 0; i < 3; i++)
 		{
-			//for (int j = 0; j < 2; j++)
-			//	stPersonBtn[i][j].setString(j + "\n" + i + "번");
 			imgH2PBtn[i].frame = (popH2P.selected == i ? 1 : 0);
 			imgH2PBtn[i].paint(0.0f, new iPoint(0, 0));
 		}
@@ -394,12 +401,105 @@ public class Intro : gGUI
 
 	void methodStH2PBtn(iStrTex st)
 	{
+		string[] strs = st.str.Split("\n");
+		int click = int.Parse(strs[0]);
+		int index = int.Parse(strs[2]);
+		string s = strs[1];
+		setStringName("BMJUA_ttf");
+		if (click == 0)
+		{
+			if(index == 0)
+			{
+				setRGBA(1, 0, 0, 1);
+			}
+			else
+			{
+				setRGBA(1, 1, 1, 1);
 
+				if (pageIdx == 0)
+				{
+					if (index == 1)//isue
+						setRGBA(0.3f, 0.3f, 0.3f, 1);
+				}
+				else if (pageIdx == 1)
+				{
+					if (index == 2)
+						setRGBA(0.3f, 0.3f, 0.3f, 1);
+				}
+			}
+		}
+		else if(click == 1)
+			setRGBA(0.3f, 0.3f, 0.3f, 1);
+
+		fillRect(0, 0, 50, 50);
+		setStringRGBA(0, 0, 0, 1);
+
+		int w = st.tex.tex.width;
+		int h = st.tex.tex.height;
+		drawString(s, 30, 30, VCENTER | HCENTER);
 	}
 
 	void drawH2P(float dt)
 	{
-		stH2P.setString(popH2P.selected + "");
+		stH2P.setString("" + pageIdx + "" + popH2P.selected);
 		popH2P.paint(dt);
+	}
+
+	bool keyPopH2P(iKeystate stat, iPoint point)
+	{
+		if (!popH2P.bShow)
+			return false;
+
+		int i;
+		iPoint p;
+		p = popH2P.closePoint;
+		iSize s = new iSize(0, 0);
+
+		if (stat == iKeystate.Began)
+		{
+			for (i = 0; i < 3; i++)
+			{
+				if (imgH2PBtn[i].touchRect(p, s).containPoint(point))
+				{
+					popH2P.selected = i;
+					break;
+				}
+			}
+		}
+		else if(stat == iKeystate.Moved)
+		{
+			popH2P.selected = -1;
+			for (i = 0; i < 3; i++)
+			{
+				if (imgH2PBtn[i].touchRect(p, s).containPoint(point))
+				{
+					popH2P.selected = i;
+					break;
+				}
+			}
+		}
+		else if(stat == iKeystate.Ended)
+		{
+			if(popH2P.selected == 0)
+			{
+				popH2P.selected = -1;
+				popH2P.show(false);
+			}
+			else if(popH2P.selected == 1)
+			{
+				if (pageIdx != 0)
+					pageIdx--;
+				Debug.Log("page : " + pageIdx);
+				//이전 장으로
+			}
+			else if(popH2P.selected == 2)
+			{
+				if (pageIdx != 1)
+					pageIdx++;
+				Debug.Log("page : " + pageIdx);
+				//다음 장으로
+			}
+		}
+		return true;
 	}
 }

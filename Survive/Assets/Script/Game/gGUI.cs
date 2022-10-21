@@ -55,36 +55,17 @@ public class gGUI : iGUI
 		preCull();
 	}
 
-	int prevFrameCount = -1;
-	int prevFramecountDelta = -1;
 	void OnGUI()
 	{
-#if false// 첫번째만 그리는 로직(한 프레임에 딱 1번 그림)
-		// #issue 안그릴때는, 화면을 검은색으로 안 비우도록 하는 방법 모름!!
-		Camera.main.clearFlags = CameraClearFlags.Nothing;
-		if (prevFrameCount == Time.frameCount)
-		{
-			Debug.Log("그림 XXXXXXXXX");
+		// 유니티에서 키 입력, 리페인팅 등 이벤트를 체크한다.
+		// 현재 유니티가 그리는 속도에 맞춰져있기 때문에 OnGUI가 update랑 속도가 같아진다.
+		
+		if (UnityEngine.Event.current.type != EventType.Repaint)
 			return;
-		}
-		Debug.Log("그림 OOOOOOOO");
-		prevFrameCount = Time.frameCount;
-#else// 첫번째만 안그리는 로직(한 프레임에 1번 이상 그림)
-		if (prevFrameCount != Time.frameCount)
-		{
-			//Debug.Log("그림 XXXXXXXXX");
-			prevFrameCount = Time.frameCount;
-			return;
-		}
-		//Debug.Log("그림 OOOOOOOO");
-#endif
+		float delta = Time.deltaTime;//Time.frameCount;
 
-		float delta = 0.0f;
-		if (prevFramecountDelta != Time.frameCount)
-		{
-			prevFramecountDelta = Time.frameCount;
-			delta = Time.deltaTime;
-		}
+		if (Input.GetKeyDown(KeyCode.Space))//리 페인팅 이벤트만 체크해서 안들어옴
+			Debug.Log("space");
 
 #if true// rt : onPrev() ~ onEnd()
 		GL.Clear(true, true, Color.black);

@@ -123,7 +123,7 @@ public class iGUI : MonoBehaviour
     public iSize sizeOfString(string str)
     {
         GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.font = Resources.Load<Font>(name);
+        style.font = Resources.Load<Font>(stringName);
         style.fontSize = (int)stringSize;
         style.fontStyle = FontStyle.Normal;
         style.normal.textColor = stringColor;
@@ -138,7 +138,7 @@ public class iGUI : MonoBehaviour
     public void drawString(string str, float x, float y, int anc = TOP | LEFT)
     {
         GUIStyle style = new GUIStyle(GUI.skin.label);
-        style.font = Resources.Load<Font>(name);
+        style.font = Resources.Load<Font>(stringName);
         style.fontSize = (int)stringSize;
         style.fontStyle = FontStyle.Normal;
         style.normal.textColor = stringColor;
@@ -284,17 +284,27 @@ public class iGUI : MonoBehaviour
 //#elif true
 #elif false
 			GUI.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, ScaleMode.StretchToFill, true, h / w, color, 0, 0);
-#elif true
+#elif false// final
         GUI.color = color;// #issue
         GUI.DrawTextureWithTexCoords(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), true);
+#elif true// curr
+        if (mat == null)
+		{
+            Shader shader = Shader.Find("Unlit/STD");
+            mat = new Material(shader);
+		}
+        mat.SetTexture("_MainTex", tex);//마테리얼 내에서 텍스트 변경
+        mat.SetColor("inColor", color);
+        Graphics.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), 0, 0, 0, 0, mat);
 #else
-			ScaleMode scaleMode = ScaleMode.ScaleToFit;
+        ScaleMode scaleMode = ScaleMode.ScaleToFit;
 			float imageAspect = h / w;
 			float borderWidth = 0, borderRadius = 0;
 			GUI.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, scaleMode, true, imageAspect, color, borderWidth, borderRadius);
 #endif
         GUI.matrix = matrixPrjection;
     }
+    Material mat = null;
 
     public static void drawTexture(Rect r, RenderTexture tex)
 	{

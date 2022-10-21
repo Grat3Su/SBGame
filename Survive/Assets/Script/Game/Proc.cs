@@ -1527,6 +1527,11 @@ public class Proc : gGUI
 				popEvent.show(false);
 			}
 		}
+		else if (key == iKeyboard.ESC)
+		{
+			popEvent.show(false);
+			popEvent.selected = -1;
+		}
 
 		popEvent.selected = eventSelect;
 		return true;

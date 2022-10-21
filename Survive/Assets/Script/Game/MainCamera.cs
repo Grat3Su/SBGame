@@ -184,7 +184,7 @@ public class MainCamera : MonoBehaviour
 		if (methodKeyboard == null)
 			return;
 
-		for (int i = 0; i < 5; i++)
+		for (int i = 0; i < kc.Length; i++)
 		{
 			KeyCode c = kc[i];
 
@@ -199,7 +199,7 @@ public class MainCamera : MonoBehaviour
 	private KeyCode[] kc = new KeyCode[]
 	{
 		KeyCode.LeftArrow, KeyCode.RightArrow,
-		KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.Space
+		KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.Space, KeyCode.Escape
 	};
 
 	public static Vector3 iPointToVector3(iPoint p)
