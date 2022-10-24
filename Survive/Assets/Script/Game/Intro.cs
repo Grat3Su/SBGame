@@ -47,8 +47,16 @@ public class Intro : gGUI
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
-		if (stat == iKeystate.Began)
-			Debug.Log(point.x + ", " + point.y);
+        if (stat == iKeystate.Began)
+        {
+            Debug.Log(point.x + ", " + point.y);
+
+            if (splitNum < 7)
+            {
+                splitNum = 7;
+                titleOffy = 200;
+            }
+        }
 		keyPopMenu(stat, point);
 		keyPopH2P(stat, point);
 
@@ -406,32 +414,36 @@ public class Intro : gGUI
 		int index = int.Parse(strs[2]);
 		string s = strs[1];
 		setStringName("BMJUA_ttf");
-		if (click == 0)
-		{
-			if(index == 0)
-			{
-				setRGBA(1, 0, 0, 1);
-			}
-			else
-			{
-				setRGBA(1, 1, 1, 1);
 
-				if (pageIdx == 0)
-				{
-					if (index == 1)//isue
-						setRGBA(0.3f, 0.3f, 0.3f, 1);
-				}
-				else if (pageIdx == 1)
-				{
-					if (index == 2)
-						setRGBA(0.3f, 0.3f, 0.3f, 1);
-				}
-			}
-		}
-		else if(click == 1)
-			setRGBA(0.3f, 0.3f, 0.3f, 1);
+        float colorSet = 0.0f;
+        if (click == 0)
+        {
+            if(index != 0)
+            {
+                colorSet = 1;
 
-		fillRect(0, 0, 50, 50);
+                if (pageIdx == 0)
+                {
+                    if (index == 1)//isue
+                        colorSet = 0.3f;
+                }
+                else if (pageIdx == 1)
+                {
+                    if (index == 2)
+                        colorSet = 0.3f;
+                }
+            }
+        }
+        else if (click == 1)
+            colorSet = 0.3f;
+
+        setRGBA(colorSet, colorSet, colorSet, 1);
+
+        if (click == 0)
+            if (index == 0)
+                setRGBA(1, 0, 0, 1);
+
+            fillRect(0, 0, 50, 50);
 		setStringRGBA(0, 0, 0, 1);
 
 		int w = st.tex.tex.width;

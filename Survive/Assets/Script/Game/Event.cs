@@ -13,7 +13,7 @@ public class Event : MonoBehaviour
 
     public AddItem plusItem;
     public AddItem minusItem;
-    bool gameover;
+    public bool gameover;
     public Storage storage;
     public int day;
     int hour;
@@ -23,10 +23,8 @@ public class Event : MonoBehaviour
     public int explorer;
     int[] map;
     public int[] jobless;
-    public int joblessNum;
-    
+    public int joblessNum;    
     public bool newday;
-
     public int specialEvent;
 
     void initGame()
@@ -34,9 +32,10 @@ public class Event : MonoBehaviour
         jobless = new int[100];
         joblessNum = 0;
         //storage = new Storage(1, 5, 0, 1, 0, 1);
+        storage = new Storage(2, 1, 0, 1, 0, 1);
         curp = 0;
         specialEvent = 0;
-        storage = new Storage(15, 15, 1, 10, 40, 10);
+        //storage = new Storage(15, 15, 1, 10, 40, 10);
         plusItem = new AddItem(0);//하루 지나면 초기화
         minusItem = new AddItem(0);//하루 지나면 초기화
         day = 0;
@@ -48,7 +47,6 @@ public class Event : MonoBehaviour
         spawnfir();
         map = new int[] {50, 100, 300 };
         newday = false;
-
     }
 
     public void initDay()
@@ -358,7 +356,7 @@ public class Event : MonoBehaviour
         if (people != storage.getStorage(0))//자원을 사용한 후와 사람 수가 다르다
             deletePeople();
 
-        if (storage.getStorage(0) == -1)
+        if (storage.getStorage(0) == 0)
         {
             deletePeople();
             gameover = true;
