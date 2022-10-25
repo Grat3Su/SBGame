@@ -27,7 +27,7 @@ public class Event : MonoBehaviour
     public bool newday;
     public int specialEvent;
 
-    void initGame()
+    public void initGame()
     {
         jobless = new int[100];
         joblessNum = 0;

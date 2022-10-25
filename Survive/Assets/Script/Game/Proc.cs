@@ -4,481 +4,513 @@ using UnityEngine;
 
 using STD;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.Android;
 
 public class Proc : gGUI
 {
-    public override void load()
-    {
-        loadBg();
-        loadPlayer();
-        loadPeople();
-        loadJobless();
-        loadGameOver();
+	ProcEvent pe;
 
-        createPopTop();
-        createPopPerson();
-        createPopInfo();
-        createNewDay();
-        createPopEvent();
+	public override void load()
+	{
+		loadBg();
+		loadPlayer();
+		loadPeople();
+		loadJobless();
+		pe = new ProcEvent();
 
-        popTop.show(true);
-        popPerson.show(false);
-        popPersonInfo.show(false);
-        popNewDay.show(false);
-        popEvent.show(false);
-        popGameOver.show(false);
+		createPopTop();
+		createPopPerson();
+		createPopInfo();
+		createPopEvent();
 
-        //우선순위
-        MethodMouse[] m = new MethodMouse[]
-        {
-            keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyNewDay, keyPopEvent, keyGameOver,
-        };
-        for (int i = 0; i < m.Length; i++)
-            MainCamera.addMethodMouse(new MethodMouse(m[i]));
+		popTop.show(true);
+		popPerson.show(false);
+		popPersonInfo.show(false);
+		popEvent.show(false);
 
-        MethodKeyboard[] mkeyboard = new MethodKeyboard[]
-        {
-            keyboardPlayer, keyboardPopEvent, keyboardNewDay, keyboardGameOver,
-        };
+		//우선순위
+		MethodMouse[] m = new MethodMouse[]
+		{
+			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,
+		};
+		for (int i = 0; i < m.Length; i++)
+			MainCamera.addMethodMouse(new MethodMouse(m[i]));
+		MainCamera.addMethodMouse(new MethodMouse(pe.key));
 
-        for (int i = 0; i < mkeyboard.Length; i++)
-            MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
+		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
+		{
+			keyboardPlayer, keyboardPopEvent,
+		};
 
-        MainCamera.addMethodWheel(new MethodWheel(wheelPopPerson));
+		for (int i = 0; i < mkeyboard.Length; i++)
+			MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
+		MainCamera.addMethodKeyboard(new MethodKeyboard(pe.keyboard));
 
-        loadDisplay();
-        //addDisplay("whaaaaa", new iPoint(50, 50));
-    }
+		MainCamera.addMethodWheel(new MethodWheel(wheelPopPerson));
 
-    public override void free()
-    {
+		loadDisplay();
+		//addDisplay("whaaaaa", new iPoint(50, 50));
+	}
 
-    }
+	void goTitle()
+	{
+		if(pe.goTitle)
+		{
+			free();
+			Main.me.reset("Intro");
+		}
+	}
 
-    public override void draw(float dt)
-    {
-        if (playerEvent.gameover && !popGameOver.bShow)
-        {
-            Debug.Log("dddd");
-            popGameOver.show(true);
-        }
-        drawBg(dt);
-        drawPeople(dt);
-        drawJobless(dt);
-        drawPlayer(dt);
+	public override void free()
+	{
+		MethodMouse[] m = new MethodMouse[]
+		{
+			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,
+		};
+		for (int i = 0; i < m.Length; i++)
+			MainCamera.destroyMethodMouse(new MethodMouse(m[i]));
+		MainCamera.destroyMethodMouse(new MethodMouse(pe.key));
+		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
+		{
+			keyboardPlayer, keyboardPopEvent,
+		};
 
-        drawPopTop(dt);
-        drawPopPerson(dt);
-        drawPopInfo(dt);
-        drawPopEvent(dt);
-        drawNewDay(dt);
+		for (int i = 0; i < mkeyboard.Length; i++)
+			MainCamera.destroyMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
+		MainCamera.destroyMethodKeyboard(new MethodKeyboard(pe.keyboard));
 
-        drawDisplay(dt);
-        drawGameOver(dt);
-    }
+		MainCamera.destroyMethodWheel(new MethodWheel(wheelPopPerson));
 
-    public override bool key(iKeystate stat, iPoint point)
-    {
-        return false;
-    }
-    public override bool wheel(iPoint point)
-    {
-        wheelPopPerson(point);
-        return false;
-    }
+	}
 
-    //=======================================================
-    // bg
-    //=======================================================
-    void loadBg()
-    {
+	public override void draw(float dt)
+	{
+		if (playerEvent.gameover)
+			pe.showGameOver();
 
-    }
+		drawBg(dt);
+		drawPeople(dt);
+		drawJobless(dt);
+		drawPlayer(dt);
 
-    void drawBg(float dt)
-    {
-        setRGBA(1, 1, 1, 1f);
-        fillRect(0, 0, MainCamera.devWidth, MainCamera.devHeight);
-    }
+		drawPopTop(dt);
+		drawPopPerson(dt);
+		drawPopInfo(dt);
+		drawPopEvent(dt);
 
-    bool keyBg(iKeystate stat, iPoint point)
-    {
-        return false;
-    }
+		drawDisplay(dt);
 
-    //=======================================================
-    // Player
-    //=======================================================
-    Event playerEvent;
-    bool newDayOpen;
+		pe.paint(dt);
+	}
 
-    void loadPlayer()
-    {
-        newDayOpen = false;
-        pPos = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
-        speed = 50;
-        nextPos = new iPoint(0, 0);
-        psize = new iSize(50, 50);
+	public override bool key(iKeystate stat, iPoint point)
+	{
+		return false;
+	}
+	public override bool wheel(iPoint point)
+	{
+		return false;
+	}
 
-        playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
-        people = playerEvent.storage.people;
-    }
+	//=======================================================
+	// bg
+	//=======================================================
+	SpriteRenderer[] srPeople;
+	void loadBg()
+	{
+		srPeople = new SpriteRenderer[100];
+		for(int i=0; i < people; i++)
+			srPeople[i] = playerEvent.pState[i].gameObject.GetComponent<SpriteRenderer>();
 
-    iPoint pPos;
-    iPoint nextPos;
-    int speed;
-    iSize psize;
-    void drawPlayer(float dt)
-    {
-        pPos.x += dt * nextPos.x * speed;
-        pPos.y += dt * nextPos.y * speed;
+		//srPeople[0].sortingOrder = 0;
+	}
+
+	void drawBg(float dt)
+	{
+		//setRGBA(1, 1, 1, 1f);
+		//fillRect(0, 0, MainCamera.devWidth, MainCamera.devHeight);
+
+		//iSort.init();
+		//for (int i = 0; i < people; i++)
+		//	iSort.add( playerEvent.pState[i].gameObject.transform.position.y );
+		//iSort.update();
+		//for (int i = 0; i < iSort.num; i++)
+		//	srPeople[iSort.get(i)].sortingOrder = i;
+	}
+
+	bool keyBg(iKeystate stat, iPoint point)
+	{
+		return false;
+	}
+
+	//=======================================================
+	// Player
+	//=======================================================
+	Event playerEvent;
+
+	void loadPlayer()
+	{
+		pPos = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
+		speed = 50;
+		nextPos = new iPoint(0, 0);
+		psize = new iSize(50, 50);
+
+		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
+		people = playerEvent.storage.people;
+	}
+
+	iPoint pPos;
+	iPoint nextPos;
+	int speed;
+	iSize psize;
+	void drawPlayer(float dt)
+	{
+		pPos.x += dt * nextPos.x * speed;
+		pPos.y += dt * nextPos.y * speed;
 
 
-        if (pPos.x < 0)
-            pPos.x = 0;
-        else if (pPos.x > MainCamera.devWidth - 50)
-            pPos.x = MainCamera.devWidth - 50;
+		if (pPos.x < 0)
+			pPos.x = 0;
+		else if (pPos.x > MainCamera.devWidth - 50)
+			pPos.x = MainCamera.devWidth - 50;
 
-        if (pPos.y < 60)
-            pPos.y = 60;
-        else if (pPos.y > MainCamera.devHeight - 50)
-            pPos.y = MainCamera.devHeight - 50;
+		if (pPos.y < 60)
+			pPos.y = 60;
+		else if (pPos.y > MainCamera.devHeight - 50)
+			pPos.y = MainCamera.devHeight - 50;
+		goTitle();
 
-        drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
-        nextPos = new iPoint(0, 0);
-    }
-    bool keyPlayer(iKeystate stat, iPoint point)
-    {
-        if (stat == iKeystate.Began)
-        {
+		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
+		nextPos = new iPoint(0, 0);
+	}
+	bool keyPlayer(iKeystate stat, iPoint point)
+	{
+		if (stat == iKeystate.Began)
+		{
 
-        }
-        return false;
-    }
+		}
+		return false;
+	}
 
-    bool keyboardPlayer(iKeystate stat, iKeyboard key)
-    {
-        nextPos = new iPoint(0, 0);
+	bool keyboardPlayer(iKeystate stat, iKeyboard key)
+	{
+		nextPos = new iPoint(0, 0);
 
-        switch (key)
-        {
-            case iKeyboard.Down:
-                nextPos.y += 5;
+		switch (key)
+		{
+			case iKeyboard.Down:
+				nextPos.y += 5;
 
-                break;
-            case iKeyboard.Up:
-                nextPos.y -= 5;
+				break;
+			case iKeyboard.Up:
+				nextPos.y -= 5;
 
-                break;
-            case iKeyboard.Left:
-                nextPos.x -= 5;
+				break;
+			case iKeyboard.Left:
+				nextPos.x -= 5;
 
-                break;
-            case iKeyboard.Right:
-                nextPos.x += 5;
+				break;
+			case iKeyboard.Right:
+				nextPos.x += 5;
 
-                break;
-            case iKeyboard.Space:
-                if (methodPeople != null)
-                    break;
+				break;
+			case iKeyboard.Space:
+				if (methodPeople != null)
+					break;
 
-                if (popPersonInfo.bShow)
-                    popPersonInfo.show(false);
+				if (popPersonInfo.bShow)
+					popPersonInfo.show(false);
 
-                float x, y;
-                x = pPos.x + psize.width;
-                y = pPos.y + (psize.height / 2) - 175;
+				float x, y;
+				x = pPos.x + psize.width;
+				y = pPos.y + (psize.height / 2) - 175;
 #if false
 				if (pPos.x > MainCamera.devWidth / 2)
 					popEvent.closePoint = new iPoint(pPos.x - 300 + 75, y);
 				else
 					popEvent.closePoint = new iPoint(x + 10, y);
 #else
-                // 200, 350;
-                iPoint[] p = new iPoint[2];
-                p[0] = pPos + new iPoint(psize.width / 2, psize.height / 2);
-                p[1] = p[0] + new iPoint(psize.width, -175);
+				// 200, 350;
+				iPoint[] p = new iPoint[2];
+				p[0] = pPos + new iPoint(psize.width / 2, psize.height / 2);
+				p[1] = p[0] + new iPoint(psize.width, -175);
 
-                iPoint min = new iPoint(10, 10);
-                iPoint max = new iPoint(MainCamera.devWidth - 500, MainCamera.devHeight - 380);
+				iPoint min = new iPoint(10, 10);
+				iPoint max = new iPoint(MainCamera.devWidth - 500, MainCamera.devHeight - 380);
 
-                if (p[1].x < min.x)
-                    p[1].x = min.x;
-                else if (p[1].x > max.x)
-                    p[1].x = max.x;
-                if (p[1].y < min.y)
-                    p[1].y = min.y;
-                else if (p[1].y > max.y)
-                    p[1].y = max.y;
+				if (p[1].x < min.x)
+					p[1].x = min.x;
+				else if (p[1].x > max.x)
+					p[1].x = max.x;
+				if (p[1].y < min.y)
+					p[1].y = min.y;
+				else if (p[1].y > max.y)
+					p[1].y = max.y;
 
-                popEvent.openPoint = p[0];
-                popEvent.closePoint = p[1];
+				popEvent.openPoint = p[0];
+				popEvent.closePoint = p[1];
 #endif
-                if (!popEvent.bShow)
-                    popEvent.show(true);
-                break;
-        }
+				if (!popEvent.bShow)
+					popEvent.show(true);
+				break;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    //====================================================
-    // people
-    //====================================================
+	//====================================================
+	// people
+	//====================================================
 
-    void loadPeople()
-    {
-        people = playerEvent.storage.people;
-        //if (!playerEvent.newday)
-        {
-            for (int i = 0; i < people; i++)
-            {
-                playerEvent.pState[i].pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 150);
-                playerEvent.pState[i].curPos = playerEvent.pState[i].pos;
-            }
-        }
+	void loadPeople()
+	{
+		people = playerEvent.storage.people;
+			for (int i = 0; i < people; i++)
+			{
+				playerEvent.pState[i].pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 150);
+				playerEvent.pState[i].curPos = playerEvent.pState[i].pos;
+			}
 
-        _moveDt = 3f;
-        peopleInOut = new iPoint[]
-        {
-            new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 130),//home
+		_moveDt = 3f;
+		peopleInOut = new iPoint[]
+		{
+			new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 130),//home
 			new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight - 130),//street
 			new iPoint(MainCamera.devWidth / 2, -50),//up
 			new iPoint(200, MainCamera.devHeight - 150),//field
 			new iPoint(MainCamera.devWidth - 280, MainCamera.devHeight/2 - 130),//lab
 		};
-        float len = 0f, l = 0f;
-        for (int i = 0; i < 2; i++)
-        {
-            iPoint p = peopleInOut[i] - peopleInOut[1 + i];
-            float n = Mathf.Sqrt(p.x * p.x + p.y * p.y);
-            len += n;
-            if (i == 0)
-                l = n;
-        }
-        moveRate = l / len;
-        setPeople(1, cbPeopleGo);
-    }
+		float len = 0f, l = 0f;
+		for (int i = 0; i < 2; i++)
+		{
+			iPoint p = peopleInOut[i] - peopleInOut[1 + i];
+			float n = Mathf.Sqrt(p.x * p.x + p.y * p.y);
+			len += n;
+			if (i == 0)
+				l = n;
+		}
+		moveRate = l / len;
+		setPeople(1, cbPeopleGo);
+	}
 
-    int newJob;
-    void cbChangeJob()
-    {
-        if (select == -1)
-            return;
-        PeopleState ps = playerEvent.pState[select];
+	int newJob;
+	void cbChangeJob()
+	{
+		if (select == -1)
+			return;
+		PeopleState ps = playerEvent.pState[select];
+
+		if (ps.job != newJob)
+		{
+			if (ps.job == 0)
+			{
+				playerEvent.joblessNum--;
+				playerEvent.jobless[select] = playerEvent.jobless[playerEvent.joblessNum];
+			}
+			else if (newJob == 0)
+			{
+				playerEvent.jobless[playerEvent.joblessNum] = select;
+				playerEvent.joblessNum++;
+			}
+			ps.jobUpdate(newJob);
+		}
+	}
+
+	void cbPeopleGo()
+	{
+		//popEvent.show(true);
+	}
+
+	float _moveDt;
+	iPoint[] peopleInOut;
+	float moveRate;
+
+	delegate void MethodPeople();
+	MethodPeople methodPeople = null;
+	void setPeople(int behave, MethodPeople method)
+	{
+		for (int i = 0; i < people; i++)
+		{
+			PeopleState ps = playerEvent.pState[i];
+			if ((behave == 1 && ps.behave == 0) || behave == 2)
+			{
+				ps.behave = behave;// 1 or 2 go or back
+				ps.moveDt = -0.2f * i;
+				ps.curPos = ps.pos;
+			}
+		}
+		methodPeople = method;
+	}
+
+	void drawPeople(float dt)
+	{
+		people = playerEvent.storage.people;
+		if (people == 0)
+			return;
+
+		bool endOfGo = true;
+		bool endOfBack = true;
+
+		for (int i = 0; i < people; i++)
+		{
+			PeopleState ps = playerEvent.pState[i];
+
+			setRGBA(1, 1, 1, 1);
+			string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
+			Texture peopleTex = Util.createTexture(texname[ps.job]);
+			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
 
 
-        if (ps.job != newJob)
-        {
-            if (ps.job == 0)
-            {
-                playerEvent.joblessNum--;
-                playerEvent.jobless[select] = playerEvent.jobless[playerEvent.joblessNum];
-            }
-            else if (newJob == 0)
-            {
-                playerEvent.jobless[playerEvent.joblessNum] = select;
-                playerEvent.joblessNum++;
-            }
-            ps.jobUpdate(newJob);
-        }
-    }
+			Texture building = Util.createTexture("house");
+			drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 200), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
+			drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight / 2 - 150), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
 
-    void cbPeopleGo()
-    {
-        //popEvent.show(true);
-    }
+			int at = ps.job != 4 ? 2 : 3;
+			switch (ps.job)
+			{
+				case 0:
+					at = 1;
+					break;
+				case 1:
+				case 2:
+					at = 2;
+					break;
+				case 3:
+					at = 3;
+					break;
+				case 4:
+					at = 4;
+					break;
+			}
 
-    float _moveDt;
-    iPoint[] peopleInOut;
-    float moveRate;
+			if (ps.moveDt < 0f)
+			{
+				ps.moveDt += dt;
+				continue;
+			}
+			if (ps.behave == 1)
+			{
+				// go
+				float r = ps.moveDt / _moveDt;
+				if (r < moveRate)
+					ps.pos = Math.linear(r / moveRate, peopleInOut[0], peopleInOut[1]);
+				else
+				{
+					ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[at]);
+					ps.curPos = peopleInOut[at];
+				}
 
-    delegate void MethodPeople();
-    MethodPeople methodPeople = null;
-    void setPeople(int behave, MethodPeople method)
-    {
-        for (int i = 0; i < people; i++)
-        {
-            PeopleState ps = playerEvent.pState[i];
-            if ((behave == 1 && ps.behave == 0) || behave == 2)
-            {
-                ps.behave = behave;// 1 or 2 go or back
-                ps.moveDt = -0.2f * i;
-                ps.curPos = ps.pos;
-            }
-        }
-        methodPeople = method;
-    }
+				ps.moveDt += dt;
+				if (ps.moveDt > _moveDt)
+					ps.behave = 3;
+				else
+				{
+					endOfGo = false;
+				}
+			}
+			else if (ps.behave == 2)
+			{
+				// back
 
-    void drawPeople(float dt)
-    {
-        people = playerEvent.storage.people;
-        if (people == 0)
-            return;
+				float r = ps.moveDt / _moveDt;
+				if (r < moveRate)
+					ps.pos = Math.linear(r / moveRate, ps.curPos, peopleInOut[1]);
+				else
+				{
+					ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[0]);
+					ps.curPos = peopleInOut[0];
+				}
 
-        bool endOfGo = true;
-        bool endOfBack = true;
+				ps.moveDt += dt;
+				if (ps.moveDt > _moveDt)
+					ps.behave = 0;
+				else
+				{
+					endOfBack = false;
+				}
+			}
+		}
 
-        for (int i = 0; i < people; i++)
-        {
-            PeopleState ps = playerEvent.pState[i];
+		if (methodPeople != null)
+		{
+			if (endOfGo && endOfBack)
+			{
+				methodPeople();
+				methodPeople = null;
+			}
+		}
+	}
 
-            setRGBA(1, 1, 1, 1);
-            string[] texname = new string[] { "jobless", "explorer", "worker", "farmer", "researcher" };
-            Texture peopleTex = Util.createTexture(texname[ps.job]);
-            drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
+	void loadJobless()
+	{
+		jobdt = 0.5f;
+		int jobnum = playerEvent.joblessNum;
+		for (int i = 0; i < jobnum; i++)
+		{
+			PeopleState ps = playerEvent.pState[playerEvent.jobless[i]];
 
+			float x = ps.pos.x + (Math.random(-1, 1) * 50) + (Math.random(0, 1) * psize.width);
+			float y = ps.pos.y + (Math.random(-1, 1) * 50) + (Math.random(0, 1) * psize.height);
+			if (x > 0 && x < MainCamera.devWidth)
+				ps.nextPos.x = x;
+			if (y > 0 && y < MainCamera.devHeight)
+				ps.nextPos.y = y;
+			ps.moveDt = -0.2f;
+		}
+	}
 
-            Texture building = Util.createTexture("house");
-            drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 200), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
-            drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight / 2 - 150), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
+	float jobdt;
+	void drawJobless(float dt)
+	{
+		int jobnum = playerEvent.joblessNum;
 
-            int at = ps.job != 4 ? 2 : 3;
-            switch (ps.job)
-            {
-                case 0:
-                    at = 1;
-                    break;
-                case 1:
-                case 2:
-                    at = 2;
-                    break;
-                case 3:
-                    at = 3;
-                    break;
-                case 4:
-                    at = 4;
-                    break;
-            }
-
-            if (ps.moveDt < 0f)
-            {
-                ps.moveDt += dt;
-                continue;
-            }
-            if (ps.behave == 1)
-            {
-                // go
-                float r = ps.moveDt / _moveDt;
-                if (r < moveRate)
-                    ps.pos = Math.linear(r / moveRate, peopleInOut[0], peopleInOut[1]);
-                else
-                {
-                    ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[at]);
-                    ps.curPos = peopleInOut[at];
-                }
-
-                ps.moveDt += dt;
-                if (ps.moveDt > _moveDt)
-                    ps.behave = 3;
-                else
-                {
-                    endOfGo = false;
-                }
-            }
-            else if (ps.behave == 2)
-            {
-                // back
-
-                float r = ps.moveDt / _moveDt;
-                if (r < moveRate)
-                    ps.pos = Math.linear(r / moveRate, ps.curPos, peopleInOut[1]);
-                else
-                {
-                    ps.pos = Math.linear((r - moveRate) / (1f - moveRate), peopleInOut[1], peopleInOut[0]);
-                    ps.curPos = peopleInOut[0];
-                }
-
-                ps.moveDt += dt;
-                if (ps.moveDt > _moveDt)
-                    ps.behave = 0;
-                else
-                {
-                    endOfBack = false;
-                }
-            }
-        }
-
-        if (methodPeople != null)
-        {
-            if (endOfGo && endOfBack)
-            {
-                methodPeople();
-                methodPeople = null;
-            }
-        }
-    }
-
-    void loadJobless()
-    {
-        jobdt = 0.5f;
-        int jobnum = playerEvent.joblessNum;
-        for (int i = 0; i < jobnum; i++)
-        {
-            PeopleState ps = playerEvent.pState[playerEvent.jobless[i]];
-
-            float x = ps.pos.x + (Math.random(-1, 1) * 50) + (Math.random(0, 1) * psize.width);
-            float y = ps.pos.y + (Math.random(-1, 1) * 50) + (Math.random(0, 1) * psize.height);
-            if (x > 0 && x < MainCamera.devWidth)
-                ps.nextPos.x = x;
-            if (y > 0 && y < MainCamera.devHeight)
-                ps.nextPos.y = y;
-            ps.moveDt = -0.2f;
-        }
-    }
-
-    float jobdt;
-    void drawJobless(float dt)
-    {
-        int jobnum = playerEvent.joblessNum;
-
-        for (int i = 0; i < jobnum; i++)
-        {
-            PeopleState ps = playerEvent.pState[playerEvent.jobless[i]];
+		for (int i = 0; i < jobnum; i++)
+		{
+			PeopleState ps = playerEvent.pState[playerEvent.jobless[i]];
 #if true
-            if (ps.behave != 3)
-                break;
+			if (ps.behave != 3)
+				break;
 
-            float speed = 50f * dt;
-            if (ps.curPos != ps.nextPos)
-            {
-                if (ps.curPos.x < ps.nextPos.x)
-                {
-                    ps.curPos.x += speed;
-                    if (ps.curPos.x > ps.nextPos.x)
-                        ps.curPos.x = ps.nextPos.x;
-                }
-                else if (ps.curPos.x > ps.nextPos.x)
-                {
-                    ps.curPos.x -= speed;
-                    if (ps.curPos.x < ps.nextPos.x)
-                        ps.curPos.x = ps.nextPos.x;
-                }
-                if (ps.curPos.y < ps.nextPos.y)
-                {
-                    ps.curPos.y += speed;
-                    if (ps.curPos.y > ps.nextPos.y)
-                        ps.curPos.y = ps.nextPos.y;
-                }
-                else if (ps.curPos.y > ps.nextPos.y)
-                {
-                    ps.curPos.y -= speed;
-                    if (ps.curPos.y < ps.nextPos.y)
-                        ps.curPos.y = ps.nextPos.y;
-                }
-                ps.pos = ps.curPos;
-            }
-            else
-            {
-                jobdt += dt;
-                if (jobdt > 2.0f)
-                {
-                    jobdt = 0f;
-                    ps.nextPos = ps.curPos;
-                    ps.nextPos.x += -50 + Math.random(0, 100);
-                    ps.nextPos.y += -50 + Math.random(0, 100);
-                }
-            }
+			float speed = 50f * dt;
+			if (ps.curPos != ps.nextPos)
+			{
+				if (ps.curPos.x < ps.nextPos.x)
+				{
+					ps.curPos.x += speed;
+					if (ps.curPos.x > ps.nextPos.x)
+						ps.curPos.x = ps.nextPos.x;
+				}
+				else if (ps.curPos.x > ps.nextPos.x)
+				{
+					ps.curPos.x -= speed;
+					if (ps.curPos.x < ps.nextPos.x)
+						ps.curPos.x = ps.nextPos.x;
+				}
+				if (ps.curPos.y < ps.nextPos.y)
+				{
+					ps.curPos.y += speed;
+					if (ps.curPos.y > ps.nextPos.y)
+						ps.curPos.y = ps.nextPos.y;
+				}
+				else if (ps.curPos.y > ps.nextPos.y)
+				{
+					ps.curPos.y -= speed;
+					if (ps.curPos.y < ps.nextPos.y)
+						ps.curPos.y = ps.nextPos.y;
+				}
+				ps.pos = ps.curPos;
+			}
+			else
+			{
+				jobdt += dt;
+				if (jobdt > 2.0f)
+				{
+					jobdt = 0f;
+					ps.nextPos = ps.curPos;
+					ps.nextPos.x += -50 + Math.random(0, 100);
+					ps.nextPos.y += -50 + Math.random(0, 100);
+				}
+			}
 #else
 			jobdt += dt;
 			if (ps.behave != 3)
@@ -509,66 +541,66 @@ public class Proc : gGUI
 
 			ps.moveDt += dt;
 #endif
-        }
-    }
+		}
+	}
 
 
-    //=======================================================
-    // popTop Resource info
-    //=======================================================
-    iPopup popTop = null;
-    iStrTex stPopTop;
+	//=======================================================
+	// popTop Resource info
+	//=======================================================
+	iPopup popTop = null;
+	iStrTex stPopTop;
 
-    iImage imgPopTopBtn;
-    iStrTex[] stPopTopBtn;
+	iImage imgPopTopBtn;
+	iStrTex[] stPopTopBtn;
 
-    void createPopTop()
-    {
-        iPopup pop = new iPopup();
-        iImage img = new iImage();
-        iStrTex st = new iStrTex(methodStPopTop, MainCamera.devWidth, 60);
-        st.setString("0");
-        img.add(st.tex);
-        pop.add(img);
-        stPopTop = st;
+	void createPopTop()
+	{
+		iPopup pop = new iPopup();
+		iImage img = new iImage();
+		iStrTex st = new iStrTex(methodStPopTop, MainCamera.devWidth, 60);
+		st.setString("0");
+		img.add(st.tex);
+		pop.add(img);
+		stPopTop = st;
 
-        imgPopTopBtn = new iImage();
-        stPopTopBtn = new iStrTex[2];
+		imgPopTopBtn = new iImage();
+		stPopTopBtn = new iStrTex[2];
 
-        img = new iImage();
-        for (int j = 0; j < 2; j++)
-        {
-                st = new iStrTex(methodStPopTopBtn, 50, 50);
-                st.setString(j + "\n" + " < ");
-          
-            img.add(st.tex);
+		img = new iImage();
+		for (int j = 0; j < 2; j++)
+		{
+			st = new iStrTex(methodStPopTopBtn, 50, 50);
+			st.setString(j + "\n" + " < ");
 
-            stPopTopBtn[j] = st;
-        }
+			img.add(st.tex);
 
-        img.position = new iPoint(MainCamera.devWidth - 100, 5);
+			stPopTopBtn[j] = st;
+		}
 
-        imgPopTopBtn = img;
+		img.position = new iPoint(MainCamera.devWidth - 100, 5);
 
-        pop.style = iPopupStyle.move;
-        pop.openPoint = new iPoint(0, -60);
-        pop.closePoint = new iPoint(0, 0);
-        pop._aniDt = 0.5f;
-        popTop = pop;
-    }
-    void methodStPopTopBtn(iStrTex st)
-    {
-        string[] strs = st.str.Split("\n");
-        string s = strs[1];
+		imgPopTopBtn = img;
 
-        setRGBA(1, 1, 1, 1);
-        fillRect(0, 0, 50, 50);
+		pop.style = iPopupStyle.move;
+		pop.openPoint = new iPoint(0, -60);
+		pop.closePoint = new iPoint(0, 0);
+		pop._aniDt = 0.5f;
+		popTop = pop;
+	}
+	void methodStPopTopBtn(iStrTex st)
+	{
+		string[] strs = st.str.Split("\n");
+		string s = strs[1];
 
-        setStringRGBA(0, 0, 0, 1);
-        drawString(s, new iPoint(25, 25), VCENTER | HCENTER);
-    }
+		setRGBA(1, 1, 1, 1);
+		fillRect(0, 0, 50, 50);
 
-    void drawPopTop(float dt)
+		setStringRGBA(0, 0, 0, 1);
+		drawString(s, new iPoint(25, 25), VCENTER | HCENTER);
+	}
+
+	void drawPopTop(float dt)
 	{
 		Storage sCheck = playerEvent.storage;
 		for (int i = 0; i < 6; i++)
@@ -583,40 +615,40 @@ public class Proc : gGUI
 		if (!popTop.bShow)
 			return false;
 
-        iPoint p;
-        p = popTop.closePoint;
-        iSize s = new iSize(0, 0);
+		iPoint p;
+		p = popTop.closePoint;
+		iSize s = new iSize(0, 0);
 
-        if (stat == iKeystate.Began)
+		if (stat == iKeystate.Began)
 		{
-            if (imgPopTopBtn.touchRect(p, s).containPoint(point))
-            {
-                popTop.selected = 1;
-            }
-        }
-        else if (stat == iKeystate.Moved)
-        {
-            if (!imgPopTopBtn.touchRect(p, s).containPoint(point))
-            {
-                popTop.selected = -1;
-            }
-        }
-        else if (stat == iKeystate.Ended)
-        {
-            if(popTop.selected ==1)
-            {
-                popTop.selected = -1;
-                
-                popPerson.show(popPerson.bShow?false:true);
-                
-            }
-        }
-            return false;
+			if (imgPopTopBtn.touchRect(p, s).containPoint(point))
+			{
+				popTop.selected = 1;
+			}
+		}
+		else if (stat == iKeystate.Moved)
+		{
+			if (!imgPopTopBtn.touchRect(p, s).containPoint(point))
+			{
+				popTop.selected = -1;
+			}
+		}
+		else if (stat == iKeystate.Ended)
+		{
+			if (popTop.selected == 1)
+			{
+				popTop.selected = -1;
+
+				popPerson.show(popPerson.bShow ? false : true);
+
+			}
+		}
+		return false;
 	}
 
 	public void methodStPopTop(iStrTex st)
 	{
-		setRGBA(0, 0, 0, 0.8f);
+		setRGBA(0, 0, 0, 0.6f);
 		fillRect(0, 0, MainCamera.devWidth, 60);
 		setRGBA(1, 1, 1, 1);
 		iPoint p = new iPoint(5, 10);
@@ -629,10 +661,10 @@ public class Proc : gGUI
 			drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
 		}
 
-            imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
-            imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
+		imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
+		imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
 
-    }
+	}
 
 	iRect checkScrollbar(int barW, int barH)
 	{
@@ -788,7 +820,7 @@ public class Proc : gGUI
 
 	void drawPopPerson(float dt)
 	{
-		if (popNewDay.bShow || popEvent.bShow)
+		if (pe.bShowNewDay() || popEvent.bShow)
 		{
 			popPerson.show(false);
 			return;
@@ -872,8 +904,11 @@ public class Proc : gGUI
 					{
 						if (popPerson.selected != -1)
 						{
-							if (!popNewDay.bShow)
+							if (!pe.bShowNewDay())
+							{
+								originalJob = playerEvent.pState[select].job;
 								popPersonInfo.show(true);
+							}
 
 							popPersonInfo.openPoint = imgPersonBtn[popPerson.selected].center(p);
 						}
@@ -886,7 +921,7 @@ public class Proc : gGUI
 
 	bool wheelPopPerson(iPoint point)
 	{
-		if (popNewDay.bShow || popPerson.state == iPopupState.close)
+		if (pe.bShowNewDay() || popPerson.state == iPopupState.close)
 			return false;
 
 		//if (playerEvent.storage.getStorage(0) < 9)
@@ -1038,7 +1073,7 @@ public class Proc : gGUI
 
 	void drawPopInfo(float dt)
 	{
-		if (popNewDay.bShow)
+		if (pe.bShowNewDay())
 		{
 			popPerson.selected = -1;
 			return;
@@ -1068,7 +1103,7 @@ public class Proc : gGUI
 			// display....작업이동중;;;;
 		}
 	}
-
+	int originalJob = 0;
 	bool keyPopInfo(iKeystate stat, iPoint point)
 	{
 		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
@@ -1098,6 +1133,7 @@ public class Proc : gGUI
 			case iKeystate.Ended:
 				if (popPersonInfo.selected != -1)
 				{
+					PeopleState ps = playerEvent.pState[select];
 					if (popPersonInfo.selected == 0)
 					{
 						popPerson.selected = -1;
@@ -1106,12 +1142,10 @@ public class Proc : gGUI
 						popPersonInfo.show(false);
 					}
 					else if (popPersonInfo.selected == 1)
-					{
-						PeopleState ps = playerEvent.pState[select];
-						newJob = ps.job - 1;
+					{						
+						newJob = ps.job--;
 						if (newJob < 0)
 							newJob = 4;
-						//ps.jobUpdate(newJob);
 						methodPeople = cbChangeJob;
 						if (ps.behave != 2 && ps.behave != 0)
 						{
@@ -1120,9 +1154,8 @@ public class Proc : gGUI
 						}
 					}
 					else if (popPersonInfo.selected == 2)
-					{
-						PeopleState ps = playerEvent.pState[select];
-						newJob = ps.job + 1;
+					{						
+						newJob = ps.job++;
 						if (newJob > 4)
 							newJob = 0;
 						methodPeople = cbChangeJob;
@@ -1132,191 +1165,10 @@ public class Proc : gGUI
 							ps.moveDt = -0.2f;
 						}
 					}
-
 					popPersonInfo.selected = -1;
 				}
 				break;
 		}
-		return true;
-	}
-
-	// ===========================
-	// New Day Report
-	// ==========================
-	iPopup popNewDay = null;
-
-	iStrTex stNewDay;
-	iImage imgNewDayBtn;
-	iStrTex[] stNewDayBtn;
-	int newDayNum;
-	float newDayDt;
-	void createNewDay()//새로운 날 ui : 얻은 자원 , 총 자원, 이벤트 요약?
-	{
-		iPopup pop = new iPopup();
-
-		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStNewDay, MainCamera.devWidth - 200, MainCamera.devHeight - 200);
-		st.setString("0");
-		img.add(st.tex);
-		pop.add(img);
-		stNewDay = st;
-		imgNewDayBtn = new iImage();
-		stNewDayBtn = new iStrTex[2];
-        
-		int w = MainCamera.devWidth;
-		pop.style = iPopupStyle.zoom;
-		//pop.methodOpen = closePopNewDay;
-		pop.methodClose = closePopNewDay;
-		pop.methodDrawBefore = drawPopNewDay;
-		pop.openPoint = new iPoint(w / 2, MainCamera.devHeight / 2);
-		pop.closePoint = new iPoint((w - (w - 200)) / 2, 100);
-		pop._aniDt = 0.5f;
-		popNewDay = pop;
-
-		newDayNum = 0;
-		newDayDt = -0.5f;
-	}
-
-	void closePopNewDay(iPopup pop)
-	{
-		newDayNum = 0;
-		newDayDt = -0.5f;
-		stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
-	}
-
-	//void methodStNewDay
-
-	void drawPopNewDay(float dt, iPopup pop, iPoint zero)
-	{
-		if (newDayNum < 4)
-		{
-			newDayDt += dt;
-			if (newDayDt > 0.5f)
-			{
-				newDayDt = 0.0f;
-				newDayNum++;
-				stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
-			}
-		}
-	}
-
-	void methodStNewDay(iStrTex st)
-	{
-		setRGBA(0f, 0f, 0f, 0.8f);
-		int w = MainCamera.devWidth - 200;
-		int h = MainCamera.devHeight - 200;
-		fillRect(0, 0, w, h);
-		setRGBA(0.3f, 0.3f, 0.3f, 1f);
-		fillRect(10, 10, w - 20, h - 20);
-		setRGBA(1, 1, 1, 1f);
-		setStringRGBA(1, 1, 1, 1);
-		float size = getStringSize();
-		setStringSize(80);
-		//playerEvent.day;
-		int strData = playerEvent.day;
-		drawString(strData + "일차", w / 2, h / 2 - 150, VCENTER | HCENTER);
-		setStringSize(30);
-
-		string[] texname = new string[] { "people", "food", "lab", "map" };
-		string[] strs = st.str.Split(" ");
-		int n = int.Parse(strs[0]);
-		for (int i = 0; i < n; i++)
-		{
-			//fillRect(w / 4 * (i + 1) - 150, h / 2 + 100, 100,100);
-			setStringRGBA(1, 1, 1, 1);
-			//Texture resource = Resources.Load<Texture>(texname[i]);
-
-			iPoint p = new iPoint(w / 4 * (i + 1) - 150, h / 2 + 30);
-			drawImage(Util.createTexture(texname[i]), p, 50.0f / Util.createTexture(texname[i]).width, 50.0f / Util.createTexture(texname[i]).height, VCENTER | HCENTER);
-
-			drawString(playerEvent.storage.getStorageText(i) + "", w / 4 * (i + 1) - 150, h / 2 + 100, VCENTER | HCENTER);
-
-			setStringRGBA(0, 1, 0, 1);
-			if (i == 0)
-			{
-				drawString("+ " + playerEvent.plusItem.people, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
-				setStringRGBA(1, 0, 0, 1);
-				drawString("- " + playerEvent.minusItem.people, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
-			}
-			else if (i == 1)
-			{
-				drawString("+ " + playerEvent.plusItem.food, w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
-				setStringRGBA(1, 0, 0, 1);
-				drawString("- " + playerEvent.minusItem.food, w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
-			}
-			else if (i == 2)
-			{
-				drawString("+ " + playerEvent.plusItem.labExp + " exp", w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
-				setStringRGBA(1, 1, 1, 1);
-				drawString(playerEvent.storage.getStorageText(4), w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
-			}
-			else if (i == 3)
-			{
-				drawString("+ " + playerEvent.plusItem.mapExp + " exp", w / 4 * (i + 1) - 150, h / 2 + 150, VCENTER | HCENTER);
-				setStringRGBA(1, 1, 1, 1);
-				drawString(playerEvent.storage.getStorageText(5), w / 4 * (i + 1) - 150, h / 2 + 200, VCENTER | HCENTER);
-			}
-		}
-
-		setStringSize(size);
-	}
-
-	void drawNewDay(float dt)
-	{
-		stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
-		popNewDay.paint(dt);
-	}
-
-	bool keyNewDay(iKeystate stat, iPoint point)
-	{
-		if (popNewDay.bShow == false || popNewDay.state == iPopupState.close)
-			return false;
-
-		switch (stat)
-		{
-			case iKeystate.Began:
-				break;
-
-			case iKeystate.Moved:
-
-				break;
-
-			case iKeystate.Ended:
-				if (newDayNum < 4)
-				{
-					newDayNum = 4;
-				}
-				else
-				{
-					newDayOpen = false;
-					playerEvent.newday = false;
-					playerEvent.initDay();
-					popNewDay.show(false);
-				}
-				break;
-		}
-
-		return true;
-	}
-	bool keyboardNewDay(iKeystate stat, iKeyboard key)
-	{
-		if (!popNewDay.bShow || popNewDay.state == iPopupState.close)
-			return false;
-		if (stat == iKeystate.Began && key == iKeyboard.Space)
-		{
-			if (newDayNum < 4)
-			{
-				newDayNum = 4;
-			}
-			else
-			{
-				newDayOpen = false;
-				playerEvent.newday = false;
-				playerEvent.initDay();
-				popNewDay.show(false);
-			}
-		}
-		eventMove = 0.0f;
 		return true;
 	}
 
@@ -1403,10 +1255,10 @@ public class Proc : gGUI
 
 	void drawPopEvent(float dt)
 	{
-		if (popEvent.bShow && eventMove < 0.3f)
-		{
-			eventMove += dt;
-		}
+		//if (popEvent.bShow && eventMove < 0.3f)
+		//{
+		//	eventMove += dt;
+		//}
 		stPopEvent.setString(popEvent.selected + "");
 		popEvent.paint(dt);
 	}
@@ -1489,7 +1341,7 @@ public class Proc : gGUI
 	void cbPeopleBack()
 	{
 		popPerson.show(false);
-		popNewDay.show(true);
+		pe.showNewDay(true);
 	}
 
 	float eventMove = 0.5f;
@@ -1497,170 +1349,70 @@ public class Proc : gGUI
 	{
 		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
-		if (eventMove < 0.3f)
-		{
-			return true;
-		}
-		eventMove = 0.0f;
+		//if (eventMove < 0.3f)
+		//{
+		//	return true;
+		//}
+		//eventMove = 0.0f;
 		int eventSelect = popEvent.selected;
 
-		if (key == iKeyboard.Down)
+		if (stat == iKeystate.Ended)
 		{
-			eventSelect++;
-			if (eventSelect > 3)
-				eventSelect = 3;
-		}
-		else if (key == iKeyboard.Up)
-		{
-			eventSelect--;
-			if (eventSelect < 0)
-				eventSelect = 0;
-		}
-		else if (key == iKeyboard.Space)
-		{
-			eventMove = 0.5f;
-			popEvent.openPoint = new iPoint(pPos.x, pPos.y);
-			if (popEvent.selected != -1)
+			if (key == iKeyboard.Down)
 			{
-				switch (popEvent.selected)
-				{
-					case 0:
-						playerEvent.doEvent(Event.DoEvent.Adventure);
-						setPeople(1, cbPeopleGo);
-						break;
-					case 1:
-						playerEvent.doEvent(Event.DoEvent.Hunt);
-						setPeople(1, cbPeopleGo);
-						break;
-					case 2:
-						playerEvent.doEvent(Event.DoEvent.Research);
-						setPeople(1, cbPeopleGo);
-						break;
-					case 3:
-						playerEvent.doEvent(Event.DoEvent.SkipDay);
-
-						break;
-				}
-				eventSelect = -1;
-				popEvent.selected = -1;
-				if (playerEvent.newday)
-					setPeople(2, cbPeopleBack);
-
-				popEvent.openPoint = new iPoint(pPos.x, pPos.y);
-				popEvent.show(false);
+				eventSelect++;
+				if (eventSelect > 3)
+					eventSelect = 3;
 			}
-		}
-		else if (key == iKeyboard.ESC)
-		{
-			popEvent.show(false);
-			popEvent.selected = -1;
+			else if (key == iKeyboard.Up)
+			{
+				eventSelect--;
+				if (eventSelect < 0)
+					eventSelect = 0;
+			}
+			else if (key == iKeyboard.Space)
+			{
+				//eventMove = 0.5f;
+				popEvent.openPoint = new iPoint(pPos.x, pPos.y);
+				if (popEvent.selected != -1)
+				{
+					switch (popEvent.selected)
+					{
+						case 0:
+							playerEvent.doEvent(Event.DoEvent.Adventure);
+							setPeople(1, cbPeopleGo);
+							break;
+						case 1:
+							playerEvent.doEvent(Event.DoEvent.Hunt);
+							setPeople(1, cbPeopleGo);
+							break;
+						case 2:
+							playerEvent.doEvent(Event.DoEvent.Research);
+							setPeople(1, cbPeopleGo);
+							break;
+						case 3:
+							playerEvent.doEvent(Event.DoEvent.SkipDay);
+							break;
+					}
+					eventSelect = -1;
+					popEvent.selected = -1;
+					if (playerEvent.newday)
+						setPeople(2, cbPeopleBack);
+
+					popEvent.openPoint = new iPoint(pPos.x, pPos.y);
+					popEvent.show(false);
+				}
+			}
+			else if (key == iKeyboard.ESC)
+			{
+				popEvent.show(false);
+				popEvent.selected = -1;
+			}
 		}
 
 		popEvent.selected = eventSelect;
 		return true;
 	}
-
-    //GameOver
-    iPopup popGameOver = null;
-    iStrTex stPopGameOver;
-
-    iImage[] imgGameOverBtn;
-    iStrTex[][] stGameOverBtn;
-
-    void loadGameOver()
-    {
-        iPopup pop = new iPopup();
-        iImage img = new iImage();
-        iStrTex st = new iStrTex(methodStPopGameOver, 500, 500);
-        st.setString("0");
-        img.add(st.tex);
-        pop.add(img);
-        stPopGameOver = st;
-
-        imgGameOverBtn = new iImage[2];
-        stGameOverBtn = new iStrTex[2][];
-
-        for (int i = 0; i < 2; i++)
-        {
-            stGameOverBtn[i] = new iStrTex[2];
-
-            img = new iImage();
-            for (int j = 0; j < 2; j++)
-            {
-                //닫기 : 0
-                if (i == 0)
-                {
-                    st = new iStrTex(methodStGameOverBtn, 300, 50);
-                    st.setString(j + "\n" + " 게임 다시하기 " + "\n" + i);
-                }
-                //직업 바꾸기 : 1
-                else if (i == 1)
-                {
-                    st = new iStrTex(methodStGameOverBtn, 300, 50);
-                    st.setString(j + "\n" + "타이틀로" + "\n" + i);
-                }
-                img.add(st.tex);
-
-                stGameOverBtn[i][j] = st;
-            }
-            if (i == 0)
-                img.position = new iPoint(MainCamera.devWidth/2, 100);
-            else if (i == 1)
-                img.position = new iPoint(MainCamera.devWidth / 2, 200);
-
-            imgGameOverBtn[i] = img;
-        }
-
-        pop.style = iPopupStyle.zoom;
-        pop.openPoint = new iPoint(MainCamera.devWidth/2, MainCamera.devHeight/2);
-        pop.closePoint = new iPoint(MainCamera.devWidth / 2 - 250, MainCamera.devHeight / 2 - 250);
-
-        pop._aniDt = 0.2f;
-        popGameOver = pop;
-    }
-
-    void methodStPopGameOver(iStrTex st)
-    {
-        //300 500
-        setRGBA(1, 1, 1, 1);
-        setRGBA(0.5f, 0.5f, 0.5f, 1);
-        fillRect(0, 0, 500, 500);
-        setStringRGBA(1, 1, 1, 1);
-        drawString("GameOver", new iPoint(0, 0), VCENTER|HCENTER);
-
-    }
-
-    void methodStGameOverBtn(iStrTex st)
-    {
-        string[] strs = st.str.Split("\n");
-        string s = strs[0];
-
-        setRGBA(1, 1, 1, 1);
-        fillRect(0, 0, 300, 50);
-
-        setStringRGBA(0, 0, 0, 1);
-        drawString(s, new iPoint(150, 50), VCENTER | HCENTER);
-    }
-
-    void drawGameOver(float dt)
-    {
-        stPopGameOver.setString(popGameOver.selected + "");
-        popGameOver.paint(dt);
-    }
-
-    bool keyGameOver(iKeystate stat, iPoint point)
-    {
-        if(!popGameOver.bShow)
-            return false;
-        return true;
-    }
-
-    bool keyboardGameOver(iKeystate stat, iKeyboard key)
-    {
-        if (!popGameOver.bShow)
-            return false;
-        return true;
-    }
 
     class DisplayInfo
 	{
@@ -1671,20 +1423,6 @@ public class Proc : gGUI
 
 		public virtual bool paint(float dt) { return false; }
 	}
-
-	class DisplayDmg : DisplayInfo
-	{
-		public DisplayDmg(iStrTex.MethodSt m)
-		{
-
-		}
-
-		public override bool paint(float dt)
-		{
-			return false;
-		}
-
-    }
 
 	void methodDisplayInfo(iStrTex st)
 	{

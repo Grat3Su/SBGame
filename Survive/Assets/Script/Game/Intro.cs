@@ -1,4 +1,6 @@
 using STD;
+using System.Data;
+using UnityEditor.Timeline;
 using UnityEngine;
 
 public class Intro : gGUI
@@ -29,6 +31,7 @@ public class Intro : gGUI
 
 		loadTitle();
 		loadMenu();
+		loadSetting();
 		loadH2P();
 	}
 
@@ -42,11 +45,15 @@ public class Intro : gGUI
 		drawBG();
 		drawTitle(dt);
 		drawMenu(dt);
+		drawSetting(dt);
 		drawH2P(dt);
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
+		if (keySetting(stat, point))
+			return false ;
+
         if (stat == iKeystate.Began)
         {
             Debug.Log(point.x + ", " + point.y);
@@ -318,11 +325,14 @@ public class Intro : gGUI
 						break;
 					case 2:
 						Debug.Log("option");
-
+						popSetting.show(true);
 						break;
 					case 3:
 						Debug.Log("quit");
 						Application.Quit();
+#if UNITY_EDITOR
+						UnityEditor.EditorApplication.isPlaying = false;
+#endif
 						break;
 				}
 				popMenu.selected = -1;
@@ -330,6 +340,61 @@ public class Intro : gGUI
 
 		}
 		return false;
+	}
+
+	iPopup popSetting = null;
+	iStrTex stSetting;
+	void loadSetting()
+	{
+		iPopup pop = new iPopup();
+
+		iImage img = new iImage();
+		iStrTex st = new iStrTex(methodStSetting, 500, MainCamera.devHeight - 100);
+		st.setString("0");
+		img.add(st.tex);
+		pop.add(img);
+		stSetting = st;
+
+		pop.style = iPopupStyle.zoom;
+		pop.openPoint = new iPoint(800, 500);
+		pop.closePoint = new iPoint((MainCamera.devWidth - 500) / 2, 50);
+		pop._aniDt = 0.5f;
+		popSetting = pop;
+	}
+	
+	void methodStSetting(iStrTex st)
+	{
+		setRGBA(1, 1, 1, 1);
+		fillRect(0, 0, 500, MainCamera.devHeight - 100);
+	}
+
+	void drawSetting(float dt)
+	{
+		popSetting.paint(dt);
+	}
+
+	bool keySetting(iKeystate stat, iPoint point)
+	{
+		if(!popSetting.bShow)
+			return false;
+		
+		iPoint p;
+		p = popH2P.closePoint;
+		iSize s = new iSize(0, 0);
+
+		if (stat == iKeystate.Began)
+		{
+			popSetting.show(false);
+		}
+		else if(stat == iKeystate.Moved)
+		{
+
+		}
+		else if(stat == iKeystate.Ended)
+		{
+
+		}
+		return true;
 	}
 
 	iPopup popH2P = null;
@@ -379,8 +444,6 @@ public class Intro : gGUI
 
 	void methodStH2P(iStrTex st)
 	{
-		
-
 		setRGBA(1, 1, 1, 1);
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
 
@@ -389,15 +452,25 @@ public class Intro : gGUI
 		drawString(""+pageIdx, 250, 300, VCENTER | HCENTER);
 		if( pageIdx==0 )
 		{
-
+			// Á¦ÀÛ È¯°æ
+			// Unity, ------
+			// Á¦ÀÛ ±â°£
+			// ......
+			// Credits
+			// Only me
 		}
 		else if (pageIdx == 1)
 		{
-
+			// Language
+			// C# >> C++ >= Java
+			// Engine
+			// Unity, Cocos2Dx, Unreal, 
 		}
 		else if (pageIdx == 2)
 		{
-
+			// Me ?
+			// Vision....
+			//
 		}
 
 		for (int i = 0; i < 3; i++)
@@ -430,6 +503,11 @@ public class Intro : gGUI
                 else if (pageIdx == 1)
                 {
                     if (index == 2)
+                        colorSet = 0.3f;
+                }
+                else if (pageIdx == 2)
+                {
+                    if (index == 3)
                         colorSet = 0.3f;
                 }
             }
@@ -506,7 +584,7 @@ public class Intro : gGUI
 			}
 			else if(popH2P.selected == 2)
 			{
-				if (pageIdx != 1)
+				if (pageIdx != 2)
 					pageIdx++;
 				Debug.Log("page : " + pageIdx);
 				//´ÙÀ½ ÀåÀ¸·Î
@@ -515,3 +593,4 @@ public class Intro : gGUI
 		return true;
 	}
 }
+//Å°º¸µå µÇ°Ô ºÎµå·´°Ô Àß ´­¸°´Ù., ¹«Á¢Á¡ Àû­w¤¡?
