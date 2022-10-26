@@ -118,10 +118,10 @@ public class Proc : gGUI
 	SpriteRenderer[] srPeople;
 	void loadBg()
 	{
-		srPeople = new SpriteRenderer[100];
-		for(int i=0; i < people; i++)
-			srPeople[i] = playerEvent.pState[i].gameObject.GetComponent<SpriteRenderer>();
-
+		//srPeople = new SpriteRenderer[100];
+		//for(int i=0; i < people; i++)
+		//	srPeople[i] = playerEvent.pState[i].gameObject.GetComponent<SpriteRenderer>();
+        //
 		//srPeople[0].sortingOrder = 0;
 	}
 
@@ -907,7 +907,9 @@ public class Proc : gGUI
 							if (!pe.bShowNewDay())
 							{
 								originalJob = playerEvent.pState[select].job;
-								popPersonInfo.show(true);
+                                newJob = playerEvent.pState[select].job;
+
+                                popPersonInfo.show(true);
 							}
 
 							popPersonInfo.openPoint = imgPersonBtn[popPerson.selected].center(p);
@@ -1026,7 +1028,8 @@ public class Proc : gGUI
 			fillRect(new Rect(p.x, p.y, 300, 300));
 			int jobindex = playerEvent.pState[select].job;
 
-			drawImage(Util.createTexture(texname[jobindex]), p, 300.0f / Util.createTexture(texname[jobindex]).width, 300.0f / Util.createTexture(texname[jobindex]).height, LEFT | HCENTER);
+            //drawImage(Util.createTexture(texname[jobindex]), p, 300.0f / Util.createTexture(texname[jobindex]).width, 300.0f / Util.createTexture(texname[jobindex]).height, LEFT | HCENTER);
+            drawImage(Util.createTexture(texname[newJob]), p, 300.0f / Util.createTexture(texname[jobindex]).width, 300.0f / Util.createTexture(texname[jobindex]).height, LEFT | HCENTER);
 			PeopleState ps = playerEvent.pState[select];
 			drawString("이름 : " + ps.name, new iPoint(450, 100), LEFT | HCENTER);
 			drawString("레벨 : " + ps.jobLevel[ps.job], new iPoint(450, 150), LEFT | HCENTER);
@@ -1034,7 +1037,7 @@ public class Proc : gGUI
 			if (ps.job == 0 && ps.behave == 3)
 				s = stateTxt[0];
 			drawString("동작 : " + s, new iPoint(450, 200), LEFT | HCENTER);
-			drawString("직업 : " + btnJobTxt[ps.job], new iPoint(450, 250), LEFT | HCENTER);
+			drawString("직업 : " + btnJobTxt[newJob], new iPoint(450, 250), LEFT | HCENTER);
 		}
 
 		for (int i = 0; i < 3; i++)
@@ -1139,36 +1142,35 @@ public class Proc : gGUI
 						popPerson.selected = -1;
 						select = -1;
 
-						popPersonInfo.show(false);
+                        if (ps.job != newJob)
+                        {
+                            if (ps.behave != 2 && ps.behave != 0)
+                            {
+                                ps.behave = 2;
+                                ps.moveDt = -0.2f;
+                            }
+                            methodPeople = cbChangeJob;
+                        }
+                        popPersonInfo.show(false);
 					}
 					else if (popPersonInfo.selected == 1)
 					{						
-						newJob = ps.job--;
+						newJob -= 1;
 						if (newJob < 0)
 							newJob = 4;
-						methodPeople = cbChangeJob;
-						if (ps.behave != 2 && ps.behave != 0)
-						{
-							ps.behave = 2;
-							ps.moveDt = -0.2f;
-						}
+						
 					}
 					else if (popPersonInfo.selected == 2)
 					{						
-						newJob = ps.job++;
+						newJob += 1;
 						if (newJob > 4)
 							newJob = 0;
-						methodPeople = cbChangeJob;
-						if (ps.behave != 2 && ps.behave != 0)
-						{
-							ps.behave = 2;
-							ps.moveDt = -0.2f;
-						}
 					}
 					popPersonInfo.selected = -1;
 				}
 				break;
 		}
+        //Debug.Log(newJob);
 		return true;
 	}
 

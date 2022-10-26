@@ -87,10 +87,6 @@ public class Intro : gGUI
 #endif
 		img.add(st.tex);
 		pop.add(img);
-
-		//splitNum = 0;
-		//titledt = 1.0f;
-		//st.setString(splitNum + " S U R V I V E");
 		title_dt = 0.5f;
 		stTitle = st;
 
@@ -447,31 +443,53 @@ public class Intro : gGUI
 		setRGBA(1, 1, 1, 1);
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
 
-		setStringSize(50);
-		setStringRGBA(1, 0, 0, 1);
-		drawString(""+pageIdx, 250, 300, VCENTER | HCENTER);
-		if( pageIdx==0 )
+		setStringRGBA(0, 0, 0, 1);
+		drawString(""+(pageIdx+1), 250, st.tex.tex.height - 50, VCENTER | HCENTER);
+        setStringSize(50);
+        if ( pageIdx==0 )
 		{
-			// 제작 환경
-			// Unity, ------
-			// 제작 기간
-			// ......
-			// Credits
-			// Only me
-		}
+            // Game
+            drawString("How to Play?", new iPoint(250, 50), VCENTER | HCENTER);
+
+            setStringSize(30);
+            drawString("생존자들이 모두 사망하면", new iPoint(250, 100), VCENTER | HCENTER);
+            drawString("게임이 끝납니다.", new iPoint(250, 150), VCENTER | HCENTER);
+            drawString("생존자들의 직업,", new iPoint(250, 200), VCENTER | HCENTER);
+            drawString("플레이어의 선택을", new iPoint(250, 250), VCENTER | HCENTER);
+            drawString("적절히 분배해서 생존하세요!", new iPoint(250, 300), VCENTER | HCENTER);
+        }
 		else if (pageIdx == 1)
 		{
-			// Language
-			// C# >> C++ >= Java
-			// Engine
-			// Unity, Cocos2Dx, Unreal, 
-		}
+            //Skill
+            drawString("제작환경", new iPoint(250, 50), VCENTER | HCENTER);
+            drawString("할수있는 언어", new iPoint(250, 200), VCENTER | HCENTER);
+            drawString("쓸 수 있는 엔진", new iPoint(250, 300), VCENTER | HCENTER);
+
+            setStringSize(30);
+            drawString("Unity", new iPoint(250, 100), VCENTER | HCENTER);
+            drawString("제작 기간 : 3개월", new iPoint(250, 150), VCENTER | HCENTER);
+
+            drawString("C / C++ / C#", new iPoint(250, 250), VCENTER | HCENTER);
+            drawString("Unity / Unreal / Cocos-2dx", new iPoint(250, 350), VCENTER | HCENTER);
+        }
 		else if (pageIdx == 2)
 		{
-			// Me ?
-			// Vision....
-			//
-		}
+            // Me ?
+            //drawString("제작자", new iPoint(250, 100), VCENTER | HCENTER);
+            //drawString("Su", new iPoint(250, 150), VCENTER | HCENTER);
+            setStringSize(30);
+
+            drawString("이 작품은 7월 한국에서 부터 시작되어", new iPoint(250, 100), VCENTER | HCENTER);
+            drawString("11월까지 만들어진 작품으로", new iPoint(250, 150), VCENTER | HCENTER);
+            drawString("어느날 갑자기 심즈가 땡긴 저는 게임을 하다가", new iPoint(250, 200), VCENTER | HCENTER);
+            drawString("욕구 시스템을 넣은 생존 게임을 만들어보고 싶어졌습니다", new iPoint(250, 250), VCENTER | HCENTER);
+            drawString("그렇게 저는 개발을 시작했고", new iPoint(250, 300), VCENTER | HCENTER);
+            drawString("만들고 보니 욕구 시스템은 사라져 있었습니다", new iPoint(250, 350), VCENTER | HCENTER);
+            drawString("하지만 이것에는 이유가 있었으니..", new iPoint(250, 400), VCENTER | HCENTER);
+            drawString("생존 게임에 대한 레퍼런스를 찾던 중", new iPoint(250, 450), VCENTER | HCENTER);
+            drawString("여러 생존 게임을 하게 되었고", new iPoint(250, 500), VCENTER | HCENTER);
+            drawString("욕구 시스템을 폐기하고 생존에 치중하게 되었기 때문입니다.", new iPoint(250, 550), VCENTER | HCENTER);
+        }
 
 		for (int i = 0; i < 3; i++)
 		{
@@ -498,11 +516,6 @@ public class Intro : gGUI
                 if (pageIdx == 0)
                 {
                     if (index == 1)//isue
-                        colorSet = 0.3f;
-                }
-                else if (pageIdx == 1)
-                {
-                    if (index == 2)
                         colorSet = 0.3f;
                 }
                 else if (pageIdx == 2)
