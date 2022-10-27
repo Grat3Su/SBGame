@@ -24,3 +24,11 @@ public enum iKeyboard
 
 public delegate bool MethodKeyboard(iKeystate stat, iKeyboard key);
 
+public enum iSound
+{
+	ButtonClick,
+	PopUp,
+	Event,
+	NextDay,
+
+}

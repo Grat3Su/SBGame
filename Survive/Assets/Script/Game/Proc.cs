@@ -59,6 +59,11 @@ public class Proc : gGUI
 			free();
 			Main.me.reset("Intro");
 		}
+		else if(pe.reset)
+		{
+			free();
+			Main.me.reset("Proc");
+		}
 	}
 
 	public override void free()
@@ -293,29 +298,6 @@ public class Proc : gGUI
 		setPeople(1, cbPeopleGo);
 	}
 
-	int newJob;
-	void cbChangeJob()
-	{
-		if (select == -1)
-			return;
-		PeopleState ps = playerEvent.pState[select];
-
-		if (ps.job != newJob)
-		{
-			if (ps.job == 0)
-			{
-				playerEvent.joblessNum--;
-				playerEvent.jobless[select] = playerEvent.jobless[playerEvent.joblessNum];
-			}
-			else if (newJob == 0)
-			{
-				playerEvent.jobless[playerEvent.joblessNum] = select;
-				playerEvent.joblessNum++;
-			}
-			ps.jobUpdate(newJob);
-		}
-	}
-
 	void cbPeopleGo()
 	{
 		//popEvent.show(true);
@@ -332,7 +314,7 @@ public class Proc : gGUI
 		for (int i = 0; i < people; i++)
 		{
 			PeopleState ps = playerEvent.pState[i];
-			if ((behave == 1 && ps.behave == 0) || behave == 2)
+			if ((behave == 1 && ps.behave == 0) || (behave == 2 && ps.behave != 0))
 			{
 				ps.behave = behave;// 1 or 2 go or back
 				ps.moveDt = -0.2f * i;
@@ -906,7 +888,6 @@ public class Proc : gGUI
 						{
 							if (!pe.bShowNewDay())
 							{
-								originalJob = playerEvent.pState[select].job;
                                 newJob = playerEvent.pState[select].job;
 
                                 popPersonInfo.show(true);
@@ -1106,7 +1087,30 @@ public class Proc : gGUI
 			// display....작업이동중;;;;
 		}
 	}
-	int originalJob = 0;
+	int newJob;
+	void changeJob()
+	{
+		if (select == -1)
+			return;
+		PeopleState ps = playerEvent.pState[select];
+
+		Debug.Log("cb / new job : " + newJob + "/ job : " + ps.job);
+
+		if (ps.job != newJob)
+		{
+			if (ps.job == 0)
+			{
+				playerEvent.joblessNum--;
+				playerEvent.jobless[select] = playerEvent.jobless[playerEvent.joblessNum];
+			}
+			else if (newJob == 0)
+			{
+				playerEvent.jobless[playerEvent.joblessNum] = select;
+				playerEvent.joblessNum++;
+			}
+			ps.jobUpdate(newJob);
+		}
+	}
 	bool keyPopInfo(iKeystate stat, iPoint point)
 	{
 		if (popPersonInfo.bShow == false || popPersonInfo.state == iPopupState.close)
@@ -1139,18 +1143,18 @@ public class Proc : gGUI
 					PeopleState ps = playerEvent.pState[select];
 					if (popPersonInfo.selected == 0)
 					{
-						popPerson.selected = -1;
-						select = -1;
-
-                        if (ps.job != newJob)
+						Debug.Log("new job : " + newJob + "/ job : " + ps.job);
+						if (ps.job != newJob)
                         {
                             if (ps.behave != 2 && ps.behave != 0)
                             {
                                 ps.behave = 2;
                                 ps.moveDt = -0.2f;
                             }
-                            methodPeople = cbChangeJob;
+							changeJob();
                         }
+						popPerson.selected = -1;
+						select = -1;
                         popPersonInfo.show(false);
 					}
 					else if (popPersonInfo.selected == 1)

@@ -75,9 +75,7 @@ public class ProcEvent
 
 	public bool keyboard(iKeystate stat, iKeyboard key)
 	{
-		if (keyboardGameOver(stat, key))
-			return true;
-		if (keyboardNewDay(stat, key))
+		if (keyboardGameOver(stat, key)||keyboardNewDay(stat, key))
 			return true;
 
 			return false;
@@ -150,12 +148,9 @@ public class ProcEvent
 
 	void methodStNewDay(iStrTex st)
 	{
-
-		iGUI.instance.setRGBA(0f, 0f, 0f, 0.8f);
 		int w = MainCamera.devWidth - 200;
 		int h = MainCamera.devHeight - 200;
-		iGUI.instance.fillRect(0, 0, w, h);
-		iGUI.instance.setRGBA(0.3f, .3f, 0.3f, 1f);
+		iGUI.instance.setRGBA(0.3f, .3f, 0.3f, 0.5f);
 		iGUI.instance.fillRect(10, 10, w - 20, h - 20);
 		iGUI.instance.setRGBA(1, 1, 1, 1f);
 		iGUI.instance.setStringRGBA(1, 1, 1, 1);
@@ -271,7 +266,7 @@ public class ProcEvent
 
 	iImage[] imgGameOverBtn;
 	iStrTex[][] stGameOverBtn;
-
+	public bool reset;
 	void loadGameOver()
 	{
 		iPopup pop = new iPopup();
@@ -325,6 +320,7 @@ public class ProcEvent
 
 		pop._aniDt = 0.2f;
 		popGameOver = pop;
+		reset = false;
 	}
 
 	void methodStPopGameOver(iStrTex st)
@@ -407,8 +403,8 @@ public class ProcEvent
 			{
 				playerEvent.initGame();
 				if (select == 0)
-				{
-					Main.me.reset("Proc");
+				{					
+					reset = true;
 				}
 				else if (select == 1)
 				{

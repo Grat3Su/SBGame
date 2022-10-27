@@ -33,11 +33,26 @@ public class Intro : gGUI
 		loadMenu();
 		loadSetting();
 		loadH2P();
+		loadExit();
+
+		MethodMouse[] m = new MethodMouse[]
+		{
+			keyPopMenu, keyPopH2P, keySetting, keyExit,
+		};
+		for (int i = 0; i < m.Length; i++)
+			MainCamera.addMethodMouse(new MethodMouse(m[i]));
 	}
 
 	public override void free()
 	{
 		MainCamera.destroyMethodMouse(key);
+
+		MethodMouse[] m = new MethodMouse[]
+{
+			keyPopH2P, keyPopMenu, keySetting, keyExit,
+};
+		for (int i = 0; i < m.Length; i++)
+			MainCamera.destroyMethodMouse(new MethodMouse(m[i]));
 	}
 
 	public override void draw(float dt)
@@ -47,13 +62,11 @@ public class Intro : gGUI
 		drawMenu(dt);
 		drawSetting(dt);
 		drawH2P(dt);
+		drawExit(dt);
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
-		if (keySetting(stat, point))
-			return false ;
-
         if (stat == iKeystate.Began)
         {
             Debug.Log(point.x + ", " + point.y);
@@ -64,8 +77,6 @@ public class Intro : gGUI
                 titleOffy = 200;
             }
         }
-		keyPopMenu(stat, point);
-		keyPopH2P(stat, point);
 
 		return false;
 	}
@@ -324,18 +335,15 @@ public class Intro : gGUI
 						popSetting.show(true);
 						break;
 					case 3:
-						Debug.Log("quit");
-						Application.Quit();
-#if UNITY_EDITOR
-						UnityEditor.EditorApplication.isPlaying = false;
-#endif
+						popExit.show(true);
+						Debug.Log("quit");						
 						break;
 				}
 				popMenu.selected = -1;
 				break;
 
 		}
-		return false;
+		return true;
 	}
 
 	iPopup popSetting = null;
@@ -444,21 +452,9 @@ public class Intro : gGUI
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
 
 		setStringRGBA(0, 0, 0, 1);
-		drawString(""+(pageIdx+1), 250, st.tex.tex.height - 50, VCENTER | HCENTER);
+		drawString(""+(pageIdx+1)+" / 3", 250, st.tex.tex.height - 30, VCENTER | HCENTER);
         setStringSize(50);
-        if ( pageIdx==0 )
-		{
-            // Game
-            drawString("How to Play?", new iPoint(250, 50), VCENTER | HCENTER);
-
-            setStringSize(30);
-            drawString("»ýÁ¸ÀÚµéÀÌ ¸ðµÎ »ç¸ÁÇÏ¸é", new iPoint(250, 100), VCENTER | HCENTER);
-            drawString("°ÔÀÓÀÌ ³¡³³´Ï´Ù.", new iPoint(250, 150), VCENTER | HCENTER);
-            drawString("»ýÁ¸ÀÚµéÀÇ Á÷¾÷,", new iPoint(250, 200), VCENTER | HCENTER);
-            drawString("ÇÃ·¹ÀÌ¾îÀÇ ¼±ÅÃÀ»", new iPoint(250, 250), VCENTER | HCENTER);
-            drawString("ÀûÀýÈ÷ ºÐ¹èÇØ¼­ »ýÁ¸ÇÏ¼¼¿ä!", new iPoint(250, 300), VCENTER | HCENTER);
-        }
-		else if (pageIdx == 1)
+		if (pageIdx == 0)
 		{
             //Skill
             drawString("Á¦ÀÛÈ¯°æ", new iPoint(250, 50), VCENTER | HCENTER);
@@ -471,6 +467,18 @@ public class Intro : gGUI
 
             drawString("C / C++ / C#", new iPoint(250, 250), VCENTER | HCENTER);
             drawString("Unity / Unreal / Cocos-2dx", new iPoint(250, 350), VCENTER | HCENTER);
+        }
+        else if ( pageIdx==1 )
+		{
+            // Game
+            drawString("How to Play?", new iPoint(250, 50), VCENTER | HCENTER);
+
+            setStringSize(30);
+            drawString("»ýÁ¸ÀÚµéÀÌ ¸ðµÎ »ç¸ÁÇÏ¸é", new iPoint(250, 150), VCENTER | HCENTER);
+            drawString("°ÔÀÓÀÌ ³¡³³´Ï´Ù.", new iPoint(250, 200), VCENTER | HCENTER);
+            drawString("»ýÁ¸ÀÚµéÀÇ Á÷¾÷,", new iPoint(250, 250), VCENTER | HCENTER);
+            drawString("ÇÃ·¹ÀÌ¾îÀÇ ¼±ÅÃÀ»", new iPoint(250, 300), VCENTER | HCENTER);
+            drawString("ÀûÀýÈ÷ ºÐ¹èÇØ¼­ »ýÁ¸ÇÏ¼¼¿ä!", new iPoint(250, 350), VCENTER | HCENTER);
         }
 		else if (pageIdx == 2)
 		{
@@ -505,30 +513,8 @@ public class Intro : gGUI
 		int index = int.Parse(strs[2]);
 		string s = strs[1];
 		setStringName("BMJUA_ttf");
-
-        float colorSet = 0.0f;
-        if (click == 0)
-        {
-            if(index != 0)
-            {
-                colorSet = 1;
-
-                if (pageIdx == 0)
-                {
-                    if (index == 1)//isue
-                        colorSet = 0.3f;
-                }
-                else if (pageIdx == 2)
-                {
-                    if (index == 3)
-                        colorSet = 0.3f;
-                }
-            }
-        }
-        else if (click == 1)
-            colorSet = 0.3f;
-
-        setRGBA(colorSet, colorSet, colorSet, 1);
+		        
+        setRGBA(1, 1, 1, 1);
 
         if (click == 0)
             if (index == 0)
@@ -605,5 +591,121 @@ public class Intro : gGUI
 		}
 		return true;
 	}
+
+	iPopup popExit = null;
+	iStrTex stExit;
+	iImage[] imgExitBtn;
+
+	void loadExit()
+	{
+		iPopup pop = new iPopup();
+
+		iImage img = new iImage();
+		iStrTex st = new iStrTex(methodStExit, 500, 300);
+		img.add(st.tex);
+		pop.add(img);
+		stExit = st;
+		st.setString("0");
+
+		imgExitBtn = new iImage[2]; // 0 : yes / 1 : no
+
+		string[] strName = new string[2] { "¿¹", "¾Æ´Ï¿ä" };
+		iPoint[] pos = new iPoint[] {
+			new iPoint(st.tex.tex.width/2-75, st.tex.tex.height/2 - 40),
+			new iPoint(st.tex.tex.width/2-75, st.tex.tex.height/2 + 40)
+		};
+		for (int i = 0; i < 2; i++)
+		{
+			img = new iImage();
+			for (int j = 0; j < 2; j++)
+			{
+				st = new iStrTex(methodStExitBtn, 150, 50);
+				st.setString(j + "\n" + strName[i] + "\n" + i);
+				img.add(st.tex);
+			}
+			img.position = pos[i];
+			pop.add(img);
+			imgExitBtn[i] = img;
+		}
+
+		pop.style = iPopupStyle.zoom;
+		pop.openPoint = new iPoint(MainCamera.devWidth/2, MainCamera.devHeight/2);
+		pop.closePoint = new iPoint(MainCamera.devWidth/2 - 250, MainCamera.devHeight/2- 150);
+		pop._aniDt = 0.5f;
+		popExit = pop;
+	}
+
+	void methodStExit(iStrTex st)
+	{
+		setRGBA(1, 1, 1, 1);
+		fillRect(0,0,st.tex.tex.width, st.tex.tex.height);
+		setStringRGBA(0, 0, 0, 1);
+		drawString("Á¤¸» °ÔÀÓÀ» ²ø±î¿ä?", new iPoint(st.tex.tex.width / 2, 50), VCENTER|HCENTER);
+	}
+	void methodStExitBtn(iStrTex st)
+	{
+		string[] strs = st.str.Split("\n");
+		int index = int.Parse(strs[0]);
+		string s = strs[1];
+
+		setRGBA(0.8f, 0.8f, 0.8f, 1);
+		
+		fillRect(0, 0, 150, 50);
+
+		setStringRGBA(0, 0, 0, 1);
+		drawString(s, 150 / 2, 50 / 2, VCENTER | HCENTER);
+	}
+
+	void drawExit(float dt)
+	{
+		popExit.paint(dt);
+	}
+
+	bool keyExit(iKeystate stat,iPoint point)
+	{
+		if (!popExit.bShow)
+			return false;
+
+		iPoint p;
+		p = popExit.closePoint;
+		iSize s = new iSize(0, 0);
+
+		switch (stat)
+		{
+			case iKeystate.Began:
+				for (int i = 0; i < 2; i++)
+				{
+					if (imgExitBtn[i].touchRect(p, s).containPoint(point))
+					{
+						popExit.selected = i;
+						break;
+					}
+				}
+				break;
+
+			case iKeystate.Moved:
+				if (!imgExitBtn[popExit.selected].touchRect(p, s).containPoint(point))
+				{
+					popExit.selected = -1;
+					break;
+				}
+				break;
+
+			case iKeystate.Ended:
+				if(popExit.selected == 0)
+				{
+					Application.Quit();
+#if UNITY_EDITOR
+					UnityEditor.EditorApplication.isPlaying = false;
+#endif
+				}
+				else if(popExit.selected == 1)
+				{
+					popExit.show(false);
+				}
+				break;
+		}
+
+		return true;
+	}	
 }
-//Å°º¸µå µÇ°Ô ºÎµå·´°Ô Àß ´­¸°´Ù., ¹«Á¢Á¡ Àû­w¤¡?

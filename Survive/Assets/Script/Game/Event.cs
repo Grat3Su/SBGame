@@ -170,19 +170,21 @@ public class Event : MonoBehaviour
         {
             if (pState[i] == null)
                 return;
-            pState[i].behave = 4;
+            pState[i].behave = 0;
             pState[i].name = "null";
             pState[i].gameObject.name = "null";
+            pState[i].pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 130);
         }
     }
     //지정해서 삭제
     void deletePeople(int idx)
     {
-        Destroy(pState[idx]);
+        //Destroy(pState[idx]);
         int people = storage.getStorage(0);
 
-        pState[idx].behave = 4;
         PeopleState ps = pState[idx];
+        ps.behave = 0;
+        ps.pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 130);
 
         for (int i = idx; i <people; i++)
         {
