@@ -61,6 +61,7 @@ public class ProcEvent
 		if (popGameOver.bShow)
 			return;
 		popGameOver.show(true);
+		SoundManager.instance().play(iSound.PopUp);
 	}
 
 	public bool key(iKeystate stat, iPoint point)
@@ -380,6 +381,7 @@ public class ProcEvent
 			{
 				if (imgGameOverBtn[i].touchRect(p, s).containPoint(point))
 				{
+					SoundManager.instance().play(iSound.ButtonClick);
 					popGameOver.selected = i;
 					break;
 				}

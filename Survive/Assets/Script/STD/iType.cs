@@ -26,9 +26,11 @@ public delegate bool MethodKeyboard(iKeystate stat, iKeyboard key);
 
 public enum iSound
 {
+	BGM,
 	ButtonClick,
 	PopUp,
 	Event,
 	NextDay,
-
 }
+
+public delegate bool MethodPlaySound(iSound stat);

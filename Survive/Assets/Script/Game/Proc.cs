@@ -12,6 +12,8 @@ public class Proc : gGUI
 
 	public override void load()
 	{
+		AudioClip newBGM = Resources.Load<AudioClip>("Aspiration Woods (Area Theme)");
+		SoundManager.instance().addClip(iSound.BGM, newBGM);
 		loadBg();
 		loadPlayer();
 		loadPeople();
@@ -68,6 +70,7 @@ public class Proc : gGUI
 
 	public override void free()
 	{
+		SoundManager.instance().stopAll();
 		MethodMouse[] m = new MethodMouse[]
 		{
 			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,
@@ -256,7 +259,10 @@ public class Proc : gGUI
 				popEvent.closePoint = p[1];
 #endif
 				if (!popEvent.bShow)
+				{
+					SoundManager.instance().play(iSound.PopUp);
 					popEvent.show(true);
+				}
 				break;
 		}
 
@@ -605,6 +611,7 @@ public class Proc : gGUI
 		{
 			if (imgPopTopBtn.touchRect(p, s).containPoint(point))
 			{
+				SoundManager.instance().play(iSound.ButtonClick);
 				popTop.selected = 1;
 			}
 		}
@@ -622,7 +629,8 @@ public class Proc : gGUI
 				popTop.selected = -1;
 
 				popPerson.show(popPerson.bShow ? false : true);
-
+				if(popPerson.bShow)
+					SoundManager.instance().play(iSound.PopUp);
 			}
 		}
 		return false;
@@ -838,6 +846,7 @@ public class Proc : gGUI
 				{
 					if (imgPersonBtn[i].touchRect(p, s).containPoint(point))//클릭되면 ㅁ
 					{
+						SoundManager.instance().play(iSound.ButtonClick);
 						popPerson.selected = i;
 						break;
 					}
@@ -890,6 +899,7 @@ public class Proc : gGUI
 							{
                                 newJob = playerEvent.pState[select].job;
 
+								SoundManager.instance().play(iSound.PopUp);
                                 popPersonInfo.show(true);
 							}
 
@@ -1128,6 +1138,7 @@ public class Proc : gGUI
 				{
 					if (imgPersonInfoBtn[i].touchRect(p, s).containPoint(point))
 					{
+						SoundManager.instance().play(iSound.ButtonClick);
 						popPersonInfo.selected = i;
 						break;
 					}
@@ -1291,6 +1302,7 @@ public class Proc : gGUI
 					{
 						Debug.Log("음:선택");
 						popEvent.selected = i;
+						SoundManager.instance().play(iSound.ButtonClick);
 						break;
 					}
 				}
@@ -1347,6 +1359,7 @@ public class Proc : gGUI
 	void cbPeopleBack()
 	{
 		popPerson.show(false);
+		SoundManager.instance().play(iSound.PopUp);
 		pe.showNewDay(true);
 	}
 

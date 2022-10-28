@@ -29,6 +29,8 @@ public class Intro : gGUI
 
 		// 정말종료?
 
+		SoundManager.instance().play(iSound.BGM);
+
 		loadTitle();
 		loadMenu();
 		loadSetting();
@@ -45,6 +47,7 @@ public class Intro : gGUI
 
 	public override void free()
 	{
+		SoundManager.instance().stopAll();
 		MainCamera.destroyMethodMouse(key);
 
 		MethodMouse[] m = new MethodMouse[]
@@ -139,6 +142,7 @@ public class Intro : gGUI
 			titledt += dt;
 		else if (!popMenu.bShow)
 		{
+			SoundManager.instance().play(iSound.PopUp);
 			popMenu.show(true);
 		}
 
@@ -305,7 +309,10 @@ public class Intro : gGUI
 				for (i = 0; i < imgMenuBtn.Length; i++)
 				{
 					if (imgMenuBtn[i].touchRect(p, s).containPoint(point))
+					{
+						SoundManager.instance().play(iSound.ButtonClick);
 						popMenu.selected = i;
+					}
 				}
 				break;
 			case iKeystate.Moved:
@@ -324,17 +331,21 @@ public class Intro : gGUI
 				switch (i)
 				{
 					case 0:
+						SoundManager.instance().play(iSound.ButtonClick);
 						Main.me.reset("Proc");
 						break;
 					case 1:
 						Debug.Log("h2p");
+						SoundManager.instance().play(iSound.PopUp);
 						popH2P.show(true);
 						break;
 					case 2:
 						Debug.Log("option");
+						SoundManager.instance().play(iSound.PopUp);
 						popSetting.show(true);
 						break;
 					case 3:
+						SoundManager.instance().play(iSound.PopUp);
 						popExit.show(true);
 						Debug.Log("quit");						
 						break;
@@ -348,6 +359,8 @@ public class Intro : gGUI
 
 	iPopup popSetting = null;
 	iStrTex stSetting;
+	iImage[] imgSettingBtn;
+
 	void loadSetting()
 	{
 		iPopup pop = new iPopup();
@@ -359,6 +372,42 @@ public class Intro : gGUI
 		pop.add(img);
 		stSetting = st;
 
+		imgSettingBtn = new iImage[4];
+
+		for (int i = 0; i < 4; i++)
+		{
+			img = new iImage();
+			//for (int j = 0; j < 2; j++)
+			{
+				st = new iStrTex(methodStSettingBtn, 50, 50);
+				if(i == 0)
+				{
+					st.setString(i + "\n" + "<" + "\n");
+					img.position = new iPoint(50, 50);
+				}
+				else if(i == 1)
+				{
+					st.setString(i + "\n" + ">" + "\n");
+					img.position = new iPoint(400, 50);
+				}
+				else if(i == 2)
+				{
+					st.setString(i + "\n" + "<" + "\n");
+					img.position = new iPoint(50, 250);
+				}
+				else if(i == 3)
+				{
+					st.setString(i + "\n" + ">" + "\n");
+					img.position = new iPoint(400, 250);
+				}
+				img.add(st.tex);
+
+			}
+			pop.add(img);
+			//img.position = new iPoint(0, 0);
+			imgSettingBtn[i] = img;
+		}
+
 		pop.style = iPopupStyle.zoom;
 		pop.openPoint = new iPoint(800, 500);
 		pop.closePoint = new iPoint((MainCamera.devWidth - 500) / 2, 50);
@@ -368,12 +417,36 @@ public class Intro : gGUI
 	
 	void methodStSetting(iStrTex st)
 	{
-		setRGBA(1, 1, 1, 1);
+		setRGBA(0.8f, 0.8f, 0.8f, 1);
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
+		
+		setRGBA(1, 1, 1, 1);
+		setStringRGBA(0, 0, 0, 1);
+		drawString(SoundManager.instance().printVolume(iSound.BGM), new iPoint(st.tex.tex.width / 2, 50), TOP | HCENTER);
+		drawString(SoundManager.instance().printVolume(iSound.ButtonClick), new iPoint(st.tex.tex.width / 2, 250), TOP | HCENTER);
+	}
+
+	void methodStSettingBtn(iStrTex st)
+	{
+		string[] strs = st.str.Split("\n");
+		int index = int.Parse(strs[0]);
+		string s = strs[1];
+
+		iPoint pos = new iPoint(0, 0);
+
+		setRGBA(1, 1, 1, 1);
+		setStringRGBA(0, 0, 0, 1);
+
+		int w = st.tex.tex.width;
+		int h = st.tex.tex.height;
+		fillRect(0, 0, w, h);
+		setStringRGBA(0, 0, 0, 1);
+		drawString(s, w / 2, h / 2, VCENTER | HCENTER);
 	}
 
 	void drawSetting(float dt)
 	{
+		stSetting.setString(popSetting.selected + "");
 		popSetting.paint(dt);
 	}
 
@@ -383,20 +456,42 @@ public class Intro : gGUI
 			return false;
 		
 		iPoint p;
-		p = popH2P.closePoint;
+		p = popSetting.closePoint;
 		iSize s = new iSize(0, 0);
 
 		if (stat == iKeystate.Began)
 		{
-			popSetting.show(false);
+			for (int i = 0; i < 4; i++)
+			{
+				if (imgSettingBtn[i].touchRect(p, s).containPoint(point))
+				{
+					SoundManager.instance().play(iSound.ButtonClick);
+					popSetting.selected = i;
+					Debug.Log(i);
+					break;
+				}
+			}
+			//popSetting.show(false);
 		}
 		else if(stat == iKeystate.Moved)
 		{
-
+			if(popSetting.selected != -1)
+				stSetting.setString(SoundManager.instance().printVolume(iSound.BGM) + "");
+			if (popSetting.selected == 0)
+				SoundManager.instance().volume(iSound.BGM, true);
+			else if (popSetting.selected == 1)
+				SoundManager.instance().volume(iSound.BGM, false);
+			else if (popSetting.selected == 2)
+				SoundManager.instance().volume(iSound.ButtonClick, true);
+			else if (popSetting.selected == 3)
+				SoundManager.instance().volume(iSound.ButtonClick, false);
 		}
 		else if(stat == iKeystate.Ended)
 		{
-
+			if (popSetting.selected == -1)
+				popSetting.show(false);
+			else
+				popSetting.selected = -1;
 		}
 		return true;
 	}
@@ -550,6 +645,7 @@ public class Intro : gGUI
 			{
 				if (imgH2PBtn[i].touchRect(p, s).containPoint(point))
 				{
+					SoundManager.instance().play(iSound.ButtonClick);
 					popH2P.selected = i;
 					break;
 				}
@@ -677,6 +773,7 @@ public class Intro : gGUI
 				{
 					if (imgExitBtn[i].touchRect(p, s).containPoint(point))
 					{
+						SoundManager.instance().play(iSound.ButtonClick);
 						popExit.selected = i;
 						break;
 					}
