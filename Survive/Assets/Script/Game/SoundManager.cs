@@ -23,6 +23,7 @@ public class SoundManager
 		{
 			soundSource[i] = MainCamera.mainCamera.AddComponent<AudioSource>();
 			soundSource[i].clip = clip[i];
+            soundSource[i].volume = 0.8f;
 		}
 	}
 
@@ -108,8 +109,10 @@ public class SoundManager
 
 	public void volume(iSound st, bool reduce)
 	{
-		// BGM/효과음만 조절
-		int idx = -1;
+        // BGM/효과음만 조절
+        float dt = Time.deltaTime;
+
+        int idx = -1;
 		if (st == iSound.BGM)
 			idx = 0;
 		else
@@ -118,27 +121,39 @@ public class SoundManager
 		if (reduce)
 		{
 			if (soundSource[idx].volume > 0)
-				soundSource[idx].volume -= 0.01f;
+				soundSource[idx].volume -= 0.1f;
 			else
 				soundSource[idx].volume = 0.0f;
 		}
 		else
 		{
-			for (int i = 1; i < soundSource.Length; i++)
-			{
-				if (soundSource[i].volume < 1.0)
-					soundSource[i].volume += 0.01f;
-				else
-					soundSource[i].volume = 1f;
-			}
+            if (idx == 0)
+            {
+                if(soundSource[0].volume < 1.0f)
+                    soundSource[0].volume += 0.1f;
+                else
+                    soundSource[0].volume = 1f;
+            }
+            else
+                for (int i = 1; i < soundSource.Length; i++)
+                {
+                    if (soundSource[i].volume < 1.0)
+                        soundSource[i].volume += 0.1f;
+                    else
+                        soundSource[i].volume = 1f;
+                }
 		}
 	}
 
 	public string printVolume(iSound st)
 	{
-		if (st == iSound.BGM)
-			return (soundSource[0].volume * 100.0f).ToString();
-		return (soundSource[1].volume*100.0f).ToString();
+        string s = "";
+
+        if (st == iSound.BGM)
+            s = string.Format("{0:F0}", soundSource[0].volume * 100.0f);
+        else
+            s = string.Format("{0:F0}", soundSource[1].volume * 100.0f);
+        return s;
 	}
 }
 

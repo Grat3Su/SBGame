@@ -18,12 +18,13 @@ public class Proc : gGUI
 		loadPlayer();
 		loadPeople();
 		loadJobless();
+        loadSetting();
 		pe = new ProcEvent();
 
-		createPopTop();
-		createPopPerson();
-		createPopInfo();
-		createPopEvent();
+		loadPopTop();
+		loadPopPerson();
+		loadPopInfo();
+		loadPopEvent();
 
 		popTop.show(true);
 		popPerson.show(false);
@@ -33,7 +34,7 @@ public class Proc : gGUI
 		//우선순위
 		MethodMouse[] m = new MethodMouse[]
 		{
-			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,
+			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting,
 		};
 		for (int i = 0; i < m.Length; i++)
 			MainCamera.addMethodMouse(new MethodMouse(m[i]));
@@ -71,11 +72,11 @@ public class Proc : gGUI
 	public override void free()
 	{
 		SoundManager.instance().stopAll();
-		MethodMouse[] m = new MethodMouse[]
-		{
-			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,
-		};
-		for (int i = 0; i < m.Length; i++)
+        MethodMouse[] m = new MethodMouse[]
+        {
+            keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting,
+        };
+        for (int i = 0; i < m.Length; i++)
 			MainCamera.destroyMethodMouse(new MethodMouse(m[i]));
 		MainCamera.destroyMethodMouse(new MethodMouse(pe.key));
 		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
@@ -107,6 +108,7 @@ public class Proc : gGUI
 		drawPopEvent(dt);
 
 		drawDisplay(dt);
+        drawSetting(dt);
 
 		pe.paint(dt);
 	}
@@ -225,7 +227,6 @@ public class Proc : gGUI
 			case iKeyboard.Space:
 				if (methodPeople != null)
 					break;
-
 				if (popPersonInfo.bShow)
 					popPersonInfo.show(false);
 
@@ -264,7 +265,11 @@ public class Proc : gGUI
 					popEvent.show(true);
 				}
 				break;
-		}
+            case iKeyboard.ESC:
+                if(iKeystate.Ended == stat)
+                popSetting.show(popSetting.bShow ? false : true);
+                break;
+        }
 
 		return false;
 	}
@@ -455,7 +460,7 @@ public class Proc : gGUI
 		for (int i = 0; i < jobnum; i++)
 		{
 			PeopleState ps = playerEvent.pState[playerEvent.jobless[i]];
-#if true
+
 			if (ps.behave != 3)
 				break;
 
@@ -499,36 +504,6 @@ public class Proc : gGUI
 					ps.nextPos.y += -50 + Math.random(0, 100);
 				}
 			}
-#else
-			jobdt += dt;
-			if (ps.behave != 3)
-				break;
-			if (jobdt >1f)
-			{
-				jobdt = 0;
-
-				ps.curPos = ps.pos;
-				Texture peopleTex = Util.createTexture("jobless");
-				float size = psize.width / peopleTex.width;
-				float x = ps.pos.x + ((Math.random(0, 2)-1) * 50) + (Math.random(0, 1) * size);
-				float y = ps.pos.y + ((Math.random(0, 2)-1) * 50) + (Math.random(0, 1) * size);
-				if (x > 50 && x < MainCamera.devWidth - 50)
-					ps.nextPos.x = x;
-				if (y > 50 && y<MainCamera.devHeight)
-					ps.nextPos.y = y;
-
-				//ps.nextPos.x = Math.random(0, MainCamera.devWidth);
-				//ps.nextPos.y = Math.random(0, MainCamera.devHeight);
-
-				ps.moveDt = -0.2f;
-			}
-			float r = ps.moveDt / _moveDt;
-
-			//ps.pos = Math.linear(r / moveRate, ps.curPos, ps.nextPos);
-			ps.pos = Math.linear(r, ps.curPos, ps.nextPos);
-
-			ps.moveDt += dt;
-#endif
 		}
 	}
 
@@ -540,9 +515,9 @@ public class Proc : gGUI
 	iStrTex stPopTop;
 
 	iImage imgPopTopBtn;
-	iStrTex[] stPopTopBtn;
+	//iStrTex[] stPopTopBtn;
 
-	void createPopTop()
+	void loadPopTop()
 	{
 		iPopup pop = new iPopup();
 		iImage img = new iImage();
@@ -553,30 +528,48 @@ public class Proc : gGUI
 		stPopTop = st;
 
 		imgPopTopBtn = new iImage();
-		stPopTopBtn = new iStrTex[2];
 
 		img = new iImage();
-		for (int j = 0; j < 2; j++)
+		for (int i = 0; i < 2; i++)
 		{
 			st = new iStrTex(methodStPopTopBtn, 50, 50);
-			st.setString(j + "\n" + " < ");
 
-			img.add(st.tex);
+            if (i == 0)
+                st.setString(i + "\n" + " < ");
+            else
+                st.setString(i + "\n" + " > ");
 
-			stPopTopBtn[j] = st;
+            img.add(st.tex);
 		}
-
 		img.position = new iPoint(MainCamera.devWidth - 100, 5);
-
 		imgPopTopBtn = img;
 
-		pop.style = iPopupStyle.move;
+        pop.style = iPopupStyle.move;
 		pop.openPoint = new iPoint(0, -60);
 		pop.closePoint = new iPoint(0, 0);
 		pop._aniDt = 0.5f;
 		popTop = pop;
 	}
-	void methodStPopTopBtn(iStrTex st)
+    public void methodStPopTop(iStrTex st)
+    {
+        setRGBA(0, 0, 0, 0.6f);
+        fillRect(0, 0, MainCamera.devWidth, 60);
+        setRGBA(1, 1, 1, 1);
+        iPoint p = new iPoint(5, 10);
+
+        for (int i = 0; i < 4; i++)
+        {
+            drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
+            string[] texname = new string[] { "people", "food", "lab", "map" };
+            p.x = 5 + i * 150;
+            drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
+        }
+
+        imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
+        imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
+    }
+
+    void methodStPopTopBtn(iStrTex st)
 	{
 		string[] strs = st.str.Split("\n");
 		string s = strs[1];
@@ -585,6 +578,7 @@ public class Proc : gGUI
 		fillRect(0, 0, 50, 50);
 
 		setStringRGBA(0, 0, 0, 1);
+       
 		drawString(s, new iPoint(25, 25), VCENTER | HCENTER);
 	}
 
@@ -635,28 +629,8 @@ public class Proc : gGUI
 		}
 		return false;
 	}
-
-	public void methodStPopTop(iStrTex st)
-	{
-		setRGBA(0, 0, 0, 0.6f);
-		fillRect(0, 0, MainCamera.devWidth, 60);
-		setRGBA(1, 1, 1, 1);
-		iPoint p = new iPoint(5, 10);
-
-		for (int i = 0; i < 4; i++)
-		{
-			drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
-			string[] texname = new string[] { "people", "food", "lab", "map" };
-			p.x = 5 + i * 150;
-			drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
-		}
-
-		imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
-		imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
-
-	}
-
-	iRect checkScrollbar(int barW, int barH)
+    
+    iRect checkScrollbar(int barW, int barH)
 	{
 		people = playerEvent.storage.people;
 		// 가로 크기 / 총 크기
@@ -689,11 +663,10 @@ public class Proc : gGUI
 
 	iStrTex stPerson;
 	iImage[] imgPersonBtn;
-	iStrTex[][] stPersonBtn;
 
 	iPoint offPerson, offMin, offMax;
 	string[] names;
-	void createPopPerson()
+	void loadPopPerson()
 	{
 		iPopup pop = new iPopup();
 
@@ -705,12 +678,9 @@ public class Proc : gGUI
 		stPerson = st;
 		people = playerEvent.storage.people;
 		imgPersonBtn = new iImage[100];
-		stPersonBtn = new iStrTex[100][];
 
 		for (int i = 0; i < 100; i++)
 		{
-			stPersonBtn[i] = new iStrTex[2];
-
 			img = new iImage();
 			for (int j = 0; j < 2; j++)
 			{
@@ -719,8 +689,6 @@ public class Proc : gGUI
 				if (i < people) s = playerEvent.pState[i].name;
 				st.setString(j + "\n" + s + "\n" + i);
 				img.add(st.tex);
-
-				stPersonBtn[i][j] = st;
 			}
 			img.position = new iPoint(20, 10 + 60 * i);
 			imgPersonBtn[i] = img;
@@ -753,7 +721,6 @@ public class Proc : gGUI
 				string s = playerEvent.pState[i].name;
 				if (s == null)
 					s = "null";
-				stPersonBtn[i][j].setString(j + "\n" + s + "\n" + i);
 			}
 			imgPersonBtn[i].frame = (popPerson.selected == i ? 1 : 0);
 			imgPersonBtn[i].paint(0.0f, offPerson);
@@ -940,9 +907,8 @@ public class Proc : gGUI
 
 	iStrTex stPersonInfo;
 	iImage[] imgPersonInfoBtn;
-	iStrTex[][] stPersonInfoBtn;
 	int select;
-	void createPopInfo()
+	void loadPopInfo()
 	{
 		iPopup pop = new iPopup();
 
@@ -956,12 +922,9 @@ public class Proc : gGUI
 
 		//닫는버튼 / 직업 바꾸기 버튼 두 개만 필요
 		imgPersonInfoBtn = new iImage[3]; // 0 : 닫기 1 : < 직업 바꾸기 | 2 : > 직업바꾸기
-		stPersonInfoBtn = new iStrTex[3][];//눌렸을 때
 
 		for (int i = 0; i < 3; i++)
 		{
-			stPersonInfoBtn[i] = new iStrTex[2];
-
 			img = new iImage();
 			for (int j = 0; j < 2; j++)
 			{
@@ -983,8 +946,6 @@ public class Proc : gGUI
 					st.setString(j + "\n" + ">" + "\n" + i);
 				}
 				img.add(st.tex);
-
-				stPersonInfoBtn[i][j] = st;
 			}
 			if (i == 0)
 				img.position = new iPoint(700 - 70, 10);
@@ -1197,9 +1158,8 @@ public class Proc : gGUI
 	iStrTex stPopEvent;
 
 	iImage[] imgPopEventBtn;
-	iStrTex[][] stPopEventBtn;
 	string[] btnPopEventTxt;
-	void createPopEvent()
+	void loadPopEvent()
 	{
 		btnPopEventTxt = new string[] { "탐색", "사냥", "연구", "휴식" };
 
@@ -1212,11 +1172,9 @@ public class Proc : gGUI
 		stPopEvent = st;
 
 		imgPopEventBtn = new iImage[btnPopEventTxt.Length];
-		stPopEventBtn = new iStrTex[btnPopEventTxt.Length][];
 
 		for (int i = 0; i < btnPopEventTxt.Length; i++)
 		{
-			stPopEventBtn[i] = new iStrTex[2];
 
 			img = new iImage();
 			for (int j = 0; j < 2; j++)
@@ -1224,8 +1182,6 @@ public class Proc : gGUI
 				st = new iStrTex(methodStPopEventBtn, 150, 50);
 				st.setString(j + "\n" + btnPopEventTxt[i]);
 				img.add(st.tex);
-
-				stPopEventBtn[i][j] = st;
 			}
 			img.position = new iPoint(20, 10 + 80 * i);
 			imgPopEventBtn[i] = img;
@@ -1433,6 +1389,191 @@ public class Proc : gGUI
 		return true;
 	}
 
+    iPopup popSetting = null;
+    iStrTex stSetting;
+    iImage[] imgSettingBtn;
+
+    void loadSetting()
+    {
+        iPopup pop = new iPopup();
+
+        iImage img = new iImage();
+        iStrTex st = new iStrTex(methodStSetting, 500, MainCamera.devHeight - 100);
+        st.setString("0");
+        img.add(st.tex);
+        pop.add(img);
+        stSetting = st;
+
+        imgSettingBtn = new iImage[7];
+
+        for (int i = 0; i < imgSettingBtn.Length; i++)
+        {
+            img = new iImage();
+
+            if ( i < 4)
+                st = new iStrTex(methodStSettingBtn, 50, 50);
+            else
+                st = new iStrTex(methodStSettingBtn, 150, 50);
+
+            if (i == 0)
+            {
+                st.setString(i + "\n" + "<" + "\n");
+                img.position = new iPoint(50, 100);
+            }
+            else if (i == 1)
+            {
+                st.setString(i + "\n" + ">" + "\n");
+                img.position = new iPoint(400, 100);
+            }
+            else if (i == 2)
+            {
+                st.setString(i + "\n" + "<" + "\n");
+                img.position = new iPoint(50, 300);
+            }
+            else if (i == 3)
+            {
+                st.setString(i + "\n" + ">" + "\n");
+                img.position = new iPoint(400, 300);
+            }
+            else if (i == 4)
+            {
+                st.setString(i + "\n" + "Resume" + "\n");
+                img.position = new iPoint(175, 400);
+            }
+            else if (i == 5)
+            {
+                st.setString(i + "\n" + "Reset" + "\n");
+                img.position = new iPoint(175, 475);
+            }
+            else if (i == 6)
+            {
+                st.setString(i + "\n" + "Menu" + "\n");
+                img.position = new iPoint(175, 550);
+            }
+            img.add(st.tex);
+            pop.add(img);
+            //img.position = new iPoint(0, 0);
+            imgSettingBtn[i] = img;
+        }
+
+        pop.style = iPopupStyle.zoom;
+        pop.openPoint = new iPoint(800, 500);
+        pop.closePoint = new iPoint((MainCamera.devWidth - 500) / 2, 50);
+        pop.methodDrawBefore = drawBeforeSetting;
+        pop._aniDt = 0.5f;
+        popSetting = pop;
+    }
+
+    void drawBeforeSetting(float dt, iPopup pop, iPoint zero)
+    {
+        if (popSetting.selected != -1)
+        {
+            stSetting.setString(SoundManager.instance().printVolume(iSound.BGM) + "" + SoundManager.instance().printVolume(iSound.ButtonClick));
+        }
+    }
+
+
+    void methodStSetting(iStrTex st)
+    {
+        setRGBA(0.8f, 0.8f, 0.8f, 1);
+        fillRect(0, 0, 500, MainCamera.devHeight - 100);
+
+        setRGBA(1, 1, 1, 1);
+        setStringRGBA(0, 0, 0, 1);
+        drawString("BGM Volume", new iPoint(st.tex.tex.width / 2, 50), TOP | HCENTER);
+        drawString(SoundManager.instance().printVolume(iSound.BGM), new iPoint(st.tex.tex.width / 2, 100), TOP | HCENTER);
+
+        drawString("Effect Volume", new iPoint(st.tex.tex.width / 2, 250), TOP | HCENTER);
+        drawString(SoundManager.instance().printVolume(iSound.ButtonClick), new iPoint(st.tex.tex.width / 2, 300), TOP | HCENTER);
+    }
+
+    void methodStSettingBtn(iStrTex st)
+    {
+        string[] strs = st.str.Split("\n");
+        int index = int.Parse(strs[0]);
+        string s = strs[1];
+
+        iPoint pos = new iPoint(0, 0);
+
+        setRGBA(1, 1, 1, 1);
+        setStringRGBA(0, 0, 0, 1);
+
+        int w = st.tex.tex.width;
+        int h = st.tex.tex.height;
+        fillRect(0, 0, w, h);
+        setStringRGBA(0, 0, 0, 1);
+        drawString(s, w / 2, h / 2, VCENTER | HCENTER);
+    }
+
+    void drawSetting(float dt)
+    {
+        popSetting.paint(dt);
+    }
+
+    bool keySetting(iKeystate stat, iPoint point)
+    {
+        if (!popSetting.bShow)
+            return false;
+
+        iPoint p;
+        p = popSetting.closePoint;
+        iSize s = new iSize(0, 0);
+
+        if (stat == iKeystate.Began)
+        {
+            for (int i = 0; i < 7; i++)
+            {
+                if (imgSettingBtn[i].touchRect(p, s).containPoint(point))
+                {
+                    SoundManager.instance().play(iSound.ButtonClick);
+                    popSetting.selected = i;
+                    if (popSetting.selected == 0)
+                        SoundManager.instance().volume(iSound.BGM, true);
+                    else if (popSetting.selected == 1)
+                        SoundManager.instance().volume(iSound.BGM, false);
+                    else if (popSetting.selected == 2)
+                        SoundManager.instance().volume(iSound.ButtonClick, true);
+                    else if (popSetting.selected == 3)
+                        SoundManager.instance().volume(iSound.ButtonClick, false);
+
+                    Debug.Log(i);
+                    break;
+                }
+            }
+            //popSetting.show(false);
+        }
+        else if (stat == iKeystate.Moved)
+        {
+            Debug.Log(popSetting.selected);
+
+
+        }
+        else if (stat == iKeystate.Ended)
+        {
+            if(popSetting.selected == 4)//resume
+            {
+                popSetting.show(false);
+            }
+            else if(popSetting.selected == 5)//Reset
+            {
+                playerEvent.initGame();
+                free();
+                Main.me.reset("Proc");
+                popSetting.show(false);
+            }
+            else if(popSetting.selected == 6)//Menu
+            {
+                free();
+                Main.me.reset("Intro");
+            }
+                popSetting.selected = -1;
+            //if (popSetting.selected == -1)
+            //    popSetting.show(false);
+            //else
+        }
+        return true;
+    }
+
     class DisplayInfo
 	{
 		public iStrTex st;
@@ -1511,64 +1652,4 @@ public class Proc : gGUI
 			}
 		}
 	}
-}
-
-class Scroll //그려야하는 위치. 스크롤바 크기, 
-{
-	public iPoint off, offMin, offMax;
-	iRect drawRt;
-	iSize barSize;
-
-	public Scroll(iRect rt, iSize size, iSize bs)//그려야하는 위치, 크기?
-	{
-		off = new iPoint(0, 0);
-		offMax = new iPoint(0, 0);
-		offMin = new iPoint(rt.size.width - size.width, rt.size.height - size.height);
-
-		drawRt = rt;
-		barSize = bs;
-	}
-
-	public void scrollMouse(iPoint mp)
-	{
-		off.y += mp.y;
-		if (off.y < offMin.y)
-			off.y = offMin.y;
-		else if (off.y > offMax.y)
-			off.y = offMax.y;
-	}
-
-	public void scrollWheel(iPoint mp)
-	{
-		off.y += mp.y * 10.0f;
-
-		if (off.y < offMin.y)
-			off.y = offMin.y;
-		else if (off.y > offMax.y)
-			off.y = offMax.y;
-	}
-
-	public iRect checkScrollbar(int total)
-	{
-		// 가로 크기 / 총 크기
-		int miniWidth = (int)drawRt.size.width;
-		int miniHeight = (int)drawRt.size.height;
-
-		int mapWidth = (int)drawRt.size.width;
-		int mapHeight = total;//총 크기
-
-		// 칸수
-		float numW = 1.0f * mapWidth / miniWidth;
-		float numH = 1.0f * mapHeight / miniHeight;
-
-
-		int bW = (int)barSize.width * miniWidth / mapWidth;
-		int bH = (int)barSize.height * miniHeight / mapHeight;
-
-		int bX = (int)Math.linear(off.x / offMin.x, 0, bW * (numW - 1));
-		int bY = (int)Math.linear(off.y / offMin.y, 0, bH * (numH - 1));
-
-		return new iRect(bX, bY, bW, bH);
-	}
-
 }
