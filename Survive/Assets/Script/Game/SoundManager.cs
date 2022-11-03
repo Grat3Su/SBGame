@@ -23,7 +23,7 @@ public class SoundManager
 		{
 			soundSource[i] = MainCamera.mainCamera.AddComponent<AudioSource>();
 			soundSource[i].clip = clip[i];
-            soundSource[i].volume = 0.8f;
+            soundSource[i].volume = 0.5f;
 		}
 	}
 
@@ -121,7 +121,7 @@ public class SoundManager
 		if (reduce)
 		{
 			if (soundSource[idx].volume > 0)
-				soundSource[idx].volume -= 0.1f;
+				soundSource[idx].volume -= 0.25f;
 			else
 				soundSource[idx].volume = 0.0f;
 		}
@@ -130,7 +130,7 @@ public class SoundManager
             if (idx == 0)
             {
                 if(soundSource[0].volume < 1.0f)
-                    soundSource[0].volume += 0.1f;
+                    soundSource[0].volume += 0.25f;
                 else
                     soundSource[0].volume = 1f;
             }
@@ -138,7 +138,7 @@ public class SoundManager
                 for (int i = 1; i < soundSource.Length; i++)
                 {
                     if (soundSource[i].volume < 1.0)
-                        soundSource[i].volume += 0.1f;
+                        soundSource[i].volume += 0.25f;
                     else
                         soundSource[i].volume = 1f;
                 }
@@ -154,6 +154,26 @@ public class SoundManager
         else
             s = string.Format("{0:F0}", soundSource[1].volume * 100.0f);
         return s;
+	}
+
+	public int intVolume(iSound st)
+	{
+		int vol = 0;
+		int idx = 0;
+		if (st == iSound.ButtonClick)
+			idx = 1;
+		if (soundSource[idx].volume < 0.1f)
+			vol = 0;
+		else if (soundSource[idx].volume < 0.26f)
+				vol = 1;
+		else if (soundSource[idx].volume < 0.51f)
+				vol = 2;
+		else if (soundSource[idx].volume < 0.76f)
+				vol = 3;
+		else if (soundSource[idx].volume < 1.1f)
+				vol = 4;
+
+		return vol;
 	}
 }
 

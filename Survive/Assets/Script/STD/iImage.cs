@@ -17,7 +17,7 @@ namespace STD
 		public int repeatIdx, repeatNum; // 0 : loop, 1 ~ : count
 		public int frame;
 		public float frameDt, _frameDt;
-		public float scale;
+		public float scale, alpha;
 
 		public iImage()
 		{
@@ -33,6 +33,7 @@ namespace STD
 			_frameDt = 0.0167f;// 1 / 60
 			frameDt = 0.0f;
 			scale = 1.0f;
+			alpha = 1.0f;
 		}
 
 		public iImage clone()
@@ -107,8 +108,11 @@ namespace STD
 				off.x += (1 - scale) * t.width / 2;
 				off.y += (1 - scale) * t.height / 2;
 			}
+			Color c = iGUI.instance.getStringRGBA();
+			iGUI.instance.setRGBA(c.r, c.g, c.b, c.a * alpha);
 			iGUI.instance.drawImage(t, off.x, off.y, scale, scale,
 				iGUI.TOP | iGUI.LEFT, 2, 0, iGUI.REVERSE_NONE);
+			iGUI.instance.setRGBA(c.r, c.g, c.b, c.a);
 		}
 
 		public void startAnimation()

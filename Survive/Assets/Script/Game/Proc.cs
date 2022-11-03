@@ -167,12 +167,14 @@ public class Proc : gGUI
 
 		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
 		people = playerEvent.storage.people;
+		pDt = 2.0f;
 	}
 
 	iPoint pPos;
 	iPoint nextPos;
 	int speed;
 	iSize psize;
+	float pDt;
 	void drawPlayer(float dt)
 	{
 		pPos.x += dt * nextPos.x * speed;
@@ -189,7 +191,13 @@ public class Proc : gGUI
 		else if (pPos.y > MainCamera.devHeight - 50)
 			pPos.y = MainCamera.devHeight - 50;
 		goTitle();
-
+		pDt += dt;
+		if (pDt > 2.0f)
+		{
+			pDt = 0;
+			setStringSize(20);
+			//addDisplay("Space", new iPoint(pPos.x + 25, pPos.y - 10));
+		}
 		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
 		nextPos = new iPoint(0, 0);
 	}
@@ -556,8 +564,8 @@ public class Proc : gGUI
         fillRect(0, 0, MainCamera.devWidth, 60);
         setRGBA(1, 1, 1, 1);
         iPoint p = new iPoint(5, 10);
-
-        for (int i = 0; i < 4; i++)
+		setStringName("BMJUA_ttf");
+		for (int i = 0; i < 4; i++)
         {
             drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
             string[] texname = new string[] { "people", "food", "lab", "map" };
@@ -573,7 +581,7 @@ public class Proc : gGUI
 	{
 		string[] strs = st.str.Split("\n");
 		string s = strs[1];
-
+		setStringName("BMJUA_ttf");
 		setRGBA(1, 1, 1, 1);
 		fillRect(0, 0, 50, 50);
 
@@ -710,6 +718,8 @@ public class Proc : gGUI
 	int people = 30;
 	public void methodStPerson(iStrTex st)
 	{
+		setStringName("BMJUA_ttf");
+
 		setRGBA(0.3f, 0.3f, 0.3f, 0.5f);
 		fillRect(0, 0, 300, 600);
 		people = playerEvent.storage.people;
@@ -747,6 +757,7 @@ public class Proc : gGUI
 
 	public void methodStPersonBtn(iStrTex st)
 	{
+		setStringName("BMJUA_ttf");
 		string[] strs = st.str.Split("\n");
 		int index = int.Parse(strs[0]);
 		int pindex = int.Parse(strs[2]);
@@ -968,7 +979,7 @@ public class Proc : gGUI
 	{
 		setRGBA(0.5f, 0.5f, 0.5f, 1f);
 		fillRect(0, 0, 700, 400);
-
+		setStringName("BMJUA_ttf");
 		setRGBA(1, 1, 1, 1);
 
 		string[] stateTxt = new string[] { "쉬는중", "이동", "이동", "일", "병" };
@@ -1007,7 +1018,7 @@ public class Proc : gGUI
 		int index = int.Parse(strs[0]);
 		int bindex = int.Parse(strs[2]);
 		string s = strs[1];
-
+		setStringName("BMJUA_ttf");
 		iPoint pos = new iPoint(0, 0);
 
 		if (index == 0 && bindex == 0)
@@ -1210,6 +1221,7 @@ public class Proc : gGUI
 	}
 	public void methodStPopEventBtn(iStrTex st)
 	{
+		setStringName("BMJUA_ttf");
 		string[] strs = st.str.Split("\n");
 		int index = int.Parse(strs[0]);
 		string s = strs[1];
@@ -1428,27 +1440,27 @@ public class Proc : gGUI
             else if (i == 2)
             {
                 st.setString(i + "\n" + "<" + "\n");
-                img.position = new iPoint(50, 300);
+                img.position = new iPoint(50, 250);
             }
             else if (i == 3)
             {
                 st.setString(i + "\n" + ">" + "\n");
-                img.position = new iPoint(400, 300);
+                img.position = new iPoint(400, 250);
             }
             else if (i == 4)
             {
                 st.setString(i + "\n" + "Resume" + "\n");
-                img.position = new iPoint(175, 400);
+                img.position = new iPoint(175, 350);
             }
             else if (i == 5)
             {
                 st.setString(i + "\n" + "Reset" + "\n");
-                img.position = new iPoint(175, 475);
+                img.position = new iPoint(175, 425);
             }
             else if (i == 6)
             {
                 st.setString(i + "\n" + "Menu" + "\n");
-                img.position = new iPoint(175, 550);
+                img.position = new iPoint(175, 500);
             }
             img.add(st.tex);
             pop.add(img);
@@ -1472,24 +1484,43 @@ public class Proc : gGUI
         }
     }
 
+	void drawVolume(iSound st, iPoint p)
+	{
+		int vol = SoundManager.instance().intVolume(st);		
+
+		for(int i = 0; i<4; i++)
+		{
+			setRGBA(0.5f, 0.5f, 0.5f, 1);
+			if (vol > i)
+				setRGBA(0, 1, 0, 1);
+
+			fillRect(p.x, p.y, 50, 50);
+			p.x += 60;
+		}
+	}
 
     void methodStSetting(iStrTex st)
     {
-        setRGBA(0.8f, 0.8f, 0.8f, 1);
+		float size = getStringSize();
+		setStringName("BMJUA_ttf");
+		setRGBA(0.8f, 0.8f, 0.8f, 1);
         fillRect(0, 0, 500, MainCamera.devHeight - 100);
 
         setRGBA(1, 1, 1, 1);
         setStringRGBA(0, 0, 0, 1);
         drawString("BGM Volume", new iPoint(st.tex.tex.width / 2, 50), TOP | HCENTER);
-        drawString(SoundManager.instance().printVolume(iSound.BGM), new iPoint(st.tex.tex.width / 2, 100), TOP | HCENTER);
+		drawVolume(iSound.BGM, new iPoint(125, 100));
+		//drawString(SoundManager.instance().printVolume(iSound.BGM), new iPoint(st.tex.tex.width / 2, 100), TOP | HCENTER);
 
-        drawString("Effect Volume", new iPoint(st.tex.tex.width / 2, 250), TOP | HCENTER);
-        drawString(SoundManager.instance().printVolume(iSound.ButtonClick), new iPoint(st.tex.tex.width / 2, 300), TOP | HCENTER);
+        drawString("Effect Volume", new iPoint(st.tex.tex.width / 2, 200), TOP | HCENTER);
+		drawVolume(iSound.ButtonClick, new iPoint(125, 250));
+		//drawString(SoundManager.instance().printVolume(iSound.ButtonClick), new iPoint(st.tex.tex.width / 2, 300), TOP | HCENTER);
     }
 
     void methodStSettingBtn(iStrTex st)
     {
-        string[] strs = st.str.Split("\n");
+		setStringName("BMJUA_ttf");
+		string[] strs = st.str.Split("\n");
         int index = int.Parse(strs[0]);
         string s = strs[1];
 
@@ -1535,8 +1566,6 @@ public class Proc : gGUI
                         SoundManager.instance().volume(iSound.ButtonClick, true);
                     else if (popSetting.selected == 3)
                         SoundManager.instance().volume(iSound.ButtonClick, false);
-
-                    Debug.Log(i);
                     break;
                 }
             }
@@ -1544,9 +1573,6 @@ public class Proc : gGUI
         }
         else if (stat == iKeystate.Moved)
         {
-            Debug.Log(popSetting.selected);
-
-
         }
         else if (stat == iKeystate.Ended)
         {
