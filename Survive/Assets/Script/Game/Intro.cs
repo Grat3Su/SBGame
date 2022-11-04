@@ -50,15 +50,15 @@ public class Intro : gGUI
 
 	public override void free()
 	{
-		SoundManager.instance().stopAll();
 		MainCamera.destroyMethodMouse(key);
 
+
 		MethodMouse[] m = new MethodMouse[]
-{
-			keyPopH2P, keyPopMenu, keySetting, keyExit,
-};
+		{
+			keyPopMenu, keyPopH2P, keySetting, keyExit,
+		};
 		for (int i = 0; i < m.Length; i++)
-			MainCamera.destroyMethodMouse(new MethodMouse(m[i]));
+			MainCamera.addMethodMouse(new MethodMouse(m[i]));
 	}
 
 	public override void draw(float dt)
@@ -513,7 +513,13 @@ public class Intro : gGUI
 				if (imgSettingBtn[i].touchRect(p, s).containPoint(point))
 				{
 					SoundManager.instance().play(iSound.ButtonClick);
-					popSetting.selected = i;
+					if (i > 5)
+					{
+						if (imgSettingBtn[6].alpha > 0)
+							popSetting.selected = i;
+					}
+					else
+						popSetting.selected = i;
 
 					if (popSetting.selected == 1)
 						SoundManager.instance().volume(iSound.BGM, true);
@@ -522,7 +528,8 @@ public class Intro : gGUI
 					else if (popSetting.selected == 3)
 						SoundManager.instance().volume(iSound.ButtonClick, true);
 					else if (popSetting.selected == 4)
-						SoundManager.instance().volume(iSound.ButtonClick, false);
+						SoundManager.instance().volume(iSound.ButtonClick, false);					
+
 					Debug.Log(i);
 					break;
 				}
@@ -553,15 +560,24 @@ public class Intro : gGUI
 			}
 			else// if( i==6, i==7, i==8 )
 			{
-				if( i== 6 )
-					Screen.fullScreen = true;// opt 0
-				else if(i==7 )
-					Screen.fullScreen = false;// opt 1
+				if (i == 6)
+				{
+					Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+					iGUI.setResolutionFull(MainCamera.devWidth, MainCamera.devHeight);
+					Screen.fullScreen = true;
+				}
+				else if (i == 7)
+				{
+					Screen.fullScreen = false;
+					Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
+				}
 				else// if( i==8 )
 				{
-					Screen.fullScreen = false;// opt 2
-					Screen.SetResolution(MainCamera.devWidth, MainCamera.devHeight, false);
+					Screen.fullScreen = false;
+					iGUI.setResolution(MainCamera.devWidth, MainCamera.devHeight);
+					Screen.fullScreenMode = FullScreenMode.Windowed;
 				}
+				
 				imgSettingBtn[5].frame = (i - 6);
 				for (i = 0; i < 3; i++)
 					imgSettingBtn[6 + i].alpha = 0;

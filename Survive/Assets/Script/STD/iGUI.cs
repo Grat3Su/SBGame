@@ -58,15 +58,36 @@ public class iGUI : MonoBehaviour
                 );//사용할 크기 비례
     }
 
-    public static void setResolution(int devWidth, int devHeight)
-	{
-        setResolutionClip(devWidth, devHeight);
+    static iSize screenSize = new iSize(MainCamera.devWidth, MainCamera.devHeight);
+    public static void setNewResolution()//나중에..
+    {//해상도가 바뀔 때만 체크한다.
+        float height = 2 * Camera.main.orthographicSize;
+        float width = height * Camera.main.aspect;
+        iSize newSize = new iSize(width, height);
+        
+        if (screenSize == newSize)
+            return;
+
+        if(screenSize.width == newSize.width)//세로가 변했을 때
+		{
+            newSize.width = (16 * newSize.height) / 9;
+        }
+        else if(screenSize.height == newSize.height)//가로가 변했을 때
+        {
+            newSize.height = (9 * newSize.width) / 16;
+        }
+
+        screenSize = newSize;
+        MainCamera.devWidth = (int)newSize.width;
+        MainCamera.devHeight= (int)newSize.height;
+        Screen.SetResolution((int)newSize.width, (int)newSize.height, false);
+
+        Camera.main.rect = new Rect(0, 0, 1, 1);        
     }
 
-    public static void setResolutionClip(int devWidth, int devHeight)
+    public static void setResolution(int devWidth, int devHeight)
     {//해상도가 바뀔 때만 체크한다.
         Screen.SetResolution(devWidth, devHeight, false);
-
         float r0 = (float)devWidth / devHeight;
 
         int width = Screen.width, height = Screen.height;
@@ -89,13 +110,19 @@ public class iGUI : MonoBehaviour
     public static void setResolutionFull(int devWidth, int devHeight)
     {
         Camera.main.rect = new Rect(0, 0, 1, 1);
-
         int width = Screen.width, height = Screen.height;
         // width : height = 4 : 3 = devWidth : h
         // h = height / width x devWidth
         float dh = (float)height / width * devWidth;
         Screen.SetResolution(devWidth, (int)dh, true);
         //Debug.LogFormat($"devResolution({devWidth}, {dh})");
+    }
+    public static void setResolutionFullWindow(int devWidth, int devHeight)
+    {
+        Camera.main.rect = new Rect(0, 0, 1, 1);
+        int width = Screen.width, height = Screen.height;
+        float dh = (float)height / width * devWidth;
+        Screen.SetResolution(devWidth, (int)dh, false);
     }
         public string getStringName()
     {
@@ -284,7 +311,7 @@ public class iGUI : MonoBehaviour
 //#elif true
 #elif false
 			GUI.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, ScaleMode.StretchToFill, true, h / w, color, 0, 0);
-#elif false// final
+#elif true// final
         GUI.color = color;// #issue
         GUI.DrawTextureWithTexCoords(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), true);
 #elif true// curr

@@ -392,4 +392,17 @@ public struct AddItem
         labExp      = 0;
         mapExp      = 0;
     }
+
+    public static bool operator == (AddItem a1, AddItem a2)
+    {        
+        return (a1.people == a2.people && a1.food == a2.food &&
+                a1.takeTime == a2.takeTime && a1.labExp == a2.labExp
+                && a1.mapExp == a2.mapExp);
+    }
+    public static bool operator != (AddItem a1, AddItem a2)
+    {        
+        return (a1.people   != a2.people && a1.food     != a2.food &&
+                a1.takeTime != a2.takeTime && a1.labExp != a2.labExp&&
+                a1.mapExp   != a2.mapExp);
+    }
 }

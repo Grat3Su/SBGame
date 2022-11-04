@@ -112,17 +112,26 @@ public class MainCamera : MonoBehaviour
 	{
 		drag = false;
 
+		//iGUI.setResolution(devWidth, devHeight);
 		loadGameHierachy();
 		addMethodMouse(keyGameHierachy);
 		mainCamera = gameObject;
 		new Main();		
 		gameObject.AddComponent<Event>();
+		Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
+		iGUI.setResolution(devWidth, devHeight);
 	}
 
 	void Update()
 	{
+#if UNITY_EDITOR
 		iGUI.setResolution(devWidth, devHeight);
-
+		//
+#else
+		//if (Screen.fullScreenMode == FullScreenMode.Windowed)
+		//	iGUI.setNewResolution();
+			//iGUI.setResolution(devWidth, devHeight);
+#endif
 		// ctrl
 		updateMouse();
 		updateWheel();
@@ -151,6 +160,13 @@ public class MainCamera : MonoBehaviour
 			drag = false;
 
 			runMethodMouse(iKeystate.Ended, p);
+
+#if UNITY_EDITOR
+			//
+#else
+			if (Screen.fullScreenMode == FullScreenMode.Windowed)
+				iGUI.setNewResolution();
+#endif
 		}
 
 		if (drag)

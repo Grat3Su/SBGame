@@ -167,19 +167,18 @@ public class Proc : gGUI
 
 		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
 		people = playerEvent.storage.people;
-		pDt = 2.0f;
+		pInfo = true;
 	}
 
 	iPoint pPos;
 	iPoint nextPos;
 	int speed;
 	iSize psize;
-	float pDt;
+	bool pInfo;
 	void drawPlayer(float dt)
 	{
 		pPos.x += dt * nextPos.x * speed;
 		pPos.y += dt * nextPos.y * speed;
-
 
 		if (pPos.x < 0)
 			pPos.x = 0;
@@ -191,15 +190,13 @@ public class Proc : gGUI
 		else if (pPos.y > MainCamera.devHeight - 50)
 			pPos.y = MainCamera.devHeight - 50;
 		goTitle();
-		pDt += dt;
-		if (pDt > 2.0f)
-		{
-			pDt = 0;
+		if (nextPos == new iPoint(0, 0)&&pInfo)
+		{			
 			setStringSize(20);
-			//addDisplay("Space", new iPoint(pPos.x + 25, pPos.y - 10));
+			drawString("Space", new iPoint(pPos.x, pPos.y - 40), VCENTER | HCENTER);
 		}
-		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
-		nextPos = new iPoint(0, 0);
+
+		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);		
 	}
 	bool keyPlayer(iKeystate stat, iPoint point)
 	{
@@ -212,29 +209,24 @@ public class Proc : gGUI
 
 	bool keyboardPlayer(iKeystate stat, iKeyboard key)
 	{
-		nextPos = new iPoint(0, 0);
-
-		switch (key)
+		if (nextPos == new iPoint(0, 0))
+			pInfo = true;
+		if (stat == iKeystate.Began)
 		{
-			case iKeyboard.Down:
-				nextPos.y += 5;
-
-				break;
-			case iKeyboard.Up:
-				nextPos.y -= 5;
-
-				break;
-			case iKeyboard.Left:
-				nextPos.x -= 5;
-
-				break;
-			case iKeyboard.Right:
-				nextPos.x += 5;
-
-				break;
-			case iKeyboard.Space:
+			if (key == iKeyboard.Down)
+				nextPos.y = 5;
+			else if (key == iKeyboard.Up)
+				nextPos.y = -5;
+			else if (key == iKeyboard.Right)
+				nextPos.x = 5;
+			else if (key == iKeyboard.Left)
+				nextPos.x = -5;
+			else if(key == iKeyboard.Space)
+			{
+				nextPos = new iPoint(0, 0);
 				if (methodPeople != null)
-					break;
+					return false;
+
 				if (popPersonInfo.bShow)
 					popPersonInfo.show(false);
 
@@ -269,16 +261,25 @@ public class Proc : gGUI
 #endif
 				if (!popEvent.bShow)
 				{
+					pInfo = false;
 					SoundManager.instance().play(iSound.PopUp);
 					popEvent.show(true);
 				}
-				break;
-            case iKeyboard.ESC:
-                if(iKeystate.Ended == stat)
-                popSetting.show(popSetting.bShow ? false : true);
-                break;
-        }
-
+			}
+		}
+		else if (stat == iKeystate.Ended)
+		{
+			if (key == iKeyboard.Down || key == iKeyboard.Up)
+				nextPos.y = 0;
+			else if (key == iKeyboard.Left || key == iKeyboard.Right)
+				nextPos.x = 0;
+			else if (key == iKeyboard.ESC)
+			{
+				nextPos = new iPoint(0, 0);
+				pInfo = false;
+				popSetting.show(popSetting.bShow ? false : true);
+			}
+		}
 		return false;
 	}
 
@@ -314,7 +315,7 @@ public class Proc : gGUI
 				l = n;
 		}
 		moveRate = l / len;
-		setPeople(1, cbPeopleGo);
+		//setPeople(1, cbPeopleGo);
 	}
 
 	void cbPeopleGo()
@@ -576,6 +577,22 @@ public class Proc : gGUI
         imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
         imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
     }
+
+	AddItem getItem;
+	AddItem loseItem;
+	void howmuchItem()
+	{
+		if(getItem != playerEvent.plusItem)
+		{
+
+			getItem = playerEvent.plusItem;
+		}
+		if(loseItem != playerEvent.minusItem)
+		{
+
+			loseItem = playerEvent.minusItem;
+		}		
+	}
 
     void methodStPopTopBtn(iStrTex st)
 	{
@@ -1172,11 +1189,19 @@ public class Proc : gGUI
 	string[] btnPopEventTxt;
 	void loadPopEvent()
 	{
-		btnPopEventTxt = new string[] { "Å½»ö", "»ç³É", "¿¬±¸", "ÈÞ½Ä" };
-
 		iPopup pop = new iPopup();
+
 		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStPopEvent, 200, 350);
+		iStrTex st = new iStrTex(methodStPopEventHotKey, 200, 40);
+		st.setString("0");
+		img.position = new iPoint(0, -40);
+		img.add(st.tex);
+		pop.add(img);
+
+
+		btnPopEventTxt = new string[] { "Å½»ö", "»ç³É", "¿¬±¸", "ÈÞ½Ä" };
+		img = new iImage();
+		st = new iStrTex(methodStPopEvent, 200, 350);
 		st.setString("0");
 		img.add(st.tex);
 		pop.add(img);
@@ -1206,6 +1231,12 @@ public class Proc : gGUI
 		popEvent = pop;
 	}
 
+	public void methodStPopEventHotKey(iStrTex st)
+	{
+		setStringSize(20);
+		setStringRGBA(0, 0, 0, 1);
+		drawString("Å¬¸¯ : ¼±ÅÃ    ESC : ´Ý±â", new iPoint(100, 20), VCENTER|HCENTER);
+	}
 	public void methodStPopEvent(iStrTex st)
 	{
 		setRGBA(0.5f, 0.5f, 0.5f, 0.8f);
