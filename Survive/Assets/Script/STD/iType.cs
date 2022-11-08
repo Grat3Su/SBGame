@@ -31,6 +31,7 @@ public enum iSound
 	PopUp,
 	Event,
 	NextDay,
+    TitleSound,
 }
 
 public delegate bool MethodPlaySound(iSound stat);

@@ -11,12 +11,13 @@ public class SoundManager
 
 	private SoundManager()
 	{
-		clip = new AudioClip[5];
+        clip = new AudioClip[6];
 		clip[0] = Resources.Load<AudioClip>("Lost Kingdom (Piano Menu)");
 		clip[1] = Resources.Load<AudioClip>("RPG_Menu_Confirm_01");
 		clip[2] = Resources.Load<AudioClip>("RPG_Menu_Twinkle_01");
 		clip[3] = Resources.Load<AudioClip>("RPG_Menu_Confirm_02");
 		clip[4] = Resources.Load<AudioClip>("RPG_Menu_Twinkle_02");
+		clip[5] = Resources.Load<AudioClip>("RPG_Menu_Cancel_04");
 		
 		soundSource = new AudioSource[5];		
 		for(int i = 0; i<soundSource.Length; i++)
@@ -47,6 +48,8 @@ public class SoundManager
 			idx = 3;
 		else if (st == iSound.NextDay)
 			idx = 4;
+		else if (st == iSound.TitleSound)
+			idx = 5;
 
 		if (soundSource[idx].isPlaying)
 			soundSource[idx].Stop();
@@ -55,29 +58,53 @@ public class SoundManager
 		soundSource[idx].Play();
 	}
 
-	public void play(iSound st)
-	{
-		int idx = -1;
-		if (st == iSound.BGM)
-		{
-			soundSource[0].loop = true;
-			idx = 0;
-		}
-		else if (st == iSound.ButtonClick)
-			idx = 1;
-		else if (st == iSound.PopUp)
-			idx = 2;
-		else if (st == iSound.Event)
-			idx = 3;
-		else if (st == iSound.NextDay)
-			idx = 4;
+    public void play(iSound st)
+    {
+        int idx = -1;
+        if (st == iSound.BGM)
+        {
+            soundSource[0].loop = true;
+            idx = 0;
+        }
+        else if (st == iSound.ButtonClick)
+            idx = 1;
+        else if (st == iSound.PopUp)
+            idx = 2;
+        else if (st == iSound.Event)
+            idx = 3;
+        else if (st == iSound.NextDay)
+            idx = 4;
+        else if (st == iSound.TitleSound)
+            idx = 5;
 
-		if (!soundSource[idx].isPlaying)
-		{			
-			soundSource[idx].Play();			
-		}
-	}
-	public void stop(iSound st)
+        if (!soundSource[idx].isPlaying)
+        {
+            soundSource[idx].Play();
+        }
+    }
+
+    public void playForce(iSound st)
+    {
+        int idx = -1;
+        if (st == iSound.BGM)
+        {
+            soundSource[0].loop = true;
+            idx = 0;
+        }
+        else if (st == iSound.ButtonClick)
+            idx = 1;
+        else if (st == iSound.PopUp)
+            idx = 2;
+        else if (st == iSound.Event)
+            idx = 3;
+        else if (st == iSound.NextDay)
+            idx = 4;
+        else if (st == iSound.TitleSound)
+            idx = 5;
+
+            soundSource[idx].Play();
+    }
+    public void stop(iSound st)
 	{
 		int idx = -1;
 		if (st == iSound.BGM)
@@ -90,6 +117,8 @@ public class SoundManager
 			idx = 3;
 		else if (st == iSound.NextDay)
 			idx = 4;
+		else if (st == iSound.TitleSound)
+			idx = 5;
 
 		if (soundSource[idx].isPlaying)
 		{

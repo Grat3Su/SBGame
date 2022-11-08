@@ -31,8 +31,8 @@ public class Proc : gGUI
 		popPersonInfo.show(false);
 		popEvent.show(false);
 
-		//우선순위
-		MethodMouse[] m = new MethodMouse[]
+        //우선순위
+        MethodMouse[] m = new MethodMouse[]
 		{
 			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting,
 		};
@@ -106,11 +106,10 @@ public class Proc : gGUI
 		drawPopPerson(dt);
 		drawPopInfo(dt);
 		drawPopEvent(dt);
+        drawSetting(dt);
+		pe.paint(dt);
 
 		drawDisplay(dt);
-        drawSetting(dt);
-
-		pe.paint(dt);
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
@@ -264,7 +263,7 @@ public class Proc : gGUI
 					pInfo = false;
 					SoundManager.instance().play(iSound.PopUp);
 					popEvent.show(true);
-				}
+                }
 			}
 		}
 		else if (stat == iKeystate.Ended)
@@ -557,8 +556,16 @@ public class Proc : gGUI
 		pop.openPoint = new iPoint(0, -60);
 		pop.closePoint = new iPoint(0, 0);
 		pop._aniDt = 0.5f;
-		popTop = pop;
-	}
+        pop.methodDrawBefore = drawBeforePopTop;
+
+        popTop = pop;
+    }
+
+    void drawBeforePopTop(float dt, iPopup pop, iPoint zero)
+    {
+        stPopTop.setString(popTop.selected+"");
+    }
+
     public void methodStPopTop(iStrTex st)
     {
         setRGBA(0, 0, 0, 0.6f);
@@ -573,25 +580,15 @@ public class Proc : gGUI
             p.x = 5 + i * 150;
             drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
         }
+        drawString("생존자 목록", new iPoint(MainCamera.devWidth - 150, 25), VCENTER | HCENTER);
 
         imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
         imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
     }
 
-	AddItem getItem;
-	AddItem loseItem;
 	void howmuchItem()
 	{
-		if(getItem != playerEvent.plusItem)
-		{
-
-			getItem = playerEvent.plusItem;
-		}
-		if(loseItem != playerEvent.minusItem)
-		{
-
-			loseItem = playerEvent.minusItem;
-		}		
+       
 	}
 
     void methodStPopTopBtn(iStrTex st)
@@ -609,7 +606,9 @@ public class Proc : gGUI
 
 	void drawPopTop(float dt)
 	{
-		Storage sCheck = playerEvent.storage;
+        howmuchItem();
+
+        Storage sCheck = playerEvent.storage;
 		for (int i = 0; i < 6; i++)
 		{
 			stPopTop.setString(sCheck.getStorage(i) + "");
@@ -645,12 +644,16 @@ public class Proc : gGUI
 		{
 			if (popTop.selected == 1)
 			{
-				popTop.selected = -1;
+                //popTop.selected = -1;
 
 				popPerson.show(popPerson.bShow ? false : true);
-				if(popPerson.bShow)
-					SoundManager.instance().play(iSound.PopUp);
-			}
+                if (popPerson.bShow)
+                {
+                    SoundManager.instance().play(iSound.PopUp);
+                }
+                else
+                    popTop.selected = -1;
+			}            
 		}
 		return false;
 	}
@@ -1189,15 +1192,14 @@ public class Proc : gGUI
 	string[] btnPopEventTxt;
 	void loadPopEvent()
 	{
-		iPopup pop = new iPopup();
+        iPopup pop = new iPopup();
 
 		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStPopEventHotKey, 200, 40);
+		iStrTex st = new iStrTex(methodStPopEventHotKey, 300, 40);
 		st.setString("0");
-		img.position = new iPoint(0, -40);
+		img.position = new iPoint(-50, -40);
 		img.add(st.tex);
 		pop.add(img);
-
 
 		btnPopEventTxt = new string[] { "탐색", "사냥", "연구", "휴식" };
 		img = new iImage();
@@ -1205,19 +1207,26 @@ public class Proc : gGUI
 		st.setString("0");
 		img.add(st.tex);
 		pop.add(img);
-		stPopEvent = st;
+
+        stPopEvent = st;
+
+        //설명
+        img = new iImage();
+        st = new iStrTex(methodStPopEventInfo, 300, 350);
+        img.position = new iPoint(230, 0);
+        st.setString("0");
+        img.add(st.tex);
+        pop.add(img);
 
 		imgPopEventBtn = new iImage[btnPopEventTxt.Length];
-
 		for (int i = 0; i < btnPopEventTxt.Length; i++)
 		{
-
 			img = new iImage();
 			for (int j = 0; j < 2; j++)
 			{
 				st = new iStrTex(methodStPopEventBtn, 150, 50);
 				st.setString(j + "\n" + btnPopEventTxt[i]);
-				img.add(st.tex);
+				img.add(st.tex);//여기 텍스쳐 두개 넣음
 			}
 			img.position = new iPoint(20, 10 + 80 * i);
 			imgPopEventBtn[i] = img;
@@ -1229,15 +1238,40 @@ public class Proc : gGUI
 
 		pop._aniDt = 0.2f;
 		popEvent = pop;
-	}
+    }
 
-	public void methodStPopEventHotKey(iStrTex st)
-	{
-		setStringSize(20);
-		setStringRGBA(0, 0, 0, 1);
-		drawString("클릭 : 선택    ESC : 닫기", new iPoint(100, 20), VCENTER|HCENTER);
-	}
-	public void methodStPopEvent(iStrTex st)
+    public void methodStPopEventHotKey(iStrTex st)
+    {
+        setStringSize(20);
+        setStringRGBA(1, 1, 1, 1);
+        drawString("클릭 : 선택  |  ESC : 닫기", new iPoint(150, 20), VCENTER | HCENTER);
+    }
+
+    public void methodStPopEventInfo(iStrTex st)
+    {
+        setRGBA(1, 1, 1, 1);
+        int w = st.tex.tex.width;
+        int h = st.tex.tex.height;
+        fillRect(0, 0, w, h);
+
+        setStringRGBA(0, 0, 0, 1);
+        
+        setStringSize(20);
+        drawString("탐색", new iPoint(w/2, 30), TOP|HCENTER);
+        drawString("확률적으로 생존자를 구합니다", new iPoint(w / 2, 60), TOP | HCENTER);   
+
+        drawString("사냥", new iPoint(w/2, 100), TOP | HCENTER);
+        drawString("식량을 얻습니다", new iPoint(w/2, 130), TOP | HCENTER);
+
+        drawString("연구", new iPoint(w / 2, 170), TOP | HCENTER);
+        drawString("연구 경험치를 얻습니다", new iPoint(w / 2, 200), TOP | HCENTER);
+
+        drawString("휴식", new iPoint(w/2, 240), TOP | HCENTER);     
+        drawString("하루를 넘깁니다.", new iPoint(w / 2, 270), TOP | HCENTER);
+        drawString("시민은 남은 일을 합니다.", new iPoint(w / 2, 300), TOP | HCENTER);
+    }
+
+    public void methodStPopEvent(iStrTex st)
 	{
 		setRGBA(0.5f, 0.5f, 0.5f, 0.8f);
 		fillRect(0, 0, 300, 700);
@@ -1309,7 +1343,7 @@ public class Proc : gGUI
 				{
 					popEvent.openPoint = new iPoint(pPos.x, pPos.y);
 					popEvent.show(false);
-				}
+                }
 				break;
 
 			case iKeystate.Moved:
@@ -1351,7 +1385,7 @@ public class Proc : gGUI
 					setPeople(2, cbPeopleBack);
 				popEvent.openPoint = new iPoint(pPos.x, pPos.y);
 				popEvent.show(false);
-				break;
+                break;
 		}
 		return true;
 	}
@@ -1414,17 +1448,19 @@ public class Proc : gGUI
 					}
 					eventSelect = -1;
 					popEvent.selected = -1;
-					if (playerEvent.newday)
-						setPeople(2, cbPeopleBack);
+                    if (playerEvent.newday)
+                    {
+                        setPeople(2, cbPeopleBack);
+                    }
 
 					popEvent.openPoint = new iPoint(pPos.x, pPos.y);
 					popEvent.show(false);
-				}
+                }
 			}
 			else if (key == iKeyboard.ESC)
 			{
 				popEvent.show(false);
-				popEvent.selected = -1;
+                popEvent.selected = -1;
 			}
 		}
 
@@ -1672,6 +1708,9 @@ public class Proc : gGUI
 
 	void drawDisplay(float dt)
 	{
+        float size = getStringSize();
+        setStringSize(20);
+        setStringRGBA(0, 1, 0, 1);
 		for (int i = 0; i < diNum; i++)
 		{
 			float r = di[i].dt / 2.0f;
@@ -1689,7 +1728,9 @@ public class Proc : gGUI
 				Debug.Log(diNum);
 			}
 		}
-	}
+        setStringRGBA(1, 1, 1, 1);
+        setStringSize(size);
+    }
 
 	void addDisplay(string str, iPoint p)
 	{

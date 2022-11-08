@@ -7,34 +7,33 @@ public class Intro : gGUI
 {
 	public override void load()
 	{
-		// logo or symbol (fade in/out)
+        // logo or symbol (fade in/out)
 
-		// title (상용게임 처럼 버전표시:메일)
-		// press any key (on / off)
+        // title (상용게임 처럼 버전표시:메일)
+        // press any key (on / off)
 
-		// menu popup
-		// start, opt, howtoplay, exit
+        // menu popup
+        // start, opt, howtoplay, exit
 
-		// 저장 슬롯 ?
-		// 진짜 시작..새로...
+        // 저장 슬롯 ?
+        // 진짜 시작..새로...
 
-		// opt - 창모드/전체화면
-		// sfx
-		// bgm		
+        // opt - 창모드/전체화면
+        // sfx
+        // bgm		
 
-		// howto
-		// ctrller(pad/keyboard/mouse)
-		// stroy 세계관 / 생존 부연설명
-		// ===> 나의 대한 얘기
+        // howto
+        // ctrller(pad/keyboard/mouse)
+        // stroy 세계관 / 생존 부연설명
+        // ===> 나의 대한 얘기
 
-		// 정말종료?
+        // 정말종료?
 
-		AudioClip newBGM = Resources.Load<AudioClip>("Lost Kingdom (Piano Menu)");
-		//AudioClip newBGM  = (AudioClip)UnityEditor.AssetDatabase.LoadAssetAtPath("Assets/Sounds/Lost Kingdom (Piano Menu)", typeof(Texture2D));
-		SoundManager.instance().addClip(iSound.BGM, newBGM);
+        AudioClip newBGM = Resources.Load<AudioClip>("Lost Kingdom (Piano Menu)");
+        SoundManager.instance().addClip(iSound.BGM, newBGM);
 		SoundManager.instance().play(iSound.BGM);
-
-		loadTitle();
+        //
+        loadTitle();
 		loadMenu();
 		loadSetting();
 		loadH2P();
@@ -130,9 +129,6 @@ public class Intro : gGUI
 		setRGBA(0, 0, 0, 1);
 		setStringSize(180);
 		drawString(s, new iPoint(st.wid / 2, st.hei / 2 + 100 - titleOffy), VCENTER | HCENTER);
-		//Debug.Log(s);
-		//setStringSize(50);
-		//350,200
 	}
 
 	float title_dt;
@@ -152,14 +148,17 @@ public class Intro : gGUI
 		if (titledt > title_dt)
 		{
 			titledt = 0;
-			if (splitNum < 7)
-				splitNum++;
-			else
-			{
-				if (title_dt > 0.05f)
-					title_dt = 0.05f;
-				titleOffy += 300 * dt * 5;
-			}
+            if (splitNum < 7)
+            {
+                SoundManager.instance().playForce(iSound.NextDay);
+                splitNum++;
+            }
+            else
+            {
+                if (title_dt > 0.05f)
+                    title_dt = 0.05f;
+                titleOffy += 300 * dt * 5;
+            }
 		}
 		stTitle.setString(splitNum + " S U R V I V E " + titleOffy);
 		popTitle.paint(dt);
@@ -606,7 +605,7 @@ public class Intro : gGUI
 
 		string[] strName = new string[3] { "X", "<", ">" };
 		iPoint[] pos = new iPoint[] {
-			new iPoint(450, 0),
+			new iPoint(440, 10),
 			new iPoint(-70, 550),
 			new iPoint(520, 550)
 		};
@@ -615,7 +614,7 @@ public class Intro : gGUI
 			img = new iImage();
 			for (int j = 0; j < 2; j++)
 			{
-				st = new iStrTex(methodStH2PBtn, 80, 80);
+				st = new iStrTex(methodStH2PBtn, 50, 50);
 				st.setString(j + "\n" + strName[i] + "\n" + i);
 				img.add(st.tex);
 			}
@@ -627,13 +626,14 @@ public class Intro : gGUI
 		pop.style = iPopupStyle.zoom;
 		pop.openPoint = new iPoint(500, 500);
 		pop.closePoint = new iPoint((MainCamera.devWidth - 500) / 2, 50);
-		pop._aniDt = 0.5f;
+
+        pop._aniDt = 0.5f;
 		popH2P = pop;
 	}
-
-	void methodStH2P(iStrTex st)
+    
+    void methodStH2P(iStrTex st)
 	{
-		setRGBA(1, 1, 1, 1);
+		setRGBA(0.9f, 0.9f, 0.9f, 1);
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
 		setStringName("BMJUA_ttf");
 
@@ -683,14 +683,13 @@ public class Intro : gGUI
 			drawString("생존 게임에 대한 레퍼런스를 찾던 중", new iPoint(250, 450), VCENTER | HCENTER);
 			drawString("여러 생존 게임을 하게 되었고", new iPoint(250, 500), VCENTER | HCENTER);
 			drawString("욕구 시스템을 폐기하고 생존에 치중하게 되었기 때문입니다.", new iPoint(250, 550), VCENTER | HCENTER);
-		}
-
-		for (int i = 0; i < 3; i++)
-		{
-			imgH2PBtn[i].frame = (popH2P.selected == i ? 1 : 0);
-			imgH2PBtn[i].paint(0.0f, new iPoint(0, 0));
-		}
-	}
+        }
+        for (int i = 0; i < 3; i++)
+        {
+            imgH2PBtn[i].frame = (popH2P.selected == i ? 1 : 0);
+            imgH2PBtn[i].paint(0.0f, new iPoint(0, 0));
+        }
+    }
 
 	void methodStH2PBtn(iStrTex st)
 	{
@@ -700,7 +699,7 @@ public class Intro : gGUI
 		string s = strs[1];
 		setStringName("BMJUA_ttf");
 
-		setRGBA(1, 1, 1, 1);
+		setRGBA(0.5f, 0.5f, 0.5f, 1);
 
 		if (click == 0)
 			if (index == 0)
@@ -711,7 +710,7 @@ public class Intro : gGUI
 
 		int w = st.tex.tex.width;
 		int h = st.tex.tex.height;
-		drawString(s, 30, 30, VCENTER | HCENTER);
+		drawString(s, 25, 25, VCENTER | HCENTER);
 	}
 
 	void drawH2P(float dt)

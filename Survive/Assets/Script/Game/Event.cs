@@ -202,7 +202,7 @@ public class Event : MonoBehaviour
         AddItem item = new AddItem(0);
         if (type == DoEvent.Adventure)
         {
-            item.food = Math.random(0, 2);
+            //item.food = Math.random(0, 2);
             item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
             item.takeTime = 4;
 
@@ -211,7 +211,7 @@ public class Event : MonoBehaviour
         else if (type == DoEvent.Hunt)
         {
             item.food = Math.random(1, 3);
-            item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
+            //item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
             item.takeTime = 4;
         }
         else if (type == DoEvent.Research)
