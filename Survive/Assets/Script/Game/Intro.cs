@@ -1,6 +1,5 @@
 using STD;
 using System.Data;
-//using UnityEditor.Timeline;
 using UnityEngine;
 
 public class Intro : gGUI
@@ -661,7 +660,8 @@ public class Intro : gGUI
     
     void methodStH2P(iStrTex st)
 	{
-		setRGBA(0.9f, 0.9f, 0.9f, 1);
+		//setRGBA(0.9f, 0.9f, 0.9f, 1);
+		setRGBA(1, 1, 1, 1);
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
 		setStringName("BMJUA_ttf");
 
@@ -786,6 +786,7 @@ public class Intro : gGUI
 			if (popH2P.selected == 0)
 			{
 				popH2P.selected = -1;
+				pageIdx = 0;
 				popH2P.show(false);
 			}
 			else if (popH2P.selected == 1)

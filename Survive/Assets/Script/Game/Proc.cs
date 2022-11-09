@@ -449,7 +449,7 @@ public class Proc : gGUI
 		}
 	}
 
-	void loadJobless()
+	void loadJobless()//이거 확인
 	{
 		jobdt = 0.5f;
 		int jobnum = playerEvent.joblessNum;
@@ -1106,8 +1106,19 @@ public class Proc : gGUI
 		{
 			if (ps.job == 0)
 			{
+				//백수가 새로운 직업이 생겼을 때
+				//
+				for (int i = 0; i < playerEvent.joblessNum; i++)
+					if (playerEvent.jobless[i] == select)
+					{
+						playerEvent.jobless[i] = playerEvent.jobless[playerEvent.joblessNum - 1];
+						playerEvent.jobless[playerEvent.joblessNum - 1] = 0;
+						break;
+					}
+
 				playerEvent.joblessNum--;
-				playerEvent.jobless[select] = playerEvent.jobless[playerEvent.joblessNum];
+				if (playerEvent.joblessNum < 0)
+					playerEvent.joblessNum = 0;
 			}
 			else if (newJob == 0)
 			{
@@ -1115,6 +1126,7 @@ public class Proc : gGUI
 				playerEvent.joblessNum++;
 			}
 			ps.jobUpdate(newJob);
+			select = -1;
 		}
 	}
 	bool keyPopInfo(iKeystate stat, iPoint point)
@@ -1161,7 +1173,6 @@ public class Proc : gGUI
 							changeJob();
                         }
 						popPerson.selected = -1;
-						select = -1;
                         popPersonInfo.show(false);
 					}
 					else if (popPersonInfo.selected == 1)
@@ -1309,10 +1320,6 @@ public class Proc : gGUI
 
 	void drawPopEvent(float dt)
 	{
-		//if (popEvent.bShow && eventMove < 0.3f)
-		//{
-		//	eventMove += dt;
-		//}
 		stPopEvent.setString(popEvent.selected + "");
 		popEvent.paint(dt);
 	}
@@ -1443,16 +1450,11 @@ public class Proc : gGUI
 		pe.showNewDay(true);
 	}
 
-	float eventMove = 0.5f;
 	bool keyboardPopEvent(iKeystate stat, iKeyboard key)
 	{
 		if (!popEvent.bShow || popEvent.state == iPopupState.close)
 			return false;
-		//if (eventMove < 0.3f)
-		//{
-		//	return true;
-		//}
-		//eventMove = 0.0f;
+
 		int eventSelect = popEvent.selected;
 
 		if (stat == iKeystate.Ended)
@@ -1471,7 +1473,6 @@ public class Proc : gGUI
 			}
 			else if (key == iKeyboard.Space)
 			{
-				//eventMove = 0.5f;
 				popEvent.openPoint = new iPoint(pPos.x, pPos.y);
 				if (popEvent.selected != -1)
 				{

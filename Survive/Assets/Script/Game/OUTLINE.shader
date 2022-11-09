@@ -44,7 +44,7 @@ Shader "Unlit/OUTLINE"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);0
+                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
@@ -52,7 +52,7 @@ Shader "Unlit/OUTLINE"
 			{
 				//fixed4 col = tex2D(_MainTex, i.uv) * inColor;
 				fixed4 col = 0;
-				col.rgb = i.worldNormal * 0.5 + 0.5;
+				//col.rgb = i.worldNormal * 0.5 + 0.5;
 
 				//fragCoord
                 

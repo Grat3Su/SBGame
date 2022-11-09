@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using STD;
-using System.Drawing;
 
 /*
  * 고등학교 - 과학고, 특목고(중학교 나의 능력)
