@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using STD;
-//using System.Drawing;
 using UnityEditor;
 
 public class Proc : gGUI
@@ -32,7 +31,7 @@ public class Proc : gGUI
 		popEvent.show(false);
 
 		//우선순위
-		init = true;
+		initGame = true;
 		loadDisplay();
 	}
 
@@ -58,11 +57,10 @@ public class Proc : gGUI
 		MainCamera.destroyMethodMouse(new MethodMouse(key));
 		MainCamera.destroyMethodKeyboard(new MethodKeyboard(keyboard));
 		MainCamera.destroyMethodWheel(new MethodWheel(wheel));
-
 	}
 
 	RenderTexture texRt = null;
-	bool init;
+	bool initGame;
 	float shaderDt = 0;
 	public override void draw(float dt)
 	{
@@ -96,11 +94,11 @@ public class Proc : gGUI
 
 		RenderTexture.active = bk;
 
-		if (init)
+		if (initGame)
 		{
 			shaderDt += dt;
 			if (shaderDt > 1.0f)
-				init = false;
+				initGame = false;
 			setShader(1);
 			setShaderFade(MainCamera.devWidth/2, MainCamera.devHeight/2, Mathf.Abs(Mathf.Sin(shaderDt * 80 * Mathf.Deg2Rad)), Color.black);
 		}
@@ -111,7 +109,7 @@ public class Proc : gGUI
 
 	public override bool keyboard(iKeystate stat, iKeyboard key)
 	{
-		if (!init)
+		if (!initGame)
 		{
 			MethodKeyboard[] mkeyboard = new MethodKeyboard[]
 			{
@@ -130,7 +128,7 @@ public class Proc : gGUI
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
-		if (!init)
+		if (!initGame)
 		{
 			MethodMouse[] m = new MethodMouse[]
 			{

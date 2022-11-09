@@ -119,13 +119,13 @@ public class MainCamera : MonoBehaviour
 		mainCamera = gameObject;
 		new Main();		
 		Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
-		iGUI.setResolution(devWidth, devHeight);
+		iGUI.setResolutionFull(devWidth, devHeight);
 	}
 
 	void Update()
 	{
 #if UNITY_EDITOR
-		iGUI.setResolution(devWidth, devHeight);
+		//iGUI.setResolution(devWidth, devHeight);
 		//
 #else
 		//if (Screen.fullScreenMode == FullScreenMode.Windowed)
