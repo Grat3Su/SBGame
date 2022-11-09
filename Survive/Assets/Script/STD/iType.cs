@@ -34,4 +34,7 @@ public enum iSound
     TitleSound,
 }
 
-public delegate bool MethodPlaySound(iSound stat);
+// button - effect
+// shader - outline 
+// shader - shining
+// shader - fade in/out

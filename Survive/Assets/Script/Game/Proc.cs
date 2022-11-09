@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using STD;
-using Unity.Collections.LowLevel.Unsafe;
-using UnityEngine.Android;
+//using System.Drawing;
+using UnityEditor;
 
 public class Proc : gGUI
 {
@@ -31,28 +31,9 @@ public class Proc : gGUI
 		popPersonInfo.show(false);
 		popEvent.show(false);
 
-        //우선순위
-        MethodMouse[] m = new MethodMouse[]
-		{
-			keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting,
-		};
-		for (int i = 0; i < m.Length; i++)
-			MainCamera.addMethodMouse(new MethodMouse(m[i]));
-		MainCamera.addMethodMouse(new MethodMouse(pe.key));
-
-		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
-		{
-			keyboardPlayer, keyboardPopEvent,
-		};
-
-		for (int i = 0; i < mkeyboard.Length; i++)
-			MainCamera.addMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
-		MainCamera.addMethodKeyboard(new MethodKeyboard(pe.keyboard));
-
-		MainCamera.addMethodWheel(new MethodWheel(wheelPopPerson));
-
+		//우선순위
+		init = true;
 		loadDisplay();
-		//addDisplay("whaaaaa", new iPoint(50, 50));
 	}
 
 	void goTitle()
@@ -71,29 +52,31 @@ public class Proc : gGUI
 
 	public override void free()
 	{
-		SoundManager.instance().stopAll();
-        MethodMouse[] m = new MethodMouse[]
-        {
-            keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting,
-        };
-        for (int i = 0; i < m.Length; i++)
-			MainCamera.destroyMethodMouse(new MethodMouse(m[i]));
 		MainCamera.destroyMethodMouse(new MethodMouse(pe.key));
-		MethodKeyboard[] mkeyboard = new MethodKeyboard[]
-		{
-			keyboardPlayer, keyboardPopEvent,
-		};
-
-		for (int i = 0; i < mkeyboard.Length; i++)
-			MainCamera.destroyMethodKeyboard(new MethodKeyboard(mkeyboard[i]));
 		MainCamera.destroyMethodKeyboard(new MethodKeyboard(pe.keyboard));
 
-		MainCamera.destroyMethodWheel(new MethodWheel(wheelPopPerson));
+		MainCamera.destroyMethodMouse(new MethodMouse(key));
+		MainCamera.destroyMethodKeyboard(new MethodKeyboard(keyboard));
+		MainCamera.destroyMethodWheel(new MethodWheel(wheel));
 
 	}
 
+	RenderTexture texRt = null;
+	bool init;
+	float shaderDt = 0;
 	public override void draw(float dt)
 	{
+		if (texRt == null)
+		{
+			texRt = new RenderTexture(MainCamera.devWidth,
+										MainCamera.devHeight, 32,
+										RenderTextureFormat.ARGB32);
+		}
+
+		RenderTexture bk = RenderTexture.active;
+		RenderTexture.active = texRt;
+		GL.Clear(true, true, Color.clear);
+
 		if (playerEvent.gameover)
 			pe.showGameOver();
 
@@ -109,15 +92,62 @@ public class Proc : gGUI
         drawSetting(dt);
 		pe.paint(dt);
 
-		drawDisplay(dt);
+		//drawDisplay(dt);
+
+		RenderTexture.active = bk;
+
+		if (init)
+		{
+			shaderDt += dt;
+			if (shaderDt > 1.0f)
+				init = false;
+			setShader(1);
+			setShaderFade(MainCamera.devWidth/2, MainCamera.devHeight/2, Mathf.Abs(Mathf.Sin(shaderDt * 80 * Mathf.Deg2Rad)), Color.black);
+		}
+		drawImage(texRt, 0, 0, TOP | LEFT);
+		setShader(0);
+		setRGBA(1, 1, 1, 1);
+	}
+
+	public override bool keyboard(iKeystate stat, iKeyboard key)
+	{
+		if (!init)
+		{
+			MethodKeyboard[] mkeyboard = new MethodKeyboard[]
+			{
+				keyboardPlayer, keyboardPopEvent,pe.keyboard
+			};
+			//for (int i = 0; i < m.Length; i++)
+			for (int i = mkeyboard.Length - 1; i > -1; i--)
+			{
+				if (mkeyboard[i](stat, key))
+					return true;
+			}
+		}
+
+		return false;
 	}
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
+		if (!init)
+		{
+			MethodMouse[] m = new MethodMouse[]
+			{
+				keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting, pe.key
+			};
+
+			for (int i = m.Length - 1; i > -1; i--)
+			{
+				if (m[i](stat, point))
+					return true;
+			}
+		}
 		return false;
 	}
 	public override bool wheel(iPoint point)
 	{
+		wheelPopPerson(point);
 		return false;
 	}
 
@@ -227,42 +257,16 @@ public class Proc : gGUI
 					return false;
 
 				if (popPersonInfo.bShow)
+				{
 					popPersonInfo.show(false);
+					popPerson.show(false);
+				}
 
-				float x, y;
-				x = pPos.x + psize.width;
-				y = pPos.y + (psize.height / 2) - 175;
-#if false
-				if (pPos.x > MainCamera.devWidth / 2)
-					popEvent.closePoint = new iPoint(pPos.x - 300 + 75, y);
-				else
-					popEvent.closePoint = new iPoint(x + 10, y);
-#else
-				// 200, 350;
-				iPoint[] p = new iPoint[2];
-				p[0] = pPos + new iPoint(psize.width / 2, psize.height / 2);
-				p[1] = p[0] + new iPoint(psize.width, -175);
-
-				iPoint min = new iPoint(10, 10);
-				iPoint max = new iPoint(MainCamera.devWidth - 500, MainCamera.devHeight - 380);
-
-				if (p[1].x < min.x)
-					p[1].x = min.x;
-				else if (p[1].x > max.x)
-					p[1].x = max.x;
-				if (p[1].y < min.y)
-					p[1].y = min.y;
-				else if (p[1].y > max.y)
-					p[1].y = max.y;
-
-				popEvent.openPoint = p[0];
-				popEvent.closePoint = p[1];
-#endif
 				if (!popEvent.bShow)
 				{
 					pInfo = false;
 					SoundManager.instance().play(iSound.PopUp);
-					popEvent.show(true);
+					showPopEvent(true);
                 }
 			}
 		}
@@ -277,6 +281,9 @@ public class Proc : gGUI
 				nextPos = new iPoint(0, 0);
 				pInfo = false;
 				popSetting.show(popSetting.bShow ? false : true);
+				popPerson.show(false);
+				popPersonInfo.show(false);
+				popEvent.show(false);
 			}
 		}
 		return false;
@@ -644,16 +651,12 @@ public class Proc : gGUI
 		{
 			if (popTop.selected == 1)
 			{
-                //popTop.selected = -1;
+                popTop.selected = -1;
 
 				popPerson.show(popPerson.bShow ? false : true);
                 if (popPerson.bShow)
-                {
                     SoundManager.instance().play(iSound.PopUp);
-                }
-                else
-                    popTop.selected = -1;
-			}            
+            }            
 		}
 		return false;
 	}
@@ -746,12 +749,12 @@ public class Proc : gGUI
 		setRGBA(1, 1, 1, 1);
 		for (int i = 0; i < people; i++)
 		{
-			for (int j = 0; j < 2; j++)
-			{
-				string s = playerEvent.pState[i].name;
-				if (s == null)
-					s = "null";
-			}
+			//for (int j = 0; j < 2; j++)
+			//{
+			//	string s = playerEvent.pState[i].name;
+			//	if (s == "null")
+			//		return;
+			//}
 			imgPersonBtn[i].frame = (popPerson.selected == i ? 1 : 0);
 			imgPersonBtn[i].paint(0.0f, offPerson);
 		}
@@ -787,7 +790,7 @@ public class Proc : gGUI
 		{
 			setRGBA(1, 1, 1, 1);
 			if (playerEvent.pState[pindex].behave == 3)
-				setRGBA(0, 1, 0, 1);
+				setRGBA(0.3f, 0.3f, 0.3f, 1);
 		}
 		else
 			setRGBA(0.3f, 0.3f, 0.3f, 1);
@@ -796,7 +799,7 @@ public class Proc : gGUI
 
 		setStringRGBA(0, 0, 0, 1);
 		drawString(s, 150 / 2, 50 / 2, VCENTER | HCENTER);
-		GUI.color = Color.white;
+		GUI.color = UnityEngine.Color.white;
 	}
 
 	void closePopPerson(iPopup pop)
@@ -1055,6 +1058,7 @@ public class Proc : gGUI
 		fillRect(0, 0, w, h);
 		setStringRGBA(0, 0, 0, 1);
 		drawString(s, w / 2, h / 2, VCENTER | HCENTER);
+		setRGBA(1, 1, 1, 1);
 	}
 
 	void drawPopInfo(float dt)
@@ -1209,7 +1213,7 @@ public class Proc : gGUI
 		pop.add(img);
 
         stPopEvent = st;
-
+		
         //설명
         img = new iImage();
         st = new iStrTex(methodStPopEventInfo, 300, 350);
@@ -1300,7 +1304,7 @@ public class Proc : gGUI
 
 		setStringRGBA(0, 0, 0, 1);
 		drawString(s, 150 / 2, 50 / 2, VCENTER | HCENTER);
-		GUI.color = Color.white;
+		GUI.color = UnityEngine.Color.white;
 	}
 
 	void drawPopEvent(float dt)
@@ -1311,6 +1315,48 @@ public class Proc : gGUI
 		//}
 		stPopEvent.setString(popEvent.selected + "");
 		popEvent.paint(dt);
+	}
+
+	void showPopEvent(bool show)
+	{
+		popEvent.show(show);
+		if( show )
+		{
+			//popEvent.closePoint;
+			float x, y;
+			x = pPos.x + psize.width;
+			y = pPos.y + (psize.height / 2) - 175;
+#if false
+			if (pPos.x > MainCamera.devWidth / 2)
+				popEvent.closePoint = new iPoint(pPos.x - 300 + 75, y);
+			else
+				popEvent.closePoint = new iPoint(x + 10, y);
+#else
+			// 200, 350;
+			iPoint[] p = new iPoint[2];
+			p[0] = pPos + new iPoint(psize.width / 2, psize.height / 2);
+			p[1] = p[0] + new iPoint(psize.width, -175);
+
+			iPoint min = new iPoint(10, 60);
+			iPoint max = new iPoint(MainCamera.devWidth - 540, MainCamera.devHeight - 360);
+			// -50, -40, 530, 350
+			min -= new iPoint(-50, -40);
+			//max -= new iPoint(-50, -40);
+
+			if (p[1].x < min.x)
+				p[1].x = min.x;
+			else if (p[1].x > max.x)
+				p[1].x = max.x;
+
+			if (p[1].y < min.y)
+				p[1].y = min.y;
+			else if (p[1].y > max.y)
+				p[1].y = max.y;
+
+			popEvent.openPoint = p[0];
+			popEvent.closePoint = p[1];
+#endif
+		}
 	}
 
 	bool keyPopEvent(iKeystate stat, iPoint point)
@@ -1393,6 +1439,7 @@ public class Proc : gGUI
 	{
 		popPerson.show(false);
 		SoundManager.instance().play(iSound.PopUp);
+		SoundManager.instance().play(iSound.NextDay);
 		pe.showNewDay(true);
 	}
 

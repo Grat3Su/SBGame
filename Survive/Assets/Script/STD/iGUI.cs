@@ -311,18 +311,19 @@ public class iGUI : MonoBehaviour
 //#elif true
 #elif false
 			GUI.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, ScaleMode.StretchToFill, true, h / w, color, 0, 0);
-#elif true// final
+#elif false// final
         GUI.color = color;// #issue
         GUI.DrawTextureWithTexCoords(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), true);
 #elif true// curr
-        if (mat == null)
-		{
-            Shader shader = Shader.Find("Unlit/STD");
-            mat = new Material(shader);
-		}
-        mat.SetTexture("_MainTex", tex);//마테리얼 내에서 텍스트 변경
-        mat.SetColor("inColor", color);
-        Graphics.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), 0, 0, 0, 0, mat);
+		loadShader();
+		Material m = mat[matIndex];
+        m.SetTexture("_MainTex", tex);//마테리얼 내에서 텍스트 변경
+		m.SetColor("inColor", color);
+		m.SetFloat("x", fadeCircle.x);
+		m.SetFloat("y", fadeCircle.y);
+		m.SetFloat("radius", fadeCircle.z);
+		m.SetColor("fadeColor", fadeColor);
+		Graphics.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), 0, 0, 0, 0, m);
 #else
         ScaleMode scaleMode = ScaleMode.ScaleToFit;
 			float imageAspect = h / w;
@@ -331,7 +332,35 @@ public class iGUI : MonoBehaviour
 #endif
         GUI.matrix = matrixPrjection;
     }
-    Material mat = null;
+    Material[] mat = null;
+	int matIndex = 0;
+	
+	void loadShader()
+	{
+		if (mat != null)
+			return;
+
+		string[] path = new string[] { "STD", "FADE", "OUTLINE", "SHINING" };
+		mat = new Material[path.Length];
+		for(int i=0; i<path.Length; i++)
+		{
+			Shader shader = Shader.Find("Unlit/" + path[i]);
+			mat[i] = new Material(shader);
+		}
+	}
+
+	public void setShader(int index)
+	{
+		matIndex = index;
+	}
+
+	Vector4 fadeCircle;
+	Color fadeColor;
+	public void setShaderFade(float x, float y, float r, Color c)
+	{
+		fadeCircle = new Vector4(x, y, 800*r, 0);
+		fadeColor = c;
+	}
 
     public static void drawTexture(Rect r, RenderTexture tex)
 	{

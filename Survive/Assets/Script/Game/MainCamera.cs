@@ -110,6 +110,7 @@ public class MainCamera : MonoBehaviour
 
 	void Start()
 	{
+		gameObject.AddComponent<Event>();
 		drag = false;
 
 		//iGUI.setResolution(devWidth, devHeight);
@@ -117,7 +118,6 @@ public class MainCamera : MonoBehaviour
 		addMethodMouse(keyGameHierachy);
 		mainCamera = gameObject;
 		new Main();		
-		gameObject.AddComponent<Event>();
 		Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
 		iGUI.setResolution(devWidth, devHeight);
 	}

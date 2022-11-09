@@ -41,6 +41,7 @@ public class ProcEvent
 
 		loadNewDay();
 		loadGameOver();
+		//남은 생존자, 연구 레벨, 맵 레벨
 
 		popNewDay.show(false);
 		popGameOver.show(false);

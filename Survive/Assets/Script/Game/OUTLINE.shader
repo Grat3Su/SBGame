@@ -1,4 +1,4 @@
-Shader "Unlit/FADE"
+Shader "Unlit/OUTLINE"
 {
     Properties
     {
@@ -34,35 +34,28 @@ Shader "Unlit/FADE"
                 float4 vertex : SV_POSITION;
             };
 
-			sampler2D _MainTex;
-			float4 _MainTex_TexelSize;// x, y, z, w = (	1/width, 1/height, wid;th, height)
-			float4 _MainTex_ST;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
 
-			float4 inColor;
-			float x;// xy: position, z:radius
-			float y;
-			float radius;
-			float4 fadeColor;
+            float4 inColor;
 
             v2f vert (appdata v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                UNITY_TRANSFER_FOG(o,o.vertex);0
                 return o;
             }
 
-#define mix(x, y, a)  ((x) * (1-(a)) + (y) * (a))
+			fixed4 frag(v2f i) : SV_Target
+			{
+				//fixed4 col = tex2D(_MainTex, i.uv) * inColor;
+				fixed4 col = 0;
+				col.rgb = i.worldNormal * 0.5 + 0.5;
 
-            fixed4 frag(v2f i) : SV_Target
-            {
-                fixed4 col = tex2D(_MainTex, i.uv)* inColor;
-				float2 fragCoord = i.uv * _MainTex_TexelSize.zw;
-				float len = length(fragCoord.xy - float2(x,y));
-				
-				col = mix(col, fadeColor, clamp(len - radius, 0, 1.));
-								
+				//fragCoord
+                
                 return col;
             }
             ENDCG

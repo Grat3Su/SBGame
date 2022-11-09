@@ -4,7 +4,7 @@ using System.Drawing;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class PeopleState : MonoBehaviour
+public class PeopleState// : MonoBehaviour
 {
 	// 생존자 행동
 	// idle, move, atack..
@@ -26,11 +26,14 @@ public class PeopleState : MonoBehaviour
 	public Sprite[][] sp;
 	public Event h;
 
-	void Start()
+	public PeopleState()
 	{
+		name = "null";
+
 		init();
 	}
-	public void init()
+		
+	void init()
 	{
 		pos = new iPoint(0, 0);
 		curPos = new iPoint(0, 0);
@@ -44,8 +47,9 @@ public class PeopleState : MonoBehaviour
 		//job = 0;
 		jobReserve = -1;		
 	}
+
 	// Update is called once per frame
-	void Update()
+	public void update()
 	{
 		if (name == "null")
 			return;
@@ -146,27 +150,5 @@ public class PeopleState : MonoBehaviour
 		job = newjob;
 		jobExp = 0;//경험치 초기화
 
-		Sprite sp = Resources.Load<Sprite>("jobless");
-		if (job == 0)
-		{
-			sp = Resources.Load<Sprite>("jobless");
-		}
-		else if (job == 1)
-		{
-			sp = Resources.Load<Sprite>("explorer");
-		}
-		else if (job == 2)
-		{
-			sp = Resources.Load<Sprite>("worker");
-		}
-		else if (job == 3)
-		{
-			sp = Resources.Load<Sprite>("farmer");
-		}
-		else if (job == 4)
-		{
-			sp = Resources.Load<Sprite>("researcher");
-		}
-		//gameObject.GetComponent<SpriteRenderer>().sprite = sp;
 	}
 }

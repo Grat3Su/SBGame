@@ -38,40 +38,67 @@ public class Intro : gGUI
 		loadSetting();
 		loadH2P();
 		loadExit();
-
-		MethodMouse[] m = new MethodMouse[]
-		{
-			keyPopMenu, keyPopH2P, keySetting, keyExit,
-		};
-		for (int i = 0; i < m.Length; i++)
-			MainCamera.addMethodMouse(new MethodMouse(m[i]));
+		startClick = false;
 	}
 
 	public override void free()
 	{
-		MainCamera.destroyMethodMouse(key);
-
-
-		MethodMouse[] m = new MethodMouse[]
-		{
-			keyPopMenu, keyPopH2P, keySetting, keyExit,
-		};
-		for (int i = 0; i < m.Length; i++)
-			MainCamera.addMethodMouse(new MethodMouse(m[i]));
+		MainCamera.destroyMethodMouse(new MethodMouse(key));
+		MainCamera.destroyMethodKeyboard(new MethodKeyboard(keyboard));
+		MainCamera.destroyMethodWheel(new MethodWheel(wheel));
 	}
 
+	bool startClick;
+	RenderTexture texRt = null;
 	public override void draw(float dt)
 	{
+		if( texRt==null )
+		{
+			texRt = new RenderTexture(MainCamera.devWidth,
+										MainCamera.devHeight, 32,
+										RenderTextureFormat.ARGB32);
+		}
+
+		RenderTexture bk = RenderTexture.active;
+		RenderTexture.active = texRt;
+		GL.Clear(true, true, Color.clear);
+
 		drawBG();
 		drawTitle(dt);
 		drawMenu(dt);
 		drawSetting(dt);
 		drawH2P(dt);
 		drawExit(dt);
+
+		RenderTexture.active = bk;
+
+		if (startClick)
+		{
+			shaderDt += dt;
+			if(shaderDt > 1.0f)
+				Main.me.reset("Proc");
+			setShader(1);
+			setShaderFade(300, 200, Mathf.Abs(Mathf.Cos(shaderDt * 80 * Mathf.Deg2Rad)), Color.black);
+		}
+			drawImage(texRt, 0, 0, TOP | LEFT);
+			setShader(0);
+			setRGBA(1, 1, 1, 1);
 	}
+	float shaderDt = 0;
 
 	public override bool key(iKeystate stat, iPoint point)
 	{
+		MethodMouse[] m = new MethodMouse[]
+		{
+			keyPopMenu, keyPopH2P, keySetting, keyExit,
+		};
+		//for (int i = 0; i < m.Length; i++)
+		for (int i = m.Length-1; i > -1; i--)
+		{
+				if (m[i](stat, point))
+				return true;
+		}
+
 		if (stat == iKeystate.Began)
 		{
 			Debug.Log(point.x + ", " + point.y);
@@ -334,7 +361,8 @@ public class Intro : gGUI
 				{
 					case 0:
 						SoundManager.instance().play(iSound.ButtonClick);
-						Main.me.reset("Proc");
+						startClick = true;
+						//Main.me.reset("Proc");
 						break;
 					case 1:
 						Debug.Log("h2p");
@@ -557,7 +585,7 @@ public class Intro : gGUI
 				for(i=0; i<3; i++)
 					imgSettingBtn[6 + i].alpha = 1f;
 			}
-			else// if( i==6, i==7, i==8 )
+			else// if( i==6, i==7, i==8 )//전체 창모드는 지우기 / 전체/창 두개만
 			{
 				if (i == 6)
 				{

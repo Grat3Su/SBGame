@@ -1,4 +1,4 @@
-Shader "Unlit/FADE"
+Shader "Unlit/SHINING"
 {
     Properties
     {
@@ -34,15 +34,10 @@ Shader "Unlit/FADE"
                 float4 vertex : SV_POSITION;
             };
 
-			sampler2D _MainTex;
-			float4 _MainTex_TexelSize;// x, y, z, w = (	1/width, 1/height, wid;th, height)
-			float4 _MainTex_ST;
+            sampler2D _MainTex;
+            float4 _MainTex_ST;
 
-			float4 inColor;
-			float x;// xy: position, z:radius
-			float y;
-			float radius;
-			float4 fadeColor;
+            float4 inColor;
 
             v2f vert (appdata v)
             {
@@ -53,16 +48,19 @@ Shader "Unlit/FADE"
                 return o;
             }
 
-#define mix(x, y, a)  ((x) * (1-(a)) + (y) * (a))
-
-            fixed4 frag(v2f i) : SV_Target
+            fixed4 frag (v2f i) : SV_Target
             {
-                fixed4 col = tex2D(_MainTex, i.uv)* inColor;
-				float2 fragCoord = i.uv * _MainTex_TexelSize.zw;
-				float len = length(fragCoord.xy - float2(x,y));
-				
-				col = mix(col, fadeColor, clamp(len - radius, 0, 1.));
-								
+                // sample the texture
+                fixed4 col = tex2D(_MainTex, i.uv) * inColor;
+                
+                //if (nGrey % 5 == 0)
+                //{
+                //    float grey = col.r * 0.25 + col.g * 0.6 + col.b * 0.15;
+                //    col.rgb = grey;//회색으로 그림
+                //}
+                
+                // apply fog
+                //UNITY_APPLY_FOG(i.fogCoord, col);
                 return col;
             }
             ENDCG

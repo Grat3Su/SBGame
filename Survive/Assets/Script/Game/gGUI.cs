@@ -86,6 +86,7 @@ public class gGUI : iGUI
 		if (initialize)
 		{
 			MainCamera.addMethodMouse(new MethodMouse(key));
+			MainCamera.addMethodKeyboard(new MethodKeyboard(keyboard));
 			MainCamera.addMethodWheel(new MethodWheel(wheel));
 			load();
 
@@ -115,7 +116,6 @@ public class gGUI : iGUI
 
 	public virtual void free()
 	{
-
 	}
 
 	public virtual void draw(float dt)
@@ -128,6 +128,14 @@ public class gGUI : iGUI
 		// do nothing
 		return false;
 	}
+
+	public virtual bool keyboard(iKeystate stat, iKeyboard key)
+	{
+		// do nothing
+		return false;
+	}
+
+
 	public virtual bool wheel(iPoint point)
 	{
 		// do nothing

@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class Event : MonoBehaviour
@@ -7,7 +9,6 @@ public class Event : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        pState = new PeopleState[100];
         initGame();
     }
 
@@ -29,6 +30,8 @@ public class Event : MonoBehaviour
 
     public void initGame()
     {
+		pState = new PeopleState[100];
+		spawnfir();
         jobless = new int[100];
         joblessNum = 0;
         //storage = new Storage(1, 5, 0, 1, 0, 1);
@@ -44,7 +47,6 @@ public class Event : MonoBehaviour
         explorer = 0;
         deletePeople();
         gameover = false;
-        spawnfir();
         map = new int[] {50, 100, 300 };
         newday = false;
     }
@@ -56,12 +58,22 @@ public class Event : MonoBehaviour
         minusItem.init();
 	}
 
+	void updatePeople()
+	{
+		for(int i = 0; i <storage.getStorage(0); i++)
+		{
+			pState[i].update();
+		}
+	}
+
     // Update is called once per frame
     void Update()
     {
         if(curp!=storage.getStorage(0))
             spawnPeople();
-        return;
+		updatePeople();
+
+		return;
 
         if (newday)
         {
@@ -98,11 +110,13 @@ public class Event : MonoBehaviour
     //스폰
     void spawnfir()
     {
-        int people = storage.getStorage(0);
+        int people = storage.getStorage(0);		
+		curp = people;
+#if false
         Transform parent = GameObject.Find("People").transform;
         for (int i = 0; i < 100; i++)
         {
-            if (pState[i] == null)
+			if (pState[i] == null)
             {
                 curp++;
                 GameObject go = new GameObject();
@@ -137,7 +151,31 @@ public class Event : MonoBehaviour
                     go.GetComponent<PeopleState>().name = "null";
 				}
             }
-        }
+		}
+#else
+		for (int i = 0; i < 100; i++)
+		{
+			pState[i] = new PeopleState();
+			if (i < people)
+			{
+				string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
+				string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
+				pState[i].name = name;
+
+				int newjob = Math.random(0, 5);
+				pState[i].jobUpdate(newjob);
+				if (newjob == 0)
+				{
+					jobless[joblessNum] = i;
+					joblessNum++;
+				}
+			}
+			else
+			{
+				pState[i].name = "null";
+			}
+		}
+#endif
     }
 
     void spawnPeople()
@@ -152,7 +190,6 @@ public class Event : MonoBehaviour
                 string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
                 string name = n[Math.random(0, n.Length)] + n[Math.random(0, n.Length)];
                 pState[i].name = name;
-                pState[i].gameObject.name = name;
             }
             else
                 break;
@@ -168,11 +205,10 @@ public class Event : MonoBehaviour
         
         for (int i = people; i < 100; i++)
         {
-            if (pState[i] == null)
+            if (pState[i].name == "null")
                 return;
             pState[i].behave = 0;
             pState[i].name = "null";
-            pState[i].gameObject.name = "null";
             pState[i].pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 130);
         }
     }
@@ -332,7 +368,7 @@ public class Event : MonoBehaviour
 
             specialEvent = 0;//이벤트 초기화
             //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
-            doRandEvent((DoEvent)(Math.random(1, 5)));
+            //doRandEvent((DoEvent)(Math.random(1, 5)));
         }
     }
 
