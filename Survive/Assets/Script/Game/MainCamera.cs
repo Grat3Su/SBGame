@@ -169,7 +169,7 @@ public class MainCamera : MonoBehaviour
 #endif
 		}
 
-		if (drag)
+		//if (drag)
 		{
 			Vector3 v = Input.mousePosition;
 			if (prevV == v)

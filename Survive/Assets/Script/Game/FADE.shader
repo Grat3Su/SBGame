@@ -39,9 +39,7 @@ Shader "Unlit/FADE"
 			float4 _MainTex_ST;
 
 			float4 inColor;
-			float x;// xy: position, z:radius
-			float y;
-			float radius;
+			float3 circle;// xy: position, z:radius
 			float4 fadeColor;
 
             v2f vert (appdata v)
@@ -59,9 +57,9 @@ Shader "Unlit/FADE"
             {
                 fixed4 col = tex2D(_MainTex, i.uv)* inColor;
 				float2 fragCoord = i.uv * _MainTex_TexelSize.zw;
-				float len = length(fragCoord.xy - float2(x,y));
+				float len = length(fragCoord.xy - circle.xy);
 				
-				col = mix(col, fadeColor, clamp(len - radius, 0, 1.));
+				col = mix(col, fadeColor, clamp(len - circle.z, 0, 1.));
 								
                 return col;
             }

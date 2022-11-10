@@ -162,6 +162,7 @@ public class Event : MonoBehaviour
 
 				int newjob = Math.random(0, 5);
 				pState[i].jobUpdate(newjob);
+				pState[i].h = this;
 				if (newjob == 0)
 				{
 					jobless[joblessNum] = i;

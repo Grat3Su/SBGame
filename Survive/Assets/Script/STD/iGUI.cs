@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class iGUI : MonoBehaviour
@@ -319,10 +320,13 @@ public class iGUI : MonoBehaviour
 		Material m = mat[matIndex];
         m.SetTexture("_MainTex", tex);//마테리얼 내에서 텍스트 변경
 		m.SetColor("inColor", color);
-		m.SetFloat("x", fadeCircle.x);
-		m.SetFloat("y", fadeCircle.y);
-		m.SetFloat("radius", fadeCircle.z);
-		m.SetColor("fadeColor", fadeColor);
+		//m.SetVector("circle", fadeCircle);
+		//m.SetColor("fadeColor", fadeColor);
+		//m.SetColor("outlineColor", outlineColor);
+		//m.SetFloat("outlineWidth", outlineWidth);
+		m.SetFloat("shiningWidth", shiningWidth);
+		m.SetFloat("shiningTime", shiningTime);
+		m.SetColor("shiningColor", shiningColor);
 		Graphics.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), 0, 0, 0, 0, m);
 #else
         ScaleMode scaleMode = ScaleMode.ScaleToFit;
@@ -356,13 +360,31 @@ public class iGUI : MonoBehaviour
 
 	Vector4 fadeCircle;
 	Color fadeColor;
-	public void setShaderFade(float x, float y, float r, Color c)
+	public void setShaderFade(float x, float y, float radius, Color c)
 	{
-		fadeCircle = new Vector4(x, y, 800*r, 0);
+		fadeCircle = new Vector4(x, y, radius, 0);
 		fadeColor = c;
 	}
 
-    public static void drawTexture(Rect r, RenderTexture tex)
+	Color outlineColor;
+	float outlineWidth;
+	public void setShaderOutline(float w, Color c)
+	{
+		outlineWidth = w;
+		outlineColor = c;
+	}
+
+	float shiningWidth;
+	float shiningTime;
+	Color shiningColor;
+	public void setShaderShining(float w, float time, Color c)
+	{
+		shiningWidth = w;
+		shiningTime = time;
+		shiningColor = c;
+	}
+
+	public static void drawTexture(Rect r, RenderTexture tex)
 	{
         GUI.DrawTexture(r, tex);
     }

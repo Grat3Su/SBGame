@@ -17,7 +17,7 @@ public class Proc : gGUI
 		loadPlayer();
 		loadPeople();
 		loadJobless();
-        loadSetting();
+		loadSetting();
 		pe = new ProcEvent();
 
 		loadPopTop();
@@ -37,12 +37,12 @@ public class Proc : gGUI
 
 	void goTitle()
 	{
-		if(pe.goTitle)
+		if (pe.goTitle)
 		{
 			free();
 			Main.me.reset("Intro");
 		}
-		else if(pe.reset)
+		else if (pe.reset)
 		{
 			free();
 			Main.me.reset("Proc");
@@ -87,20 +87,42 @@ public class Proc : gGUI
 		drawPopPerson(dt);
 		drawPopInfo(dt);
 		drawPopEvent(dt);
-        drawSetting(dt);
+		drawSetting(dt);
 		pe.paint(dt);
 
 		//drawDisplay(dt);
 
 		RenderTexture.active = bk;
 
-		if (initGame)
+		float _shaderDt = 2.5f;
+		if (shaderDt < _shaderDt)
 		{
+			if (dt > 0.17f)
+				dt = 0f;
+
 			shaderDt += dt;
-			if (shaderDt > 1.0f)
-				initGame = false;
+			float r = shaderDt / _shaderDt;
+			if (r < 0.3f)
+				r = r / 0.3f * 10;
+			else if (r < 0.7f)
+				r = 10;
+			else// if( r < 1.0f )
+			{
+				r = (r - 0.7f) / 0.3f * 82 + 10;
+				if (r > 90)
+				{
+					r = 90;
+					initGame = false;
+				}
+				
+			}
+			Debug.LogFormat($"{shaderDt}, {r}");
+
+
+			float radius = 800 * (Mathf.Abs(Mathf.Sin(r * Mathf.Deg2Rad)));
+
 			setShader(1);
-			setShaderFade(MainCamera.devWidth/2, MainCamera.devHeight/2, Mathf.Abs(Mathf.Sin(shaderDt * 80 * Mathf.Deg2Rad)), Color.black);
+			setShaderFade(MainCamera.devWidth / 2, MainCamera.devHeight / 2, radius, Color.black);
 		}
 		drawImage(texRt, 0, 0, TOP | LEFT);
 		setShader(0);
@@ -158,7 +180,7 @@ public class Proc : gGUI
 		//srPeople = new SpriteRenderer[100];
 		//for(int i=0; i < people; i++)
 		//	srPeople[i] = playerEvent.pState[i].gameObject.GetComponent<SpriteRenderer>();
-        //
+		//
 		//srPeople[0].sortingOrder = 0;
 	}
 
@@ -217,13 +239,13 @@ public class Proc : gGUI
 		else if (pPos.y > MainCamera.devHeight - 50)
 			pPos.y = MainCamera.devHeight - 50;
 		goTitle();
-		if (nextPos == new iPoint(0, 0)&&pInfo)
-		{			
+		if (nextPos == new iPoint(0, 0) && pInfo)
+		{
 			setStringSize(20);
 			drawString("Space", new iPoint(pPos.x, pPos.y - 40), VCENTER | HCENTER);
 		}
 
-		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);		
+		drawImage(Util.createTexture("player"), pPos, psize.width / Util.createTexture("player").width, psize.height / Util.createTexture("player").height, VCENTER | HCENTER);
 	}
 	bool keyPlayer(iKeystate stat, iPoint point)
 	{
@@ -248,7 +270,7 @@ public class Proc : gGUI
 				nextPos.x = 5;
 			else if (key == iKeyboard.Left)
 				nextPos.x = -5;
-			else if(key == iKeyboard.Space)
+			else if (key == iKeyboard.Space)
 			{
 				nextPos = new iPoint(0, 0);
 				if (methodPeople != null)
@@ -265,7 +287,7 @@ public class Proc : gGUI
 					pInfo = false;
 					SoundManager.instance().play(iSound.PopUp);
 					showPopEvent(true);
-                }
+				}
 			}
 		}
 		else if (stat == iKeystate.Ended)
@@ -294,11 +316,11 @@ public class Proc : gGUI
 	void loadPeople()
 	{
 		people = playerEvent.storage.people;
-			for (int i = 0; i < people; i++)
-			{
-				playerEvent.pState[i].pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 150);
-				playerEvent.pState[i].curPos = playerEvent.pState[i].pos;
-			}
+		for (int i = 0; i < people; i++)
+		{
+			playerEvent.pState[i].pos = new iPoint(MainCamera.devWidth - 250, MainCamera.devHeight - 150);
+			playerEvent.pState[i].curPos = playerEvent.pState[i].pos;
+		}
 
 		_moveDt = 3f;
 		peopleInOut = new iPoint[]
@@ -547,56 +569,56 @@ public class Proc : gGUI
 		{
 			st = new iStrTex(methodStPopTopBtn, 50, 50);
 
-            if (i == 0)
-                st.setString(i + "\n" + " < ");
-            else
-                st.setString(i + "\n" + " > ");
+			if (i == 0)
+				st.setString(i + "\n" + " < ");
+			else
+				st.setString(i + "\n" + " > ");
 
-            img.add(st.tex);
+			img.add(st.tex);
 		}
 		img.position = new iPoint(MainCamera.devWidth - 100, 5);
 		imgPopTopBtn = img;
 
-        pop.style = iPopupStyle.move;
+		pop.style = iPopupStyle.move;
 		pop.openPoint = new iPoint(0, -60);
 		pop.closePoint = new iPoint(0, 0);
 		pop._aniDt = 0.5f;
-        pop.methodDrawBefore = drawBeforePopTop;
+		pop.methodDrawBefore = drawBeforePopTop;
 
-        popTop = pop;
-    }
+		popTop = pop;
+	}
 
-    void drawBeforePopTop(float dt, iPopup pop, iPoint zero)
-    {
-        stPopTop.setString(popTop.selected+"");
-    }
+	void drawBeforePopTop(float dt, iPopup pop, iPoint zero)
+	{
+		stPopTop.setString(popTop.selected + "");
+	}
 
-    public void methodStPopTop(iStrTex st)
-    {
-        setRGBA(0, 0, 0, 0.6f);
-        fillRect(0, 0, MainCamera.devWidth, 60);
-        setRGBA(1, 1, 1, 1);
-        iPoint p = new iPoint(5, 10);
+	public void methodStPopTop(iStrTex st)
+	{
+		setRGBA(0, 0, 0, 0.6f);
+		fillRect(0, 0, MainCamera.devWidth, 60);
+		setRGBA(1, 1, 1, 1);
+		iPoint p = new iPoint(5, 10);
 		setStringName("BMJUA_ttf");
 		for (int i = 0; i < 4; i++)
-        {
-            drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
-            string[] texname = new string[] { "people", "food", "lab", "map" };
-            p.x = 5 + i * 150;
-            drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
-        }
-        drawString("생존자 목록", new iPoint(MainCamera.devWidth - 150, 25), VCENTER | HCENTER);
+		{
+			drawString(playerEvent.storage.getStorageText(i), 60 + i * 150, 15, RIGHT | HCENTER);
+			string[] texname = new string[] { "people", "food", "lab", "map" };
+			p.x = 5 + i * 150;
+			drawImage(Util.createTexture(texname[i]), p, 40.0f / Util.createTexture(texname[i]).width, 40.0f / Util.createTexture(texname[i]).height, LEFT | HCENTER);
+		}
+		drawString("생존자 목록", new iPoint(MainCamera.devWidth - 150, 25), VCENTER | HCENTER);
 
-        imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
-        imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
-    }
+		imgPopTopBtn.frame = (popTop.selected == 1 ? 1 : 0);
+		imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
+	}
 
 	void howmuchItem()
 	{
-       
+
 	}
 
-    void methodStPopTopBtn(iStrTex st)
+	void methodStPopTopBtn(iStrTex st)
 	{
 		string[] strs = st.str.Split("\n");
 		string s = strs[1];
@@ -605,15 +627,15 @@ public class Proc : gGUI
 		fillRect(0, 0, 50, 50);
 
 		setStringRGBA(0, 0, 0, 1);
-       
+
 		drawString(s, new iPoint(25, 25), VCENTER | HCENTER);
 	}
 
 	void drawPopTop(float dt)
 	{
-        howmuchItem();
+		howmuchItem();
 
-        Storage sCheck = playerEvent.storage;
+		Storage sCheck = playerEvent.storage;
 		for (int i = 0; i < 6; i++)
 		{
 			stPopTop.setString(sCheck.getStorage(i) + "");
@@ -649,17 +671,17 @@ public class Proc : gGUI
 		{
 			if (popTop.selected == 1)
 			{
-                popTop.selected = -1;
+				popTop.selected = -1;
 
 				popPerson.show(popPerson.bShow ? false : true);
-                if (popPerson.bShow)
-                    SoundManager.instance().play(iSound.PopUp);
-            }            
+				if (popPerson.bShow)
+					SoundManager.instance().play(iSound.PopUp);
+			}
 		}
 		return false;
 	}
-    
-    iRect checkScrollbar(int barW, int barH)
+
+	iRect checkScrollbar(int barW, int barH)
 	{
 		people = playerEvent.storage.people;
 		// 가로 크기 / 총 크기
@@ -692,6 +714,7 @@ public class Proc : gGUI
 
 	iStrTex stPerson;
 	iImage[] imgPersonBtn;
+	iStrTex[][] stPersons;
 
 	iPoint offPerson, offMin, offMax;
 	string[] names;
@@ -707,10 +730,12 @@ public class Proc : gGUI
 		stPerson = st;
 		people = playerEvent.storage.people;
 		imgPersonBtn = new iImage[100];
+		stPersons = new iStrTex[100][];
 
 		for (int i = 0; i < 100; i++)
 		{
 			img = new iImage();
+			stPersons[i] = new iStrTex[2];
 			for (int j = 0; j < 2; j++)
 			{
 				st = new iStrTex(methodStPersonBtn, 150, 50);
@@ -718,6 +743,7 @@ public class Proc : gGUI
 				if (i < people) s = playerEvent.pState[i].name;
 				st.setString(j + "\n" + s + "\n" + i);
 				img.add(st.tex);
+				stPersons[i][j] = st;
 			}
 			img.position = new iPoint(20, 10 + 60 * i);
 			imgPersonBtn[i] = img;
@@ -726,6 +752,7 @@ public class Proc : gGUI
 		pop.style = iPopupStyle.move;
 		pop.methodClose = closePopPerson;
 		pop.methodOpen = closePopPerson;
+		pop.methodDrawBefore = drawPopPersonBefor;
 		pop.openPoint = new iPoint(MainCamera.devWidth, (MainCamera.devHeight - 500) / 2);
 		pop.closePoint = new iPoint(MainCamera.devWidth - 210, (MainCamera.devHeight - 500) / 2);
 		pop._aniDt = 0.2f;
@@ -807,6 +834,19 @@ public class Proc : gGUI
 		offPerson = new iPoint(0, 0);
 	}
 
+	void drawPopPersonBefor(float dt, iPopup pop, iPoint zero)
+	{
+		people = playerEvent.storage.people;
+		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + playerEvent.storage.people);// click, move
+		for(int i=0; i< people; i++)
+		{
+			for (int j = 0; j < 2; j++)
+			{
+				stPersons[i][j].setString(j + "\n" + playerEvent.pState[i].name + "\n" + i);
+			}
+		}
+	}
+
 	void drawPopPerson(float dt)
 	{
 		if (pe.bShowNewDay() || popEvent.bShow)
@@ -814,7 +854,6 @@ public class Proc : gGUI
 			popPerson.show(false);
 			return;
 		}
-		stPerson.setString(popPerson.selected + " " + offPerson.y + " " + playerEvent.storage.people);// click, move
 
 		popPerson.paint(dt);
 	}

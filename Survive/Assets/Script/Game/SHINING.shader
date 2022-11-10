@@ -35,9 +35,14 @@ Shader "Unlit/SHINING"
             };
 
             sampler2D _MainTex;
+			float4 _MainTex_TexelSize;
             float4 _MainTex_ST;
 
             float4 inColor;
+
+			float  shiningWidth;
+			float4 shiningColor;
+			float  shiningTime;// 0~3s
 
             v2f vert (appdata v)
             {
@@ -47,20 +52,23 @@ Shader "Unlit/SHINING"
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
-
-            fixed4 frag (v2f i) : SV_Target
-            {
-                // sample the texture
+#define mix(x, y, a)  ((x) * (1-(a)) + (y) * (a))
+			fixed4 frag(v2f i) : SV_Target
+			{
                 fixed4 col = tex2D(_MainTex, i.uv) * inColor;
-                
-                //if (nGrey % 5 == 0)
-                //{
-                //    float grey = col.r * 0.25 + col.g * 0.6 + col.b * 0.15;
-                //    col.rgb = grey;//회색으로 그림
-                //}
-                
-                // apply fog
-                //UNITY_APPLY_FOG(i.fogCoord, col);
+
+				if (col.a > 0)
+				{
+					float2 fragCoord = i.uv * _MainTex_TexelSize.zw;
+					float x = _MainTex_TexelSize.z * shiningTime;// +sin(radians(i.uv.y * 180)) * 100;
+					
+					float a = clamp(abs(fragCoord.x - x)/ shiningWidth, 0, 1);
+					a = 1 - a;
+					a = a * a * a;
+
+					col = mix(col, shiningColor, a);
+				}
+				
                 return col;
             }
             ENDCG

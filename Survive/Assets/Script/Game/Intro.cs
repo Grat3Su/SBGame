@@ -73,11 +73,24 @@ public class Intro : gGUI
 
 		if (startClick)
 		{
+			float _shaderDt = 2.5f;
 			shaderDt += dt;
-			if(shaderDt > 1.0f)
+			if(shaderDt > _shaderDt)
 				Main.me.reset("Proc");
 			setShader(1);
-			setShaderFade(300, 200, Mathf.Abs(Mathf.Cos(shaderDt * 80 * Mathf.Deg2Rad)), Color.black);
+			float r = shaderDt / _shaderDt;
+			if (r < 0.3f)
+				r = r / 0.3f * 80;
+			else if (r < 0.7f)
+				r = 80;
+			else// if( r < 1.0f )
+			{
+				r = (r - 0.7f) / 0.3f * 12 + 80;
+				if (r > 90)
+					r = 90;
+			}
+			float radius = 800 * Mathf.Abs(Mathf.Cos(r * Mathf.Deg2Rad));
+			setShaderFade(300, 200, radius, Color.black);
 		}
 			drawImage(texRt, 0, 0, TOP | LEFT);
 			setShader(0);
@@ -100,7 +113,7 @@ public class Intro : gGUI
 
 		if (stat == iKeystate.Began)
 		{
-			Debug.Log(point.x + ", " + point.y);
+			//Debug.Log(point.x + ", " + point.y);
 
 			if (splitNum < 7)
 			{
@@ -203,83 +216,33 @@ public class Intro : gGUI
 	}
 
 	iPopup popMenu = null;
-
-	iStrTex stMenu;
 	iImage[] imgMenuBtn;
-	iStrTex[][] stMenuBtn;
+
 	void loadMenu()
 	{
 		iPopup pop = new iPopup();
 
-		iImage img = new iImage();
-		iStrTex st = new iStrTex(methodStMenu, MainCamera.devWidth, MainCamera.devHeight);
-		// st.setString imgPersonInfoBtn 아직 생성안함
-		img.add(st.tex);
-		pop.add(img);
-		stMenu = st;
-
-		imgMenuBtn = new iImage[4]; // 0 : start / 1 : h2p / 2: Quit
-		stMenuBtn = new iStrTex[4][];//눌렸을 때
-		setStringSize(30);
-
+		string[] str = new string[] { " Start ", "How to Play", "Option", "Quit" };
+		imgMenuBtn = new iImage[str.Length];
 		for (int i = 0; i < 4; i++)
 		{
-			stMenuBtn[i] = new iStrTex[2];
-
-			img = new iImage();
+			iImage img = new iImage();
 			for (int j = 0; j < 2; j++)
 			{
-				//닫기 : 0
-				if (i == 0)
-				{
-					st = new iStrTex(methodStMenuBtn, 200, 150);
-					st.setString(j + "\n" + " Start " + "\n" + i);
-				}
-				//직업 바꾸기 : 1
-				else if (i == 1)
-				{
-					st = new iStrTex(methodStMenuBtn, 200, 150);
-					st.setString(j + "\n" + "How to Play" + "\n" + i);
-				}
-				else if (i == 2)
-				{
-					st = new iStrTex(methodStMenuBtn, 200, 150);
-					st.setString(j + "\n" + "Option" + "\n" + i);
-				}
-				else
-				{
-					st = new iStrTex(methodStMenuBtn, 200, 150);
-					st.setString(j + "\n" + "Quit" + "\n" + i);
-				}
+				iStrTex st = new iStrTex(methodStMenuBtn, 200, 150);
+				st.setString(j + "\n" + str[i] + "\n" + i);
 				img.add(st.tex);
-
-				stMenuBtn[i][j] = st;
 			}
-			if (i == 0)
-				img.position = new iPoint(200, 450);
-			else if (i == 1)
-				img.position = new iPoint(450, 450);
-			else if (i == 2)
-				img.position = new iPoint(700, 450);
-			else if (i == 3)
-				img.position = new iPoint(950, 450);
+			img.position = new iPoint(200 + 250 * i, 450);
 			imgMenuBtn[i] = img;
 		}
 
 		pop.style = iPopupStyle.zoom;
 		pop.openPoint = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
 		pop.closePoint = new iPoint(0, 0);
+		pop.methodDrawAfter = drawMenuAfter;
 		pop._aniDt = 0.5f;
 		popMenu = pop;
-	}
-	public void methodStMenu(iStrTex st)
-	{
-		setRGBA(1, 1, 1, 1);
-		for (int i = 0; i < 4; i++)
-		{
-			imgMenuBtn[i].frame = (popMenu.selected == i ? 1 : 0);
-			imgMenuBtn[i].paint(0.0f, new iPoint(0, 0));
-		}
 	}
 
 	public void methodStMenuBtn(iStrTex st)
@@ -292,6 +255,7 @@ public class Intro : gGUI
 		iPoint pos = new iPoint(0, 0);
 
 		setStringName("BMJUA_ttf");
+		setStringSize(30);
 		if (index == 0)
 		{
 			setRGBA(1, 1, 1, 1);
@@ -316,9 +280,43 @@ public class Intro : gGUI
 		drawImage(tex, pos, 100.0f / tex.width, 100.0f / tex.height, VCENTER | HCENTER);
 	}
 
+	// cursor == -1
+	// 0, 1, 2, 3 // outline
+	// 4, 5, 6, 7 // select
+	void drawMenuAfter(float dt, iPopup pop, iPoint zero)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			if( popMenu.selected%4==i)
+			{
+				// outline
+				//setShader(2);
+				//setShaderOutline(3, Color.white);
+				setShader(3);
+				setShaderShining(15, tm, Color.white);
+				tm += dt;
+				if (tm > 2.0f)
+					tm -= 2;
+
+				//Debug.Log("Outlinme " + tm);
+			}
+
+			imgMenuBtn[i].frame = (popMenu.selected == i + 4 ? 1 : 0);
+			imgMenuBtn[i].paint(0.0f, zero);
+
+			if (popMenu.selected % 4 == i)
+			{
+				// outline
+				setShader(0);
+
+			}
+		}
+	}
+
+	float tm = 0f;
+
 	void drawMenu(float dt)
 	{
-		stMenu.setString(popMenu.selected + "");
 		popMenu.paint(dt);
 	}
 
@@ -327,34 +325,46 @@ public class Intro : gGUI
 		if (popMenu.bShow == false)
 			return false;
 
-		iPoint p;
-		p = popMenu.closePoint;
+		iPoint p = popMenu.closePoint;
 		iSize s = new iSize(0, 0);
-		int i = 0;
+
+		int i, j = -1;
+
 		switch (stat)
 		{
 			case iKeystate.Began:
+				i = popMenu.selected;
+				if (i == -1) break;
+
+				// 클릭
+				popMenu.selected += 4;
+				break;
+
+			case iKeystate.Moved:
 				for (i = 0; i < imgMenuBtn.Length; i++)
 				{
 					if (imgMenuBtn[i].touchRect(p, s).containPoint(point))
 					{
-						SoundManager.instance().play(iSound.ButtonClick);
-						popMenu.selected = i;
+						j = i;
+						break;
 					}
 				}
-				break;
-			case iKeystate.Moved:
-				i = popMenu.selected;
-				if (i == -1) break;
-				if (imgMenuBtn[i].touchRect(p, s).containPoint(point) == false)
-				{
-					//Debug.Log("음:취소");
 
-					popMenu.selected = -1;
+				if (popMenu.selected == 4)
+					Debug.Log("dddd");
+				if ((popMenu.selected % 4) != j) 
+				{
+					// j==-1 ? 취소 : 커서
+					SoundManager.instance().play(iSound.ButtonClick);
+					popMenu.selected = j;
 				}
 				break;
+
 			case iKeystate.Ended:
 				i = popMenu.selected;
+				popMenu.selected = -1;
+				if (i < 4) break;
+				i -= 4;
 
 				switch (i)
 				{
@@ -364,22 +374,18 @@ public class Intro : gGUI
 						//Main.me.reset("Proc");
 						break;
 					case 1:
-						Debug.Log("h2p");
 						SoundManager.instance().play(iSound.PopUp);
 						popH2P.show(true);
 						break;
 					case 2:
-						Debug.Log("option");
 						SoundManager.instance().play(iSound.PopUp);
 						popSetting.show(true);
 						break;
 					case 3:
 						SoundManager.instance().play(iSound.PopUp);
 						popExit.show(true);
-						Debug.Log("quit");
 						break;
 				}
-				popMenu.selected = -1;
 				break;
 
 		}
@@ -429,8 +435,8 @@ public class Intro : gGUI
 		}
 
 		img = new iImage();
-		string[] strMode = new string[] { "Full Screen", "Full Window", "Window" };
-		for (int i = 0; i < 3; i++)
+		string[] strMode = new string[] { "Full Screen", "Window" };
+		for (int i = 0; i < 2; i++)
 		{
 			st = new iStrTex(methodStSettingBtn, 250, 50);
 			st.setString((i+6) +"\n" + strMode[i] + "\n");
@@ -440,7 +446,7 @@ public class Intro : gGUI
 		pop.add(img);
 		imgSettingBtn[5] = img;
 
-		for(int i=0; i<3; i++)
+		for(int i=0; i<2; i++)
 		{
 			img = new iImage();
 			img.add(imgSettingBtn[5].listTex[i]);
@@ -534,7 +540,7 @@ public class Intro : gGUI
 
 		if (stat == iKeystate.Began)
 		{
-			for (int i = 0; i < 9; i++)
+			for (int i = 0; i < 8; i++)
 			{
 				if (imgSettingBtn[i].touchRect(p, s).containPoint(point))
 				{
@@ -554,9 +560,7 @@ public class Intro : gGUI
 					else if (popSetting.selected == 3)
 						SoundManager.instance().volume(iSound.ButtonClick, true);
 					else if (popSetting.selected == 4)
-						SoundManager.instance().volume(iSound.ButtonClick, false);					
-
-					Debug.Log(i);
+						SoundManager.instance().volume(iSound.ButtonClick, false);
 					break;
 				}
 			}
@@ -581,7 +585,7 @@ public class Intro : gGUI
 			}
 			else if (i == 5)
 			{
-				for(i=0; i<3; i++)
+				for(i=0; i<2; i++)
 					imgSettingBtn[6 + i].alpha = 1f;
 			}
 			else// if( i==6, i==7, i==8 )//전체 창모드는 지우기 / 전체/창 두개만
@@ -592,12 +596,7 @@ public class Intro : gGUI
 					iGUI.setResolutionFull(MainCamera.devWidth, MainCamera.devHeight);
 					Screen.fullScreen = true;
 				}
-				else if (i == 7)
-				{
-					Screen.fullScreen = false;
-					Screen.fullScreenMode = FullScreenMode.FullScreenWindow;
-				}
-				else// if( i==8 )
+				else// if( i==7 )
 				{
 					Screen.fullScreen = false;
 					iGUI.setResolution(MainCamera.devWidth, MainCamera.devHeight);
@@ -605,7 +604,7 @@ public class Intro : gGUI
 				}
 				
 				imgSettingBtn[5].frame = (i - 6);
-				for (i = 0; i < 3; i++)
+				for (i = 0; i < 2; i++)
 					imgSettingBtn[6 + i].alpha = 0;
 			}
 		}
@@ -793,14 +792,12 @@ public class Intro : gGUI
 			{
 				if (pageIdx != 0)
 					pageIdx--;
-				Debug.Log("page : " + pageIdx);
 				//이전 장으로
 			}
 			else if (popH2P.selected == 2)
 			{
 				if (pageIdx != 2)
 					pageIdx++;
-				Debug.Log("page : " + pageIdx);
 				//다음 장으로
 			}
 		}

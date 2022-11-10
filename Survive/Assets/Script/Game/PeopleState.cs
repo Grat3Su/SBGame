@@ -133,20 +133,7 @@ public class PeopleState// : MonoBehaviour
 		if (newjob == job)//새 직업과 다를 때
 			return;
 
-		if (job == 0)
-		{
-		}
-		else if (job == 1)
-		{
-			//h.explorer--;
-		}
-		else if (job == 2)
-		{
-			//h.workman--;
-		}
-
 		job = newjob;
 		jobExp = 0;//경험치 초기화
-
 	}
 }

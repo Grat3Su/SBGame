@@ -34,10 +34,13 @@ Shader "Unlit/OUTLINE"
                 float4 vertex : SV_POSITION;
             };
 
-            sampler2D _MainTex;
-            float4 _MainTex_ST;
+			sampler2D _MainTex;
+			float4 _MainTex_TexelSize;// x, y, z, w = (1/width, 1/height, width, height)
+			float4 _MainTex_ST;
 
             float4 inColor;
+			float outlineWidth;// pixel
+			float4 outlineColor;
 
             v2f vert (appdata v)
             {
@@ -47,14 +50,26 @@ Shader "Unlit/OUTLINE"
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
-
+#define mix(x, y, a)  ((x) * (1-(a)) + (y) * (a))
 			fixed4 frag(v2f i) : SV_Target
 			{
-				//fixed4 col = tex2D(_MainTex, i.uv) * inColor;
-				fixed4 col = 0;
-				//col.rgb = i.worldNormal * 0.5 + 0.5;
+				float2 fragCoord = i.uv * _MainTex_TexelSize.zw;
 
-				//fragCoord
+				fixed4 col = tex2D(_MainTex, i.uv) * inColor;
+
+				float2 size = outlineWidth * _MainTex_TexelSize.xy;
+				float outline = 
+					tex2D(_MainTex, i.uv + float2(-size.x, -size.y)).a +
+					tex2D(_MainTex, i.uv + float2(      0, -size.y)).a +
+					tex2D(_MainTex, i.uv + float2(+size.x, -size.y)).a +
+					tex2D(_MainTex, i.uv + float2(-size.x, 0)).a +
+					tex2D(_MainTex, i.uv + float2(+size.x, 0)).a +
+					tex2D(_MainTex, i.uv + float2(-size.x, +size.y)).a +
+					tex2D(_MainTex, i.uv + float2(      0, +size.y)).a +
+					tex2D(_MainTex, i.uv + float2(+size.x, +size.y)).a;
+				outline = min(outline, 1);
+
+				col = mix(col, outlineColor, outline- col.a);// mix(x, y, a) = x * (1-a) + y * a
                 
                 return col;
             }
