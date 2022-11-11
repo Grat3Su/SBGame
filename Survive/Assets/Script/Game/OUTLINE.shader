@@ -40,7 +40,7 @@ Shader "Unlit/OUTLINE"
 
             float4 inColor;
 			float outlineWidth;// pixel
-			float4 outlineColor;
+			float4 shaderColor;
 
             v2f vert (appdata v)
             {
@@ -69,7 +69,7 @@ Shader "Unlit/OUTLINE"
 					tex2D(_MainTex, i.uv + float2(+size.x, +size.y)).a;
 				outline = min(outline, 1);
 
-				col = mix(col, outlineColor, outline- col.a);// mix(x, y, a) = x * (1-a) + y * a
+				col = mix(col, shaderColor, outline- col.a);// mix(x, y, a) = x * (1-a) + y * a
                 
                 return col;
             }

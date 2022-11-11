@@ -219,10 +219,6 @@ public class ProcEvent
 			case iKeystate.Began:
 				break;
 
-			case iKeystate.Moved:
-
-				break;
-
 			case iKeystate.Ended:
 				if (newDayNum < 4)
 				{
@@ -230,8 +226,9 @@ public class ProcEvent
 				}
 				else
 				{
+					if(playerEvent.newday)
+						playerEvent.newDayUpdate();
 					playerEvent.newday = false;
-					playerEvent.initDay();
 					popNewDay.show(false);
 				}
 				break;
@@ -251,8 +248,9 @@ public class ProcEvent
 			}
 			else
 			{
+				if (playerEvent.newday)
+					playerEvent.newDayUpdate();
 				playerEvent.newday = false;
-				playerEvent.initDay();
 				popNewDay.show(false);
 			}
 		}
@@ -387,7 +385,7 @@ public class ProcEvent
 				}
 			}
 		}
-		else if (stat == iKeystate.Moved)
+		else if (stat == iKeystate.Drag)
 		{
 			for (int i = 0; i < 2; i++)
 			{

@@ -6,33 +6,33 @@ public class Intro : gGUI
 {
 	public override void load()
 	{
-        // logo or symbol (fade in/out)
+		// logo or symbol (fade in/out)
 
-        // title (상용게임 처럼 버전표시:메일)
-        // press any key (on / off)
+		// title (상용게임 처럼 버전표시:메일)
+		// press any key (on / off)
 
-        // menu popup
-        // start, opt, howtoplay, exit
+		// menu popup
+		// start, opt, howtoplay, exit
 
-        // 저장 슬롯 ?
-        // 진짜 시작..새로...
+		// 저장 슬롯 ?
+		// 진짜 시작..새로...
 
-        // opt - 창모드/전체화면
-        // sfx
-        // bgm		
+		// opt - 창모드/전체화면
+		// sfx
+		// bgm		
 
-        // howto
-        // ctrller(pad/keyboard/mouse)
-        // stroy 세계관 / 생존 부연설명
-        // ===> 나의 대한 얘기
+		// howto
+		// ctrller(pad/keyboard/mouse)
+		// stroy 세계관 / 생존 부연설명
+		// ===> 나의 대한 얘기
 
-        // 정말종료?
+		// 정말종료?
 
-        AudioClip newBGM = Resources.Load<AudioClip>("Lost Kingdom (Piano Menu)");
-        SoundManager.instance().addClip(iSound.BGM, newBGM);
+		AudioClip newBGM = Resources.Load<AudioClip>("Lost Kingdom (Piano Menu)");
+		SoundManager.instance().addClip(iSound.BGM, newBGM);
 		SoundManager.instance().play(iSound.BGM);
-        //
-        loadTitle();
+		//
+		loadTitle();
 		loadMenu();
 		loadSetting();
 		loadH2P();
@@ -51,7 +51,7 @@ public class Intro : gGUI
 	RenderTexture texRt = null;
 	public override void draw(float dt)
 	{
-		if( texRt==null )
+		if (texRt == null)
 		{
 			texRt = new RenderTexture(MainCamera.devWidth,
 										MainCamera.devHeight, 32,
@@ -75,7 +75,7 @@ public class Intro : gGUI
 		{
 			float _shaderDt = 2.5f;
 			shaderDt += dt;
-			if(shaderDt > _shaderDt)
+			if (shaderDt > _shaderDt)
 				Main.me.reset("Proc");
 			setShader(1);
 			float r = shaderDt / _shaderDt;
@@ -92,9 +92,9 @@ public class Intro : gGUI
 			float radius = 800 * Mathf.Abs(Mathf.Cos(r * Mathf.Deg2Rad));
 			setShaderFade(300, 200, radius, Color.black);
 		}
-			drawImage(texRt, 0, 0, TOP | LEFT);
-			setShader(0);
-			setRGBA(1, 1, 1, 1);
+		drawImage(texRt, 0, 0, TOP | LEFT);
+		setShader(0);
+		setRGBA(1, 1, 1, 1);
 	}
 	float shaderDt = 0;
 
@@ -105,9 +105,9 @@ public class Intro : gGUI
 			keyPopMenu, keyPopH2P, keySetting, keyExit,
 		};
 		//for (int i = 0; i < m.Length; i++)
-		for (int i = m.Length-1; i > -1; i--)
+		for (int i = m.Length - 1; i > -1; i--)
 		{
-				if (m[i](stat, point))
+			if (m[i](stat, point))
 				return true;
 		}
 
@@ -146,12 +146,28 @@ public class Intro : gGUI
 		stTitle = st;
 
 		pop.style = iPopupStyle.move;
+		pop.methodDrawAfter = drawTitleAfter;
 		pop.openPoint = new iPoint(MainCamera.devWidth / 2 - st.wid / 2, MainCamera.devHeight / 2);
 		pop.closePoint = new iPoint(MainCamera.devWidth / 2 - st.wid / 2, 10);
 		pop._aniDt = 0.1f;
 		popTitle = pop;
 
 		pop.show(true);
+	}
+
+	void drawTitleAfter(float dt, iPopup pop, iPoint zero)
+	{		
+		if (titleOffy > 190)
+		{
+			setShader(3);
+			setShaderShining(100, tm, Color.white);
+
+			tm += dt;
+			if (tm > 3.0f)
+				tm -= 3;
+		}
+		else
+			setShader(0);
 	}
 
 	float titledt;
@@ -187,21 +203,26 @@ public class Intro : gGUI
 		if (titledt > title_dt)
 		{
 			titledt = 0;
-            if (splitNum < 7)
-            {
-                SoundManager.instance().playForce(iSound.NextDay);
-                splitNum++;
-            }
-            else
-            {
-                if (title_dt > 0.05f)
-                    title_dt = 0.05f;
-                titleOffy += 300 * dt * 5;
-            }
+			if (splitNum < 7)
+			{
+				SoundManager.instance().playForce(iSound.NextDay);
+				splitNum++;
+			}
+			else
+			{
+				if (title_dt > 0.05f)
+					title_dt = 0.05f;
+				titleOffy += 300 * dt * 5;
+			}
 		}
+
 		stTitle.setString(splitNum + " S U R V I V E " + titleOffy);
 		popTitle.paint(dt);
+
+		setShader(0);
 	}
+
+	float tm = 0f;
 
 	void drawBG()
 	{
@@ -287,18 +308,11 @@ public class Intro : gGUI
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			if( popMenu.selected%4==i)
+			if (popMenu.selected % 4 == i)
 			{
 				// outline
-				//setShader(2);
-				//setShaderOutline(3, Color.white);
-				setShader(3);
-				setShaderShining(15, tm, Color.white);
-				tm += dt;
-				if (tm > 2.0f)
-					tm -= 2;
-
-				//Debug.Log("Outlinme " + tm);
+				setShader(2);
+				setShaderOutline(3, Color.white);
 			}
 
 			imgMenuBtn[i].frame = (popMenu.selected == i + 4 ? 1 : 0);
@@ -312,8 +326,6 @@ public class Intro : gGUI
 			}
 		}
 	}
-
-	float tm = 0f;
 
 	void drawMenu(float dt)
 	{
@@ -352,7 +364,7 @@ public class Intro : gGUI
 
 				if (popMenu.selected == 4)
 					Debug.Log("dddd");
-				if ((popMenu.selected % 4) != j) 
+				if ((popMenu.selected % 4) != j)
 				{
 					// j==-1 ? 취소 : 커서
 					SoundManager.instance().play(iSound.ButtonClick);
@@ -426,7 +438,7 @@ public class Intro : gGUI
 			pop.add(img);
 			imgSettingBtn[i] = img;
 		}
-		for(int i=0; i<2; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			img = imgSettingBtn[1 + i].clone();
 			img.position.y += 150;
@@ -439,14 +451,14 @@ public class Intro : gGUI
 		for (int i = 0; i < 2; i++)
 		{
 			st = new iStrTex(methodStSettingBtn, 250, 50);
-			st.setString((i+6) +"\n" + strMode[i] + "\n");
+			st.setString((i + 6) + "\n" + strMode[i] + "\n");
 			img.add(st.tex);
 		}
 		img.position = new iPoint(125, 350);
 		pop.add(img);
 		imgSettingBtn[5] = img;
 
-		for(int i=0; i<2; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			img = new iImage();
 			img.add(imgSettingBtn[5].listTex[i]);
@@ -480,6 +492,7 @@ public class Intro : gGUI
 		fillRect(0, 0, 500, MainCamera.devHeight - 100);
 		setRGBA(1, 1, 1, 1);
 		setStringRGBA(0, 0, 0, 1);
+		setStringSize(30);
 		drawString("BGM Volume", new iPoint(st.tex.tex.width / 2, 50), TOP | HCENTER);
 		drawVolume(iSound.BGM, new iPoint(135, 100));
 
@@ -514,7 +527,7 @@ public class Intro : gGUI
 		if (index == 0)
 			setRGBA(0.8f, 0, 0, 1);
 		else
-			setRGBA(1, 1, 1, 1); 
+			setRGBA(1, 1, 1, 1);
 		setStringRGBA(0, 0, 0, 1);
 
 		int w = st.tex.tex.width;
@@ -566,7 +579,7 @@ public class Intro : gGUI
 			}
 			//popSetting.show(false);
 		}
-		else if (stat == iKeystate.Moved)
+		else if (stat == iKeystate.Drag)
 		{
 			Debug.Log(popSetting.selected);
 		}
@@ -579,13 +592,13 @@ public class Intro : gGUI
 
 			if (i == 0)
 				popSetting.show(false);
-			else if( i<5 )
+			else if (i < 5)
 			{
 				// nothing...
 			}
 			else if (i == 5)
 			{
-				for(i=0; i<2; i++)
+				for (i = 0; i < 2; i++)
 					imgSettingBtn[6 + i].alpha = 1f;
 			}
 			else// if( i==6, i==7, i==8 )//전체 창모드는 지우기 / 전체/창 두개만
@@ -602,7 +615,7 @@ public class Intro : gGUI
 					iGUI.setResolution(MainCamera.devWidth, MainCamera.devHeight);
 					Screen.fullScreenMode = FullScreenMode.Windowed;
 				}
-				
+
 				imgSettingBtn[5].frame = (i - 6);
 				for (i = 0; i < 2; i++)
 					imgSettingBtn[6 + i].alpha = 0;
@@ -653,11 +666,11 @@ public class Intro : gGUI
 		pop.openPoint = new iPoint(500, 500);
 		pop.closePoint = new iPoint((MainCamera.devWidth - 500) / 2, 50);
 
-        pop._aniDt = 0.5f;
+		pop._aniDt = 0.5f;
 		popH2P = pop;
 	}
-    
-    void methodStH2P(iStrTex st)
+
+	void methodStH2P(iStrTex st)
 	{
 		//setRGBA(0.9f, 0.9f, 0.9f, 1);
 		setRGBA(1, 1, 1, 1);
@@ -710,13 +723,13 @@ public class Intro : gGUI
 			drawString("생존 게임에 대한 레퍼런스를 찾던 중", new iPoint(250, 450), VCENTER | HCENTER);
 			drawString("여러 생존 게임을 하게 되었고", new iPoint(250, 500), VCENTER | HCENTER);
 			drawString("욕구 시스템을 폐기하고 생존에 치중하게 되었기 때문입니다.", new iPoint(250, 550), VCENTER | HCENTER);
-        }
-        for (int i = 0; i < 3; i++)
-        {
-            imgH2PBtn[i].frame = (popH2P.selected == i ? 1 : 0);
-            imgH2PBtn[i].paint(0.0f, new iPoint(0, 0));
-        }
-    }
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			imgH2PBtn[i].frame = (popH2P.selected == i ? 1 : 0);
+			imgH2PBtn[i].paint(0.0f, new iPoint(0, 0));
+		}
+	}
 
 	void methodStH2PBtn(iStrTex st)
 	{
@@ -726,7 +739,7 @@ public class Intro : gGUI
 		string s = strs[1];
 		setStringName("BMJUA_ttf");
 
-		setRGBA(0.5f, 0.5f, 0.5f, 1);
+		setRGBA(1f, 1f, 1f, 1);
 
 		if (click == 0)
 			if (index == 0)
@@ -768,7 +781,7 @@ public class Intro : gGUI
 				}
 			}
 		}
-		else if (stat == iKeystate.Moved)
+		else if (stat == iKeystate.Drag)
 		{
 			popH2P.selected = -1;
 			for (i = 0; i < 3; i++)
@@ -898,7 +911,7 @@ public class Intro : gGUI
 				}
 				break;
 
-			case iKeystate.Moved:
+			case iKeystate.Drag:
 				if (!imgExitBtn[popExit.selected].touchRect(p, s).containPoint(point))
 				{
 					popExit.selected = -1;

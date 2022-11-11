@@ -41,7 +41,7 @@ Shader "Unlit/SHINING"
             float4 inColor;
 
 			float  shiningWidth;
-			float4 shiningColor;
+			float4 shaderColor;
 			float  shiningTime;// 0~3s
 
             v2f vert (appdata v)
@@ -60,13 +60,15 @@ Shader "Unlit/SHINING"
 				if (col.a > 0)
 				{
 					float2 fragCoord = i.uv * _MainTex_TexelSize.zw;
-					float x = _MainTex_TexelSize.z * shiningTime;// +sin(radians(i.uv.y * 180)) * 100;
+					//float x = _MainTex_TexelSize.z * shiningTime;// +sin(radians(i.uv.y * 180)) * 100;
+					float x = _MainTex_TexelSize.z * shiningTime * 0.3 - i.uv.y * 500;
+                    //float x = _MainTex_TexelSize.z * shiningTime * 0.3;
 					
 					float a = clamp(abs(fragCoord.x - x)/ shiningWidth, 0, 1);
 					a = 1 - a;
-					a = a * a * a;
+                    a = a * a * a;
 
-					col = mix(col, shiningColor, a);
+					col = mix(col, shaderColor, a);                        
 				}
 				
                 return col;

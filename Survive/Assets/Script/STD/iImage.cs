@@ -86,15 +86,15 @@ namespace STD
 						frame = 0;
 						repeatIdx++;
 
-						if (repeatNum == 0)
-							;// loop
-						else// if (repeatNum != 0)
+						if (repeatNum != 0)
 						{
 							if (repeatIdx == repeatNum)
 							{
 								animation = false;
 							}
 						}
+						//else if (repeatNum == 0)
+						//	;// loop
 					}
 				}
 			}

@@ -7,6 +7,7 @@ public enum iKeystate
 	Moved,      // moved
 	Ended,      // released
 	Double,
+	Drag,
 };
 
 public delegate bool MethodMouse(iKeystate stat, iPoint point);

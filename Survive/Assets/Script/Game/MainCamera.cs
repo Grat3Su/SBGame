@@ -143,10 +143,11 @@ public class MainCamera : MonoBehaviour
 
 	void updateMouse()
 	{
+		iPoint p = new iPoint(0, 0);
 		int btn = 0;// 0:left, 1:right, 2:wheel, 3foward, 4back
 		if (Input.GetMouseButtonDown(btn))
 		{
-			iPoint p = mousePosition();
+			p = mousePosition();
 			//Debug.LogFormat($"Began p({p.x},{p.y})");
 			drag = true;
 			prevV = Input.mousePosition;// 누르자 말자 Moved 안들어오게 방지
@@ -155,7 +156,7 @@ public class MainCamera : MonoBehaviour
 		}
 		else if (Input.GetMouseButtonUp(btn))
 		{
-			iPoint p = mousePosition();
+			p = mousePosition();
 			//Debug.LogFormat($"Ended p({p.x},{p.y})");
 			drag = false;
 
@@ -169,18 +170,18 @@ public class MainCamera : MonoBehaviour
 #endif
 		}
 
-		//if (drag)
-		{
-			Vector3 v = Input.mousePosition;
-			if (prevV == v)
-				return;
-			prevV = v;
+		Vector3 v = Input.mousePosition;
+		if (prevV == v)
+			return;
+		prevV = v;
 
-			iPoint p = mousePosition();
-			//Debug.LogFormat($"Moved p({p.x},{p.y})");
+		p = mousePosition();
 
+		//Debug.LogFormat($"Moved p({p.x},{p.y})");
+		if (drag)
+			runMethodMouse(iKeystate.Drag, p);
+		else
 			runMethodMouse(iKeystate.Moved, p);
-		}
 	}
 
 	void updateWheel()

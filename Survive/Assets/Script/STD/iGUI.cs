@@ -320,13 +320,11 @@ public class iGUI : MonoBehaviour
 		Material m = mat[matIndex];
         m.SetTexture("_MainTex", tex);//마테리얼 내에서 텍스트 변경
 		m.SetColor("inColor", color);
-		//m.SetVector("circle", fadeCircle);
-		//m.SetColor("fadeColor", fadeColor);
-		//m.SetColor("outlineColor", outlineColor);
-		//m.SetFloat("outlineWidth", outlineWidth);
+		m.SetVector("circle", fadeCircle);
+		m.SetColor("shaderColor", shaderColor);
+		m.SetFloat("outlineWidth", outlineWidth);
 		m.SetFloat("shiningWidth", shiningWidth);
 		m.SetFloat("shiningTime", shiningTime);
-		m.SetColor("shiningColor", shiningColor);
 		Graphics.DrawTexture(new Rect(-w / 2, -h / 2, w, h), tex, new Rect(tx, ty, tw, th), 0, 0, 0, 0, m);
 #else
         ScaleMode scaleMode = ScaleMode.ScaleToFit;
@@ -359,29 +357,27 @@ public class iGUI : MonoBehaviour
 	}
 
 	Vector4 fadeCircle;
-	Color fadeColor;
+	Color shaderColor;
 	public void setShaderFade(float x, float y, float radius, Color c)
 	{
 		fadeCircle = new Vector4(x, y, radius, 0);
-		fadeColor = c;
+        shaderColor = c;
 	}
 
-	Color outlineColor;
 	float outlineWidth;
 	public void setShaderOutline(float w, Color c)
 	{
 		outlineWidth = w;
-		outlineColor = c;
+        shaderColor = c;
 	}
 
 	float shiningWidth;
 	float shiningTime;
-	Color shiningColor;
 	public void setShaderShining(float w, float time, Color c)
 	{
-		shiningWidth = w;
+        shiningWidth = w;
 		shiningTime = time;
-		shiningColor = c;
+        shaderColor = c;
 	}
 
 	public static void drawTexture(Rect r, RenderTexture tex)

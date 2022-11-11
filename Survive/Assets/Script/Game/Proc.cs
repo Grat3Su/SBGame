@@ -212,7 +212,7 @@ public class Proc : gGUI
 		pPos = new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight / 2);
 		speed = 50;
 		nextPos = new iPoint(0, 0);
-		psize = new iSize(50, 50);
+		psize = new iSize(80, 80);
 
 		playerEvent = GameObject.Find("Main Camera").GetComponent<Event>();
 		people = playerEvent.storage.people;
@@ -660,7 +660,7 @@ public class Proc : gGUI
 				popTop.selected = 1;
 			}
 		}
-		else if (stat == iKeystate.Moved)
+		else if (stat == iKeystate.Drag)
 		{
 			if (!imgPopTopBtn.touchRect(p, s).containPoint(point))
 			{
@@ -890,7 +890,7 @@ public class Proc : gGUI
 					}
 				}
 				break;
-			case iKeystate.Moved:
+			case iKeystate.Drag:
 				if (scroll == false)
 				{
 					mp = point - firstPoint;
@@ -1190,7 +1190,7 @@ public class Proc : gGUI
 				}
 				break;
 
-			case iKeystate.Moved:
+			case iKeystate.Drag:
 				break;
 
 			case iKeystate.Ended:
@@ -1436,7 +1436,7 @@ public class Proc : gGUI
                 }
 				break;
 
-			case iKeystate.Moved:
+			case iKeystate.Drag:
 				i = popEvent.selected;
 				if (i == -1) break;
 				if (imgPopEventBtn[i].touchRect(p, s).containPoint(point) == false)
@@ -1722,9 +1722,6 @@ public class Proc : gGUI
                 }
             }
             //popSetting.show(false);
-        }
-        else if (stat == iKeystate.Moved)
-        {
         }
         else if (stat == iKeystate.Ended)
         {
