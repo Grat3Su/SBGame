@@ -205,7 +205,7 @@ public class Intro : gGUI
 			titledt = 0;
 			if (splitNum < 7)
 			{
-				SoundManager.instance().playForce(iSound.NextDay);
+				SoundManager.instance().play(iSound.NextDay);
 				splitNum++;
 			}
 			else
@@ -322,7 +322,6 @@ public class Intro : gGUI
 			{
 				// outline
 				setShader(0);
-
 			}
 		}
 	}
@@ -334,7 +333,7 @@ public class Intro : gGUI
 
 	bool keyPopMenu(iKeystate stat, iPoint point)
 	{
-		if (popMenu.bShow == false)
+		if (!popMenu.bShow||startClick)
 			return false;
 
 		iPoint p = popMenu.closePoint;
@@ -711,8 +710,17 @@ public class Intro : gGUI
 			// Me ?
 			//drawString("제작자", new iPoint(250, 100), VCENTER | HCENTER);
 			//drawString("Su", new iPoint(250, 150), VCENTER | HCENTER);
+			drawString("How to Play?", new iPoint(250, 50), VCENTER | HCENTER);
 			setStringSize(30);
+			drawString("직업", new iPoint(250, 100), VCENTER | HCENTER);
+			drawString("백수 : 아무런 일도 하지 않습니다.", new iPoint(250, 150), VCENTER | HCENTER);
+			drawString("탐험가 : 가끔 생존자를 발견합니다.", new iPoint(250, 200), VCENTER | HCENTER);
+			drawString("일꾼 : 맵에서 식량을 구해옵니다.", new iPoint(250, 250), VCENTER | HCENTER);
+			drawString("농부 : 식량을 재배합니다.", new iPoint(250, 300), VCENTER | HCENTER);
+			drawString("연구원 : 연구를 해서 자원 상한을 늘립니다.", new iPoint(250, 350), VCENTER | HCENTER);
+			drawString("플레이어 : 모든 행동이 가능합니다.", new iPoint(250, 400), VCENTER | HCENTER);
 
+			/*
 			drawString("이 작품은 7월 한국에서 부터 시작되어", new iPoint(250, 100), VCENTER | HCENTER);
 			drawString("11월까지 만들어진 작품으로", new iPoint(250, 150), VCENTER | HCENTER);
 			drawString("어느날 갑자기 심즈가 땡긴 저는 게임을 하다가", new iPoint(250, 200), VCENTER | HCENTER);
@@ -722,7 +730,7 @@ public class Intro : gGUI
 			drawString("하지만 이것에는 이유가 있었으니..", new iPoint(250, 400), VCENTER | HCENTER);
 			drawString("생존 게임에 대한 레퍼런스를 찾던 중", new iPoint(250, 450), VCENTER | HCENTER);
 			drawString("여러 생존 게임을 하게 되었고", new iPoint(250, 500), VCENTER | HCENTER);
-			drawString("욕구 시스템을 폐기하고 생존에 치중하게 되었기 때문입니다.", new iPoint(250, 550), VCENTER | HCENTER);
+			drawString("욕구 시스템을 폐기하고 생존에 치중하게 되었기 때문입니다.", new iPoint(250, 550), VCENTER | HCENTER);*/
 		}
 		for (int i = 0; i < 3; i++)
 		{

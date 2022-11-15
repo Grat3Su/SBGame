@@ -15,7 +15,7 @@ public class Event : MonoBehaviour
 	public bool gameover;
 	public Storage storage;
 	public int day;
-	int hour;
+	public int hour;
 	int curp;
 	public PeopleState[] pState;
 	public int workman;
@@ -29,7 +29,6 @@ public class Event : MonoBehaviour
 	public void initGame()
 	{
 		pState = new PeopleState[100];
-		spawnfir();
 		jobless = new int[100];
 		joblessNum = 0;
 		//storage = new Storage(1, 5, 0, 1, 0, 1);
@@ -43,17 +42,18 @@ public class Event : MonoBehaviour
 		hour = 0;
 		workman = 0;
 		explorer = 0;
-		deletePeople();
 		gameover = false;
 		map = new int[] { 50, 100, 300 };
 		newday = false;
+		spawnfir();
+		deletePeople();
 	}
 
-	void updatePeople()
+	void updatePeople(float dt)
 	{
 		for (int i = 0; i < storage.getStorage(0); i++)
 		{
-			pState[i].update();
+			pState[i].update(dt);
 		}
 	}
 
@@ -62,7 +62,8 @@ public class Event : MonoBehaviour
 	{
 		if (curp != storage.getStorage(0))
 			spawnPeople();
-		updatePeople();
+		float dt = Time.deltaTime;
+		updatePeople(dt);
 	}
 
 	public enum DoEvent
@@ -123,6 +124,7 @@ public class Event : MonoBehaviour
 		for (int i = 0; i < 100; i++)
 		{
 			pState[i] = new PeopleState();
+			pState[i].h = this;
 			if (i < people)
 			{
 				string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
@@ -131,7 +133,6 @@ public class Event : MonoBehaviour
 
 				int newjob = Math.random(0, 5);
 				pState[i].jobUpdate(newjob);
-				pState[i].h = this;
 				if (newjob == 0)
 				{
 					jobless[joblessNum] = i;
@@ -146,13 +147,15 @@ public class Event : MonoBehaviour
 #endif
 	}
 
-	void spawnPeople()
+	public void spawnPeople()
 	{
 		int people = storage.getStorage(0);
-		for (int i = people - 1; i > -1; i--)
+		for (int i = people-1; i > -1; i--)
 		{
 			if (pState[i].name == "null")
 			{
+				int newjob = Math.random(0, 5);
+				pState[i].jobUpdate(newjob);
 				pState[i].behave = 0;
 				curp++;
 				string[] n = { "가", "나", "다", "라", "마", "바", "사", "아", "자", "차", "카", "타", "파", "하", "야", "샤", "수", "경", "재", "문" };
@@ -215,7 +218,7 @@ public class Event : MonoBehaviour
 		}
 		else if (type == DoEvent.Hunt)
 		{
-			item.food = Math.random(1, 3);
+			item.food = Math.random(1, 2);
 			//item.people = Math.random(0, 100) > 50 ? Math.random(1, 2) : 0;
 			item.takeTime = 4;
 		}
@@ -243,6 +246,7 @@ public class Event : MonoBehaviour
 
 		if (type == DoEvent.Defense)
 		{
+			Debug.Log("습ㄱ격");
 			specialEvent = 1;
 			Debug.Log(etype[0]);
 			item.food = Math.random(0, 100) > 80 ? -Math.random(1, 2) : 0;
@@ -251,6 +255,7 @@ public class Event : MonoBehaviour
 		}
 		else if (type == DoEvent.Disease)
 		{
+			Debug.Log("뱡");
 			specialEvent = 2;
 			Debug.Log(etype[1]);
 			int people = storage.getStorage(0);
@@ -332,7 +337,7 @@ public class Event : MonoBehaviour
 			if (pState[i].name != "null")
 				pState[i].takeTime += item.takeTime;
 		}
-
+		spawnPeople();
 		if (hour > 11)//12시 땡
 		{
 			hour -= 12;
@@ -340,9 +345,6 @@ public class Event : MonoBehaviour
 			day++;
 			Debug.Log("다음날");
 			newDay();
-			specialEvent = 0;//이벤트 초기화
-							 //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
-							 //doRandEvent((DoEvent)(Math.random(1, 5)));
 		}
 	}
 	void newDay()
@@ -362,21 +364,26 @@ public class Event : MonoBehaviour
 		storage.peopleTakeItem();
 
 		spawnPeople();
+
+
+		if (storage.getStorage(0) < 1)
+		{
+			gameover = true;
+			Debug.Log("게임오버");
+		}
+
+		//specialEvent = 0;//이벤트 초기화
+		//				 //랜덤하게 일어나야하는 이벤트. 나중에 확률 조정할 것
+		//doRandEvent((DoEvent)(Math.random(1, 5)));
+		//newDayUpdate();
 	}
 
 	public void newDayUpdate()
 	{
-		Debug.Log("게임오바");
 		plusItem.init();
 		minusItem.init();
-
-		if (storage.getStorage(0) < 1)
-		{
-			Debug.Log("게임오버");
-			deletePeople();
-			gameover = true;
-			Debug.Log("게임오버");
-		}
+		spawnPeople();
+		deletePeople();
 	}
 
 }

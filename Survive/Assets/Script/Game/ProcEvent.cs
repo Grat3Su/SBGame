@@ -46,6 +46,8 @@ public class ProcEvent
 		popGameOver.show(false);
 	}
 
+	public bool gameOverClick = false;
+
 	public void paint(float dt)
 	{
 		drawGameOver(dt);
@@ -53,7 +55,10 @@ public class ProcEvent
 	}
 	public void showNewDay(bool stat)
 	{
-		popNewDay.show(stat);
+		if (gameOverClick|| gameOverEnd)
+			popNewDay.show(false);
+		else
+			popNewDay.show(stat);
 	}
 
 	public void showGameOver() 
@@ -140,6 +145,8 @@ public class ProcEvent
 			newDayDt += dt;
 			if (newDayDt > 0.5f)
 			{
+				if (newDayNum < 4)
+					SoundManager.instance().play(iSound.NextDay);
 				newDayDt = 0.0f;
 				newDayNum++;
 				stNewDay.setString(newDayNum + " " + playerEvent.day);// click, move
@@ -226,8 +233,7 @@ public class ProcEvent
 				}
 				else
 				{
-					if(playerEvent.newday)
-						playerEvent.newDayUpdate();
+					playerEvent.newDayUpdate();
 					playerEvent.newday = false;
 					popNewDay.show(false);
 				}
@@ -247,9 +253,8 @@ public class ProcEvent
 				newDayNum = 4;
 			}
 			else
-			{
-				if (playerEvent.newday)
-					playerEvent.newDayUpdate();
+			{	
+				playerEvent.newDayUpdate();
 				playerEvent.newday = false;
 				popNewDay.show(false);
 			}
@@ -356,7 +361,6 @@ public class ProcEvent
 		{
 			imgGameOverBtn[i].frame = (popGameOver.selected == i ? 1 : 0);
 		}
-
 		stPopGameOver.setString(popGameOver.selected + "");// newFlags;;;;;;;
 	}
 
@@ -403,21 +407,24 @@ public class ProcEvent
 			{
 				playerEvent.initGame();
 				if (select == 0)
-				{					
+				{
+					gameOverClick = true;
 					reset = true;
 				}
 				else if (select == 1)
 				{
-					Debug.Log("titlfe");
+					Debug.Log("title");
+					gameOverClick = true;
 					goTitle = true;
 				}
 				popGameOver.selected = -1;
 				popGameOver.show(false);
 			}
 		}
-
 		return true;
 	}
+
+	public bool gameOverEnd = false;
 
 	bool keyboardGameOver(iKeystate stat, iKeyboard key)
 	{

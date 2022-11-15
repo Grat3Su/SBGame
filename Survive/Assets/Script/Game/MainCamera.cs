@@ -120,12 +120,13 @@ public class MainCamera : MonoBehaviour
 		new Main();		
 		Screen.fullScreenMode = FullScreenMode.ExclusiveFullScreen;
 		iGUI.setResolutionFull(devWidth, devHeight);
+
 	}
 
 	void Update()
 	{
 #if UNITY_EDITOR
-		//iGUI.setResolution(devWidth, devHeight);
+		iGUI.setResolution(devWidth, devHeight);
 		//
 #else
 		//if (Screen.fullScreenMode == FullScreenMode.Windowed)
@@ -163,7 +164,7 @@ public class MainCamera : MonoBehaviour
 			runMethodMouse(iKeystate.Ended, p);
 
 #if UNITY_EDITOR
-			//
+			iGUI.setResolution(devWidth, devHeight);
 #else
 			if (Screen.fullScreenMode == FullScreenMode.Windowed)
 				iGUI.setNewResolution();

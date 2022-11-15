@@ -37,15 +37,18 @@ public class Proc : gGUI
 
 	void goTitle()
 	{
-		if (pe.goTitle)
+		if (pe.gameOverEnd)
 		{
-			free();
-			Main.me.reset("Intro");
-		}
-		else if (pe.reset)
-		{
-			free();
-			Main.me.reset("Proc");
+			if (pe.goTitle)
+			{
+				free();
+				Main.me.reset("Intro");
+			}
+			else if (pe.reset)
+			{
+				free();
+				Main.me.reset("Proc");
+			}
 		}
 	}
 
@@ -76,7 +79,9 @@ public class Proc : gGUI
 		GL.Clear(true, true, Color.clear);
 
 		if (playerEvent.gameover)
+		{
 			pe.showGameOver();
+		}
 
 		drawBg(dt);
 		drawPeople(dt);
@@ -95,35 +100,62 @@ public class Proc : gGUI
 		RenderTexture.active = bk;
 
 		float _shaderDt = 2.5f;
-		if (shaderDt < _shaderDt)
+		if (!pe.gameOverClick)
 		{
-			if (dt > 0.17f)
-				dt = 0f;
+			if (shaderDt < _shaderDt)
+			{
+				if (dt > 0.17f)
+					dt = 0f;
 
+				shaderDt += dt;
+				float r = shaderDt / _shaderDt;
+				if (r < 0.3f)
+					r = r / 0.3f * 10;
+				else if (r < 0.7f)
+					r = 10;
+				else// if( r < 1.0f )
+				{
+					r = (r - 0.7f) / 0.3f * 82 + 10;
+					if (r > 90)
+					{
+						r = 90;
+						initGame = false;
+					}
+				}
+				//Debug.LogFormat($"{shaderDt}, {r}");
+				float radius = 800 * (Mathf.Abs(Mathf.Sin(r * Mathf.Deg2Rad)));
+
+				setShader(1);
+				setShaderFade(MainCamera.devWidth / 2, MainCamera.devHeight / 2, radius, Color.black);
+			}
+		}
+		else if(pe.gameOverClick)
+		{
+			if (!initGame)
+			{
+				initGame = true;
+				shaderDt = 0;
+			}
+			_shaderDt = 2.5f;
 			shaderDt += dt;
+			if (shaderDt > _shaderDt)
+				pe.gameOverEnd = true;
+			setShader(1);
 			float r = shaderDt / _shaderDt;
 			if (r < 0.3f)
-				r = r / 0.3f * 10;
+				r = r / 0.3f * 80;
 			else if (r < 0.7f)
-				r = 10;
+				r = 80;
 			else// if( r < 1.0f )
 			{
-				r = (r - 0.7f) / 0.3f * 82 + 10;
+				r = (r - 0.7f) / 0.3f * 12 + 80;
 				if (r > 90)
-				{
 					r = 90;
-					initGame = false;
-				}
-				
 			}
-			Debug.LogFormat($"{shaderDt}, {r}");
-
-
-			float radius = 800 * (Mathf.Abs(Mathf.Sin(r * Mathf.Deg2Rad)));
-
-			setShader(1);
-			setShaderFade(MainCamera.devWidth / 2, MainCamera.devHeight / 2, radius, Color.black);
+			float radius = 800 * Mathf.Abs(Mathf.Cos(r * Mathf.Deg2Rad));
+			setShaderFade(pPos.x, pPos.y, radius, Color.black);
 		}
+
 		drawImage(texRt, 0, 0, TOP | LEFT);
 		setShader(0);
 		setRGBA(1, 1, 1, 1);
@@ -135,7 +167,7 @@ public class Proc : gGUI
 		{
 			MethodKeyboard[] mkeyboard = new MethodKeyboard[]
 			{
-				keyboardPlayer, keyboardPopEvent,pe.keyboard
+				keyboardPlayer, pe.keyboard
 			};
 			//for (int i = 0; i < m.Length; i++)
 			for (int i = mkeyboard.Length - 1; i > -1; i--)
@@ -154,7 +186,7 @@ public class Proc : gGUI
 		{
 			MethodMouse[] m = new MethodMouse[]
 			{
-				keyPopInfo, keyPopPerson, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting, pe.key
+				keyPopPerson, keyPopInfo, keyPopTop, keyBg, keyPopEvent, keyPopEvent,keySetting, pe.key
 			};
 
 			for (int i = m.Length - 1; i > -1; i--)
@@ -329,7 +361,7 @@ public class Proc : gGUI
 			new iPoint(MainCamera.devWidth / 2, MainCamera.devHeight - 130),//street
 			new iPoint(MainCamera.devWidth / 2, -50),//up
 			new iPoint(200, MainCamera.devHeight - 150),//field
-			new iPoint(MainCamera.devWidth - 280, MainCamera.devHeight/2 - 130),//lab
+			new iPoint(MainCamera.devWidth - 200, MainCamera.devHeight/2 - 100),//lab
 		};
 		float len = 0f, l = 0f;
 		for (int i = 0; i < 2; i++)
@@ -388,10 +420,11 @@ public class Proc : gGUI
 			Texture peopleTex = Util.createTexture(texname[ps.job]);
 			drawImage(peopleTex, ps.pos, psize.width / peopleTex.width, psize.height / peopleTex.height, VCENTER | HCENTER);
 
+			drawString(ps.name, ps.pos + new iPoint(-18, -50), TOP | LEFT);
 
 			Texture building = Util.createTexture("house");
-			drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 200), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
-			drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight / 2 - 150), 100.0f / building.width, 100.0f / building.height, LEFT | HCENTER);
+			drawImage(building, new iPoint(MainCamera.devWidth - 300, MainCamera.devHeight - 250), 150.0f / building.width, 150.0f / building.height, LEFT | HCENTER);
+			drawImage(Util.createTexture("research"), new iPoint(MainCamera.devWidth - 280, MainCamera.devHeight / 2 - 180), 150.0f / building.width, 150.0f / building.height, LEFT | HCENTER);
 
 			int at = ps.job != 4 ? 2 : 3;
 			switch (ps.job)
@@ -556,7 +589,15 @@ public class Proc : gGUI
 	{
 		iPopup pop = new iPopup();
 		iImage img = new iImage();
+
+		//iStrTex  st = new iStrTex(methodEvent, 300, 50);
+		//st.setString("0");
+		//img.position = new iPoint(MainCamera.devWidth / 2 - 150, 60);
+		//img.add(st.tex);
+		//pop.add(img);
+
 		iStrTex st = new iStrTex(methodStPopTop, MainCamera.devWidth, 60);
+		img = new iImage();
 		st.setString("0");
 		img.add(st.tex);
 		pop.add(img);
@@ -588,9 +629,29 @@ public class Proc : gGUI
 		popTop = pop;
 	}
 
+	public void methodEvent(iStrTex st)
+	{
+		setStringName("BMJUA_ttf");
+		setRGBA(0, 0, 0, 0.6f);
+		fillRect(0, 0, st.tex.tex.width, st.tex.tex.height);
+		setRGBA(1, 1, 1, 1f);
+		setStringRGBA(1, 1, 1, 1);
+		drawString(playerEvent.hour + " / 12", st.tex.tex.width/2, 0, TOP | HCENTER);
+		//if(playerEvent.specialEvent == 1)
+		//{
+		//	//밤 사이 습격이 있었습니다.
+		//	drawString("밤 사이 습격이 있었습니다.", st.tex.tex.width/2, 50, TOP | HCENTER);
+		//}
+		//else if (playerEvent.specialEvent == 2)
+		//{
+		//	//전염병이 퍼졌습니다
+		//	drawString("전염병이 펴졌습니다.", st.tex.tex.width/2, 50, TOP | HCENTER);
+		//}
+	}
+
 	void drawBeforePopTop(float dt, iPopup pop, iPoint zero)
 	{
-		stPopTop.setString(popTop.selected + "");
+		stPopTop.setString(popTop.selected + "" + playerEvent.hour);
 	}
 
 	public void methodStPopTop(iStrTex st)
@@ -613,10 +674,6 @@ public class Proc : gGUI
 		imgPopTopBtn.paint(0.0f, new iPoint(0, 0));
 	}
 
-	void howmuchItem()
-	{
-
-	}
 
 	void methodStPopTopBtn(iStrTex st)
 	{
@@ -633,12 +690,10 @@ public class Proc : gGUI
 
 	void drawPopTop(float dt)
 	{
-		howmuchItem();
-
 		Storage sCheck = playerEvent.storage;
 		for (int i = 0; i < 6; i++)
 		{
-			stPopTop.setString(sCheck.getStorage(i) + "");
+			stPopTop.setString(sCheck.getStorage(i) + "" + playerEvent.hour);
 		}
 		popTop.paint(dt);
 	}
@@ -772,6 +827,8 @@ public class Proc : gGUI
 		fillRect(0, 0, 300, 600);
 		people = playerEvent.storage.people;
 		setRGBA(1, 1, 1, 1);
+
+		
 		for (int i = 0; i < people; i++)
 		{
 			//for (int j = 0; j < 2; j++)
@@ -779,7 +836,7 @@ public class Proc : gGUI
 			//	string s = playerEvent.pState[i].name;
 			//	if (s == "null")
 			//		return;
-			//}
+			//}			
 			imgPersonBtn[i].frame = (popPerson.selected == i ? 1 : 0);
 			imgPersonBtn[i].paint(0.0f, offPerson);
 		}
@@ -842,7 +899,7 @@ public class Proc : gGUI
 		{
 			for (int j = 0; j < 2; j++)
 			{
-				stPersons[i][j].setString(j + "\n" + playerEvent.pState[i].name + "\n" + i);
+				stPersons[i][j].setString(j + "\n" + playerEvent.pState[i].name + "\n" + i + "\n" + select);
 			}
 		}
 	}
@@ -926,16 +983,14 @@ public class Proc : gGUI
 			case iKeystate.Ended:
 				if (scroll == false)
 				{
-					if (popPerson.selected != -1)// line 403
-						select = popPerson.selected;
-
 					if (popPersonInfo.bShow == false)
 					{
 						if (popPerson.selected != -1)
 						{
 							if (!pe.bShowNewDay())
 							{
-                                newJob = playerEvent.pState[select].job;
+								select = popPerson.selected;
+								newJob = playerEvent.pState[select].job;
 
 								SoundManager.instance().play(iSound.PopUp);
                                 popPersonInfo.show(true);
@@ -1105,7 +1160,7 @@ public class Proc : gGUI
 			popPerson.selected = -1;
 			return;
 		}
-		stPersonInfo.setString(popPerson.selected + "" + popPersonInfo.selected + "" + select);
+		stPersonInfo.setString(popPerson.selected + "" + popPersonInfo.selected + "" + select + ""+newJob);
 		popPersonInfo.paint(dt);
 	}
 
@@ -1163,8 +1218,9 @@ public class Proc : gGUI
 				playerEvent.joblessNum++;
 			}
 			ps.jobUpdate(newJob);
-			select = -1;
 		}
+		newJob = -1;
+		select = -1;
 	}
 	bool keyPopInfo(iKeystate stat, iPoint point)
 	{
@@ -1208,6 +1264,7 @@ public class Proc : gGUI
                                 ps.moveDt = -0.2f;
                             }
 							changeJob();
+							select = -1;
                         }
 						popPerson.selected = -1;
                         popPersonInfo.show(false);
@@ -1249,7 +1306,7 @@ public class Proc : gGUI
 		iImage img = new iImage();
 		iStrTex st = new iStrTex(methodStPopEventHotKey, 300, 40);
 		st.setString("0");
-		img.position = new iPoint(-50, -40);
+		img.position = new iPoint(-50, -50);
 		img.add(st.tex);
 		pop.add(img);
 
@@ -1295,7 +1352,12 @@ public class Proc : gGUI
     public void methodStPopEventHotKey(iStrTex st)
     {
         setStringSize(20);
-        setStringRGBA(1, 1, 1, 1);
+		setStringName("BMJUA_ttf");
+		setRGBA(0, 0, 0, 0.3f);
+		fillRect(40,0,st.tex.tex.width - 80, st.tex.tex.height);
+		
+		setRGBA(1, 1, 1, 1);
+		setStringRGBA(1, 1, 1, 1);
         drawString("클릭 : 선택  |  ESC : 닫기", new iPoint(150, 20), VCENTER | HCENTER);
     }
 

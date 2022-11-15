@@ -17,7 +17,7 @@ public class PeopleState// : MonoBehaviour
 	public string name;//이름
 	public int behave;// 0 : idle / 1 : move / 2 : back / 3 : work / 4 : disease / 5: 사망	
 	public float moveDt;
-	int healthTime;
+	float healthTime;
 	public int takeTime;//맵에 없을 시간
 	public int job = 0;// 0 : 백수 / 1 : 탐험가 / 2 : 일꾼 / 3 : 농부 / 4 : 연구원
 	public int jobReserve;
@@ -27,7 +27,6 @@ public class PeopleState// : MonoBehaviour
 	public PeopleState()
 	{
 		name = "null";
-
 		init();
 	}
 		
@@ -46,18 +45,15 @@ public class PeopleState// : MonoBehaviour
 		jobReserve = -1;		
 	}
 
-	// Update is called once per frame
-	public void update()
+	public void update(float dt)
 	{
-		if (name == "null")
-			return;
-		if (takeTime > 3 && behave==2)
+		if (takeTime > 3 && behave!=4)
 			jobAction();
 		else if(behave == 4)
 		{
 			if (healthTime > 0)
 			{
-				healthTime--;
+				healthTime-=dt;
 			}
 			else if (healthTime == 0)
 			{
@@ -73,13 +69,18 @@ public class PeopleState// : MonoBehaviour
 	}
 
 	void jobAction()//-> 
-	{// 0 : 백수 / 1 : 방위대원 / 2 : 탐험가 / 3 : 농부 / 4 : 연구원
+	{// 0 : 백수 / 1 : 탐험가 / 2 : 일뀬 / 3 : 농부 / 4 : 연구원
 	 //taketime ==4
+		if (h == null)
+		{
+			h = MainCamera.mainCamera.GetComponent<Event>();
+			Debug.Log(h.gameObject.name);
+		}
 		takeTime -= 4;
 		if (takeTime < 0)
 			takeTime = 0;
 		//Debug.Log("work");
-		int bonus = jobLevel[job] * 2;
+		int bonus = (int)(jobLevel[job] * 0.5f);
 
 		if (job == 0)
 		{
@@ -88,27 +89,30 @@ public class PeopleState// : MonoBehaviour
 		}
 		else if (job == 1)
 		{
+			bonus += (int)(h.storage.getStorage(4) * 0.1f + 0.5f);
 			//탐험. 가끔 생존자 발견
 			if (Random.Range(0, 100) > (80 - bonus))
 			{
 				h.storage.addStorage(0, 1);
+				h.spawnPeople();
 				h.plusItem.people += 1;
 			}
-			h.storage.addStorage(4, 2 + bonus);
+			h.storage.addStorage(4, 1 + bonus);
 			h.plusItem.mapExp += 2;
 		}
 		else if (job == 2)
 		{
-			//식량/물 가저오기
-			int mount = Math.random(bonus, bonus + 3);
+			//식량 가저오기
+			bonus += (int)(h.storage.getStorage(4) * 0.1f + 0.5f);
+			int mount = Math.random(1, bonus + 1);
 			h.plusItem.food += mount;
 			h.storage.addStorage(1, mount);
 		}
 		else if (job == 3)
 		{
 			//식량 추가
-			int mount = Math.random(bonus, bonus + 2);
-			h.storage.addStorage(1, mount);
+			int mount = Math.random(1, bonus + 1);
+			h.storage.addStorage(1, mount);			
 			h.plusItem.food += mount;
 		}
 		else if (job == 4)

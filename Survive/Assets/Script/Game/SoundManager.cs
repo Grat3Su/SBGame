@@ -39,7 +39,10 @@ public class SoundManager
 	{
 		int idx = -1;
 		if (st == iSound.BGM)
+		{
 			idx = 0;
+
+		}
 		else if (st == iSound.ButtonClick)
 			idx = 1;
 		else if (st == iSound.PopUp)
@@ -65,7 +68,11 @@ public class SoundManager
         {
             soundSource[0].loop = true;
             idx = 0;
-        }
+
+			if (!soundSource[idx].isPlaying)
+				return;
+
+		}
         else if (st == iSound.ButtonClick)
             idx = 1;
         else if (st == iSound.PopUp)
@@ -77,33 +84,9 @@ public class SoundManager
         else if (st == iSound.TitleSound)
             idx = 5;
 
-        if (!soundSource[idx].isPlaying)
-        {
-            soundSource[idx].Play();
-        }
+        soundSource[idx].Play();
     }
 
-    public void playForce(iSound st)
-    {
-        int idx = -1;
-        if (st == iSound.BGM)
-        {
-            soundSource[0].loop = true;
-            idx = 0;
-        }
-        else if (st == iSound.ButtonClick)
-            idx = 1;
-        else if (st == iSound.PopUp)
-            idx = 2;
-        else if (st == iSound.Event)
-            idx = 3;
-        else if (st == iSound.NextDay)
-            idx = 4;
-        else if (st == iSound.TitleSound)
-            idx = 5;
-
-            soundSource[idx].Play();
-    }
     public void stop(iSound st)
 	{
 		int idx = -1;
