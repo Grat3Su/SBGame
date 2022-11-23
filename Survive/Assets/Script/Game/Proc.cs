@@ -54,12 +54,12 @@ public class Proc : gGUI
 
 	public override void free()
 	{
-		MainCamera.destroyMethodMouse(new MethodMouse(pe.key));
-		MainCamera.destroyMethodKeyboard(new MethodKeyboard(pe.keyboard));
+		MainCamera.destroyMethodMouse(pe.key);
+		MainCamera.destroyMethodKeyboard(pe.keyboard);
 
-		MainCamera.destroyMethodMouse(new MethodMouse(key));
-		MainCamera.destroyMethodKeyboard(new MethodKeyboard(keyboard));
-		MainCamera.destroyMethodWheel(new MethodWheel(wheel));
+		MainCamera.destroyMethodMouse(key);
+		MainCamera.destroyMethodKeyboard(keyboard);
+		MainCamera.destroyMethodWheel(wheel);
 	}
 
 	RenderTexture texRt = null;
@@ -129,7 +129,7 @@ public class Proc : gGUI
 				setShaderFade(MainCamera.devWidth / 2, MainCamera.devHeight / 2, radius, Color.black);
 			}
 		}
-		else if(pe.gameOverClick)
+		else if (pe.gameOverClick)
 		{
 			if (!initGame)
 			{
