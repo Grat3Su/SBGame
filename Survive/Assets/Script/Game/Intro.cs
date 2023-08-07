@@ -43,8 +43,8 @@ public class Intro : gGUI
 	public override void free()
 	{
 		MainCamera.destroyMethodMouse(key);
-		MainCamera.destroyMethodKeyboard(keyboard);
-		MainCamera.destroyMethodWheel(wheel);
+		//MainCamera.destroyMethodKeyboard(keyboard);
+		//MainCamera.destroyMethodWheel(wheel);
 	}
 
 	bool startClick;

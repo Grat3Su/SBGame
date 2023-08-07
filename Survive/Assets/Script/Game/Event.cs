@@ -32,10 +32,10 @@ public class Event : MonoBehaviour
 		jobless = new int[100];
 		joblessNum = 0;
 		//storage = new Storage(1, 5, 0, 1, 0, 1);
-		storage = new Storage(2, 1, 0, 1, 0, 1);
+		//storage = new Storage(2, 1, 0, 1, 0, 1);
+		storage = new Storage(15, 15, 1, 10, 40, 10);
 		curp = 0;
 		specialEvent = 0;
-		//storage = new Storage(15, 15, 1, 10, 40, 10);
 		plusItem = new AddItem(0);//하루 지나면 초기화
 		minusItem = new AddItem(0);//하루 지나면 초기화
 		day = 0;

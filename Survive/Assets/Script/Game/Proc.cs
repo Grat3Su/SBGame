@@ -41,12 +41,14 @@ public class Proc : gGUI
 		{
 			if (pe.goTitle)
 			{
-				free();
+				//free();
+				playerEvent.initGame();
 				Main.me.reset("Intro");
 			}
 			else if (pe.reset)
 			{
-				free();
+				//free();
+				playerEvent.initGame();
 				Main.me.reset("Proc");
 			}
 		}
@@ -55,7 +57,7 @@ public class Proc : gGUI
 	public override void free()
 	{
 		MainCamera.destroyMethodMouse(pe.key);
-		MainCamera.destroyMethodKeyboard(pe.keyboard);
+		//MainCamera.destroyMethodKeyboard(pe.keyboard);
 
 		MainCamera.destroyMethodMouse(key);
 		MainCamera.destroyMethodKeyboard(keyboard);
@@ -1794,13 +1796,12 @@ public class Proc : gGUI
             else if(popSetting.selected == 5)//Reset
             {
                 playerEvent.initGame();
-                free();
-                Main.me.reset("Proc");
-                popSetting.show(false);
+                //free();
+				Main.me.reset("Proc");
             }
             else if(popSetting.selected == 6)//Menu
             {
-                free();
+                //free();
                 Main.me.reset("Intro");
             }
                 popSetting.selected = -1;
